@@ -20,3 +20,10 @@
 
 ## Bugs Reportados
 - [x] Layout da página inicial está diferente do anterior - CORRIGIDO (grid 3x3 nos features, menu de navegação visível, botões em grid 2x2)
+
+## Ajustes Solicitados
+- [ ] Substituir logo atual pelo novo logo fornecido (LogoAppSindico.png)
+- [ ] Ajustar preview da revista no Hero Section para formato de monitor com cards coloridos
+- [x] Colocar preview da revista ao lado dos botões (layout lado a lado)
+- [x] Tornar o layout responsivo para telemóvel (Hero Section e Features)
+- [x] Corrigir efeito hover nos cards de secções (fundo azul + descrição)
