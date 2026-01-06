@@ -135,7 +135,7 @@ export const appRouter = router({
       }
       const bcrypt = await import("bcryptjs");
       const senhaHash = await bcrypt.hash(input.senha, 10);
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const openId = `local_${crypto.randomBytes(16).toString("hex")}`;
       const [result] = await db.insert(users).values({
         openId,
@@ -208,7 +208,7 @@ export const appRouter = router({
           message: "Se o email estiver cadastrado, vocÃª receberÃ¡ um link para redefinir sua senha."
         };
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const resetToken = crypto.randomBytes(32).toString("hex");
       const expira = new Date(Date.now() + 60 * 60 * 1e3);
       await db.update(users).set({
@@ -1050,7 +1050,7 @@ Link: /redefinir-senha/${resetToken}`
       if (!funcionario) {
         return { success: true, message: "Se o email estiver cadastrado, vocÃª receberÃ¡ um link de recuperaÃ§Ã£o." };
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const resetToken = crypto.randomBytes(32).toString("hex");
       const resetTokenExpira = new Date(Date.now() + 60 * 60 * 1e3);
       await db.update(funcionarios).set({ resetToken, resetTokenExpira }).where(eq(funcionarios.id, funcionario.id));
@@ -2234,7 +2234,7 @@ Envie este link para o funcionÃ¡rio pelo WhatsApp ou outro meio de comunicaÃ�
       if (!morador.senha) {
         throw new Error("Senha nÃ£o configurada. Use o link mÃ¡gico para primeiro acesso.");
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const senhaHash = crypto.createHash("sha256").update(input.senha).digest("hex");
       if (morador.senha !== senhaHash) {
         throw new Error("Senha incorreta");
@@ -2277,7 +2277,7 @@ Envie este link para o funcionÃ¡rio pelo WhatsApp ou outro meio de comunicaÃ�
       if (!morador) {
         return { success: true, message: "Se o email estiver cadastrado, vocÃª receberÃ¡ um link de acesso." };
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const token = crypto.randomBytes(32).toString("hex");
       const expira = new Date(Date.now() + 30 * 60 * 1e3);
       await db.update(moradores).set({
@@ -2307,7 +2307,7 @@ Envie este link para o funcionÃ¡rio pelo WhatsApp ou outro meio de comunicaÃ�
       if (morador.loginTokenExpira && new Date(morador.loginTokenExpira) < /* @__PURE__ */ new Date()) {
         throw new Error("Token expirado. Solicite um novo link.");
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const novoToken = crypto.randomBytes(32).toString("hex");
       const expira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3);
       await db.update(moradores).set({
@@ -2347,7 +2347,7 @@ Envie este link para o funcionÃ¡rio pelo WhatsApp ou outro meio de comunicaÃ�
       if (!morador) {
         throw new Error("Token invÃ¡lido");
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const senhaHash = crypto.createHash("sha256").update(input.senha).digest("hex");
       const novoToken = crypto.randomBytes(32).toString("hex");
       const expira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3);
@@ -2407,7 +2407,7 @@ Envie este link para o funcionÃ¡rio pelo WhatsApp ou outro meio de comunicaÃ�
       if (!morador) {
         return { success: true, message: "Se o email estiver cadastrado, vocÃª receberÃ¡ um link para redefinir sua senha." };
       }
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const resetToken = crypto.randomBytes(32).toString("hex");
       const expira = new Date(Date.now() + 60 * 60 * 1e3);
       await db.update(moradores).set({
@@ -2476,7 +2476,7 @@ Link: /morador/redefinir-senha/${resetToken}`
       }
       const bcrypt = await import("bcryptjs");
       const senhaHash = await bcrypt.hash(input.novaSenha, 10);
-      const crypto = await import("/@id/__vite-browser-external:crypto");
+      const crypto = await import("crypto");
       const loginToken = crypto.randomBytes(32).toString("hex");
       const expira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1e3);
       await db.update(moradores).set({
