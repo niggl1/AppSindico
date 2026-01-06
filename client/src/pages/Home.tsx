@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -288,7 +289,7 @@ export default function Home() {
                       <Link href="/relatorio">
                         <Button size="lg" className="text-base w-full bg-purple-600 hover:bg-purple-700 text-white">
                           <ScrollText className="w-5 h-5 mr-2" />
-                          Criar Relatórios Detalhados
+                          Criar Relatórios
                         </Button>
                       </Link>
                     </TooltipTrigger>
@@ -450,9 +451,48 @@ export default function Home() {
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* Prazos e Fidelidade */}
+            {/* Como Funciona */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h3 className="font-serif text-xl font-bold text-foreground">Como Funciona</h3>
+              </div>
+              <div className="space-y-3">
+                {[
+                  "Contrate um dos planos",
+                  "Precisou de melhorias? Envie pelo WhatsApp",
+                  "Assine o adendo de fidelidade",
+                  "Iniciamos o desenvolvimento",
+                  "Ajustamos conforme sua aprovação",
+                  "Sistema pronto para PC, Android e iOS"
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary font-bold text-sm">{index + 1}.</span>
+                    </div>
+                    <span className="text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Botão WhatsApp */}
+              <a
+                href="https://wa.me/5581999618516?text=Ol%C3%A1!%20Gostaria%20de%20solicitar%20melhorias%20no%20App%20S%C3%ADndico."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-full transition-colors shadow-lg hover:shadow-xl"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Solicitar Melhoria via WhatsApp
+              </a>
+            </motion.div>
+
+            {/* Prazos e Fidelidade */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
@@ -497,45 +537,6 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-
-            {/* Como Funciona */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-serif text-xl font-bold text-foreground">Como Funciona</h3>
-              </div>
-              <div className="space-y-3">
-                {[
-                  "Contrate um dos planos",
-                  "Precisou de melhorias? Envie pelo WhatsApp",
-                  "Assine o adendo de fidelidade",
-                  "Iniciamos o desenvolvimento",
-                  "Ajustamos conforme sua aprovação",
-                  "Sistema pronto para PC, Android e iOS"
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary font-bold text-sm">{index + 1}.</span>
-                    </div>
-                    <span className="text-foreground">{item}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Botão WhatsApp */}
-              <a
-                href="https://wa.me/5581999618516?text=Ol%C3%A1!%20Gostaria%20de%20solicitar%20melhorias%20no%20App%20S%C3%ADndico."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-full transition-colors shadow-lg hover:shadow-xl"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Solicitar Melhoria via WhatsApp
-              </a>
-            </motion.div>
           </div>
 
           {/* Banner Sem Taxas */}
@@ -548,7 +549,7 @@ export default function Home() {
             <h3 className="text-white text-xl md:text-2xl font-bold text-center mb-8">
               Sem Taxas. Sem Blá-blá-blá.
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
               {[
                 { icon: DollarSign, label: "Zero custo extra" },
                 { icon: FilePen, label: "Zero contratos gigantes" },
@@ -640,10 +641,10 @@ export default function Home() {
                 transition={{ delay: index * 0.2 }}
                 className="relative"
               >
-                <div className="text-7xl font-serif font-bold text-primary/10 absolute -top-4 -left-2">
+                <div className="text-6xl font-serif font-bold text-primary/10 absolute top-0 right-4">
                   {item.step}
                 </div>
-                <div className="relative pt-8 pl-4">
+                <div className="relative pt-2">
                   <h3 className="font-serif text-xl font-semibold text-foreground mb-3">
                     {item.title}
                   </h3>
@@ -736,59 +737,67 @@ export default function Home() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {sortedSections.map((section, index) => (
-              <div key={section.label} className="relative group">
-                <Link href={section.link}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flip-card h-32 cursor-pointer"
-                  >
-                    <div className="flip-card-inner">
-                      {/* Front */}
-                      <div className="flip-card-front p-4 flex flex-col items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                          <section.icon className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="text-sm font-medium text-foreground text-center">
-                          {section.label}
-                        </div>
-                        {favoritosCards?.some(f => f.cardSecaoId === section.label) && (
-                          <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 absolute top-2 right-2" />
-                        )}
-                        {/* Badge de notificações pendentes para Notificar Morador */}
-                        {section.label === "Notificar Morador" && notificacoesPendentes && notificacoesPendentes > 0 && (
-                          <div className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-                            {notificacoesPendentes > 99 ? "99+" : notificacoesPendentes}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '1rem' }}>
+            {sortedSections.map((section, index) => {
+              const [isHovered, setIsHovered] = useState(false);
+              return (
+                <div key={section.label} className="relative group">
+                  <Link href={section.link}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.05 }}
+                      className="h-32 cursor-pointer rounded-xl shadow-sm transition-all duration-300"
+                      style={{
+                        backgroundColor: isHovered ? '#2563eb' : '#ffffff',
+                        transform: isHovered ? 'translateY(-2px)' : 'none',
+                        boxShadow: isHovered ? '0 10px 15px -3px rgba(0, 0, 0, 0.2)' : '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                      }}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    >
+                      {!isHovered ? (
+                        <div className="p-4 flex flex-col items-center justify-center h-full">
+                          <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                            <section.icon className="w-7 h-7 text-blue-600" />
                           </div>
-                        )}
-                      </div>
-                      {/* Back */}
-                      <div className="flip-card-back p-4 flex flex-col items-center justify-center">
-                        <section.icon className="w-8 h-8 mb-2 opacity-80" />
-                        <div className="text-xs text-center font-medium">
-                          {section.description}
+                          <div className="text-xs font-medium text-gray-700 text-center leading-tight">
+                            {section.label}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="p-4 flex flex-col items-center justify-center h-full">
+                          <section.icon className="w-8 h-8 text-white mb-2" />
+                          <div className="text-xs font-medium text-white text-center leading-tight">
+                            {section.description || section.label}
+                          </div>
+                        </div>
+                      )}
+                      {favoritosCards?.some(f => f.cardSecaoId === section.label) && (
+                        <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 absolute top-2 right-2" />
+                      )}
+                      {section.label === "Notificar Morador" && notificacoesPendentes && notificacoesPendentes > 0 && (
+                        <div className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+                          {notificacoesPendentes > 99 ? "99+" : notificacoesPendentes}
+                        </div>
+                      )}
+                    </motion.div>
+                  </Link>
+                  {isAuthenticated && (
+                    <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <FavoriteButton
+                        tipoItem="card_secao"
+                        cardSecaoId={section.label}
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
+                      />
                     </div>
-                  </motion.div>
-                </Link>
-                {isAuthenticated && (
-                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <FavoriteButton
-                      tipoItem="card_secao"
-                      cardSecaoId={section.label}
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
 
 

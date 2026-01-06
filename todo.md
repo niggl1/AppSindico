@@ -20,3 +20,11 @@
 
 ## Bugs Reportados
 - [x] Layout da página inicial está diferente do anterior - CORRIGIDO (grid 3x3 nos features, menu de navegação visível, botões em grid 2x2)
+
+## Ajustes Recentes (06/01/2026)
+- [x] Alterar "Criar Relatórios Detalhados" para "Criar Relatórios"
+- [x] Secção "Sem Taxas" em 4 colunas numa única linha
+- [x] Cards de "Secções Disponíveis" em grid de 8 colunas
+- [x] Hover effect nos cards com fundo azul e descrição
+- [x] Secção "Como Funciona" com números 01, 02, 03 à direita do texto
+- [x] Secção "Desenvolvimento Personalizado" - Como Funciona à esquerda, Prazos e Fidelidade à direita
