@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET senha = '$2b$10$l8InJU.oDPb8jSSkR2KgqeMXy2EdZR4psLqSx9mMQTzqY.vgJ4Z8q' WHERE email = 'eddnpt@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute UPDATE users SET senha = '$2b$10$l8InJU.oDPb8jSSkR2KgqeMXy2EdZR4psLqSx9mMQTzqY.vgJ4Z8q' WHERE email = 'eddnpt@gmail.com';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 68
+}

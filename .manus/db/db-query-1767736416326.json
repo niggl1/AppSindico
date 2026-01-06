@@ -1,0 +1,33 @@
+{
+  "query": "SHOW CREATE TABLE revistas;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SHOW CREATE TABLE revistas;",
+  "rows": [
+    {
+      "Table": "revistas",
+      "Create Table": "CREATE TABLE `revistas` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `condominioId` int(11) NOT NULL,",
+    "  `titulo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `subtitulo` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `edicao` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `capaUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `templateId` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'default',",
+    "  `status` enum('rascunho','publicada','arquivada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'rascunho',",
+    "  `publicadaEm` timestamp NULL DEFAULT NULL,",
+    "  `visualizacoes` int(11) DEFAULT '0',",
+    "  `shareLink` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  UNIQUE KEY `revistas_shareLink_unique` (`shareLink`),",
+    "  KEY `revistas_condominioId_condominios_id_fk` (`condominioId`),",
+    "  CONSTRAINT `revistas_condominioId_condominios_id_fk` FOREIGN KEY (`condominioId`) REFERENCES `FKCZX4UNP9ayQib2iMPF73`.`condominios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\nrevistas\tCREATE TABLE `revistas` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `condominioId` int(11) NOT NULL,\n  `titulo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `subtitulo` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `edicao` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `capaUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `templateId` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'default',\n  `status` enum('rascunho','publicada','arquivada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'rascunho',\n  `publicadaEm` timestamp NULL DEFAULT NULL,\n  `visualizacoes` int(11) DEFAULT '0',\n  `shareLink` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  UNIQUE KEY `revistas_shareLink_unique` (`shareLink`),\n  KEY `revistas_condominioId_condominios_id_fk` (`condominioId`),\n  CONSTRAINT `revistas_condominioId_condominios_id_fk` FOREIGN KEY (`condominioId`) REFERENCES `FKCZX4UNP9ayQib2iMPF73`.`condominios` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

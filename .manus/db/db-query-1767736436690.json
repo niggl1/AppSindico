@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO condominios (sindicoId, nome, endereco, cidade, estado, cep, createdAt, updatedAt) VALUES (1, 'Residencial Jardins', 'Rua das Flores, 100', 'São Paulo', 'SP', '01234-567', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute INSERT INTO condominios (sindicoId, nome, endereco, cidade, estado, cep, createdAt, updatedAt) VALUES (1, 'Residencial Jardins', 'Rua das Flores, 100', 'São Paulo', 'SP', '01234-567', NOW(), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 64
+}

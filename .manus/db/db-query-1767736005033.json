@@ -1,0 +1,28 @@
+{
+  "query": "SELECT * FROM users WHERE email = 'eddnpt@gmail.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SELECT * FROM users WHERE email = 'eddnpt@gmail.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "local-user-1",
+      "name": "Teste",
+      "email": "eddnpt@gmail.com",
+      "loginMethod": "email",
+      "role": "admin",
+      "createdAt": "2026-01-06 21:45:13",
+      "updatedAt": "2026-01-06 21:46:14",
+      "lastSignedIn": "2026-01-06 21:45:13",
+      "avatarUrl": "NULL",
+      "phone": "NULL",
+      "apartment": "NULL",
+      "senha": "$2b$10$l8InJU.oDPb8jSSkR2KgqeMXy2EdZR4psLqSx9mMQTzqY.vgJ4Z8q",
+      "resetToken": "NULL",
+      "resetTokenExpira": "NULL",
+      "tipoConta": "sindico"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\tavatarUrl\tphone\tapartment\tsenha\tresetToken\tresetTokenExpira\ttipoConta\n1\tlocal-user-1\tTeste\teddnpt@gmail.com\temail\tadmin\t2026-01-06 21:45:13\t2026-01-06 21:46:14\t2026-01-06 21:45:13\tNULL\tNULL\tNULL\t$2b$10$l8InJU.oDPb8jSSkR2KgqeMXy2EdZR4psLqSx9mMQTzqY.vgJ4Z8q\tNULL\tNULL\tsindico\n",
+  "stderr": "",
+  "execution_time_ms": 63
+}

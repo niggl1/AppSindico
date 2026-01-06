@@ -1,0 +1,34 @@
+{
+  "query": "SHOW CREATE TABLE users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SHOW CREATE TABLE users;",
+  "rows": [
+    {
+      "Table": "users",
+      "Create Table": "CREATE TABLE `users` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `openId` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `name` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `email` varchar(320) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `loginMethod` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `role` enum('user','admin','sindico','morador') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  `lastSignedIn` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `avatarUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `apartment` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `senha` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `resetToken` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `resetTokenExpira` timestamp NULL DEFAULT NULL,",
+    "  `tipoConta` enum('sindico','administradora','admin') COLLATE utf8mb4_unicode_ci DEFAULT 'sindico',",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  UNIQUE KEY `users_openId_unique` (`openId`)",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=30001"
+  ],
+  "stdout": "Table\tCreate Table\nusers\tCREATE TABLE `users` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `openId` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `name` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `email` varchar(320) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `loginMethod` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `role` enum('user','admin','sindico','morador') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `lastSignedIn` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `avatarUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `apartment` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `senha` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `resetToken` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `resetTokenExpira` timestamp NULL DEFAULT NULL,\n  `tipoConta` enum('sindico','administradora','admin') COLLATE utf8mb4_unicode_ci DEFAULT 'sindico',\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  UNIQUE KEY `users_openId_unique` (`openId`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=30001\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

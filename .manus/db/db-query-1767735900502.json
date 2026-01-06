@@ -1,0 +1,304 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "achados_perdidos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "albuns"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "anexos_comentario"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "antes_depois"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "anunciantes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "anuncios"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "app_modulos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "apps"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "aquisicoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "avisos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "caronas"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "checklist_imagens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "checklist_itens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "checklist_template_itens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "checklist_templates"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "checklist_timeline"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "checklists"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "classificados"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "comentarios_item"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "comunicados"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "condominio_funcoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "condominios"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "configuracoes_email"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "configuracoes_push"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "destaques"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "dicas_seguranca"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "eventos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "favoritos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "fotos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "funcionario_acessos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "funcionario_apps"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "funcionario_condominios"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "funcionario_funcoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "funcionarios"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "funcoes_rapidas"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "historico_compartilhamentos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "historico_notificacoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_achados_perdidos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_aquisicoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_custom"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_destaques"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_melhorias"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_realizacoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "imagens_vagas"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "lembretes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "links_compartilhaveis"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "links_uteis"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "manutencao_imagens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "manutencao_timeline"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "manutencoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "melhorias"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "membros_equipe"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "mensagens_sindico"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "moradores"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "notificacoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "notificacoes_infracao"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "ocorrencia_imagens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "ocorrencia_timeline"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "ocorrencias"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "opcoes_votacao"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "ordens_servico"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_categorias"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_chat"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_configuracoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_imagens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_materiais"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_orcamentos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_prioridades"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_responsaveis"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_setores"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_status"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "os_timeline"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "paginas_custom"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "preferencias_notificacao"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "publicidades"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "push_subscriptions"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "realizacoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "regras_normas"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "respostas_comentario"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "respostas_infracao"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "revistas"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "secoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "telefones_uteis"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "templates_notificacao"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "tipos_infracao"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "users"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vagas_estacionamento"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "valores_salvos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vencimento_alertas"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vencimento_emails"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vencimento_notificacoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vencimentos"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vistoria_imagens"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vistoria_timeline"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "vistorias"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "votacoes"
+    },
+    {
+      "Tables_in_FKCZX4UNP9ayQib2iMPF73": "votos"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_FKCZX4UNP9ayQib2iMPF73\n__drizzle_migrations\nachados_perdidos\nalbuns\nanexos_comentario\nantes_depois\nanunciantes\nanuncios\napp_modulos\napps\naquisicoes\navisos\ncaronas\nchecklist_imagens\nchecklist_itens\nchecklist_template_itens\nchecklist_templates\nchecklist_timeline\nchecklists\nclassificados\ncomentarios_item\ncomunicados\ncondominio_funcoes\ncondominios\nconfiguracoes_email\nconfiguracoes_push\ndestaques\ndicas_seguranca\neventos\nfavoritos\nfotos\nfuncionario_acessos\nfuncionario_apps\nfuncionario_condominios\nfuncionario_funcoes\nfuncionarios\nfuncoes_rapidas\nhistorico_compartilhamentos\nhistorico_notificacoes\nimagens_achados_perdidos\nimagens_aquisicoes\nimagens_custom\nimagens_destaques\nimagens_melhorias\nimagens_realizacoes\nimagens_vagas\nlembretes\nlinks_compartilhaveis\nlinks_uteis\nmanutencao_imagens\nmanutencao_timeline\nmanutencoes\nmelhorias\nmembros_equipe\nmensagens_sindico\nmoradores\nnotificacoes\nnotificacoes_infracao\nocorrencia_imagens\nocorrencia_timeline\nocorrencias\nopcoes_votacao\nordens_servico\nos_categorias\nos_chat\nos_configuracoes\nos_imagens\nos_materiais\nos_orcamentos\nos_prioridades\nos_responsaveis\nos_setores\nos_status\nos_timeline\npaginas_custom\npreferencias_notificacao\npublicidades\npush_subscriptions\nrealizacoes\nregras_normas\nrespostas_comentario\nrespostas_infracao\nrevistas\nsecoes\ntelefones_uteis\ntemplates_notificacao\ntipos_infracao\nusers\nvagas_estacionamento\nvalores_salvos\nvencimento_alertas\nvencimento_emails\nvencimento_notificacoes\nvencimentos\nvistoria_imagens\nvistoria_timeline\nvistorias\nvotacoes\nvotos\n",
+  "stderr": "",
+  "execution_time_ms": 65
+}

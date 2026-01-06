@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO revistas (condominioId, titulo, subtitulo, edicao, template, secoes, createdAt, updatedAt) VALUES (1, 'Revista Teste', 'Edição Especial', 'Janeiro 2026', 'moderno', '[]', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute INSERT INTO revistas (condominioId, titulo, subtitulo, edicao, template, secoes, createdAt, updatedAt) VALUES (1, 'Revista Teste', 'Edição Especial', 'Janeiro 2026', 'moderno', '[]', NOW(), NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'template' in 'field list'"
+  ]
+}

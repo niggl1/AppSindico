@@ -1,0 +1,45 @@
+{
+  "query": "SHOW CREATE TABLE condominios;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SHOW CREATE TABLE condominios;",
+  "rows": [
+    {
+      "Table": "condominios",
+      "Create Table": "CREATE TABLE `condominios` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `codigo` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `cnpj` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `nome` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `endereco` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `cidade` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `estado` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `cep` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `logoUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `bannerUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `capaUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `corPrimaria` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '#4F46E5',",
+    "  `corSecundaria` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '#10B981',",
+    "  `cadastroToken` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `assembleiaLink` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `assembleiaData` timestamp NULL DEFAULT NULL,",
+    "  `sindicoId` int(11) DEFAULT NULL,",
+    "  `cabecalhoLogoUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `cabecalhoNomeCondominio` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `cabecalhoNomeSindico` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `rodapeTexto` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `rodapeContato` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `telefoneContato` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  UNIQUE KEY `condominios_cadastroToken_unique` (`cadastroToken`),",
+    "  KEY `condominios_sindicoId_users_id_fk` (`sindicoId`),",
+    "  CONSTRAINT `condominios_sindicoId_users_id_fk` FOREIGN KEY (`sindicoId`) REFERENCES `FKCZX4UNP9ayQib2iMPF73`.`users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\ncondominios\tCREATE TABLE `condominios` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `codigo` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `cnpj` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `nome` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `endereco` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `cidade` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `estado` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `cep` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `logoUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `bannerUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `capaUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `corPrimaria` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '#4F46E5',\n  `corSecundaria` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '#10B981',\n  `cadastroToken` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `assembleiaLink` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `assembleiaData` timestamp NULL DEFAULT NULL,\n  `sindicoId` int(11) DEFAULT NULL,\n  `cabecalhoLogoUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `cabecalhoNomeCondominio` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `cabecalhoNomeSindico` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `rodapeTexto` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `rodapeContato` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `telefoneContato` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  UNIQUE KEY `condominios_cadastroToken_unique` (`cadastroToken`),\n  KEY `condominios_sindicoId_users_id_fk` (`sindicoId`),\n  CONSTRAINT `condominios_sindicoId_users_id_fk` FOREIGN KEY (`sindicoId`) REFERENCES `FKCZX4UNP9ayQib2iMPF73`.`users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

@@ -1,0 +1,822 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  BookOpen,
+  Calendar,
+  Car,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  FileText,
+  Heart,
+  Link as LinkIcon,
+  Loader2,
+  Megaphone,
+  MessageSquare,
+  Package,
+  Phone,
+  Plus,
+  Save,
+  Settings,
+  Share2,
+  Star,
+  Trash2,
+  Users,
+  Vote,
+  Image,
+  Building2,
+  Send,
+} from "lucide-react";
+import { useState } from "react";
+import { Link, useParams, useLocation } from "wouter";
+import { toast } from "sonner";
+import AvisoForm from "@/components/forms/AvisoForm";
+import FuncionarioForm from "@/components/forms/FuncionarioForm";
+import VotacaoForm from "@/components/forms/VotacaoForm";
+import ImageUpload from "@/components/ImageUpload";
+
+const sectionTypes = [
+  { id: "mensagem_sindico", name: "Mensagem do Síndico", icon: MessageSquare, color: "text-blue-500" },
+  { id: "avisos", name: "Avisos", icon: Megaphone, color: "text-amber-500" },
+  { id: "eventos", name: "Eventos", icon: Calendar, color: "text-emerald-500" },
+  { id: "funcionarios", name: "Funcionários", icon: Users, color: "text-purple-500" },
+  { id: "votacao", name: "Votações", icon: Vote, color: "text-pink-500" },
+  { id: "telefones", name: "Telefones Úteis", icon: Phone, color: "text-cyan-500" },
+  { id: "links", name: "Links Úteis", icon: LinkIcon, color: "text-indigo-500" },
+  { id: "classificados", name: "Classificados", icon: Package, color: "text-orange-500" },
+  { id: "caronas", name: "Caronas", icon: Car, color: "text-teal-500" },
+  { id: "achados", name: "Achados e Perdidos", icon: Heart, color: "text-red-500" },
+];
+
+export default function RevistaEditor() {
+  const params = useParams<{ id: string }>();
+  const revistaId = parseInt(params.id || "0");
+  const [, navigate] = useLocation();
+  const { user, loading: authLoading } = useAuth();
+  
+  const [activeTab, setActiveTab] = useState("conteudo");
+  const [showAvisoForm, setShowAvisoForm] = useState(false);
+  const [showFuncionarioForm, setShowFuncionarioForm] = useState(false);
+  const [showVotacaoForm, setShowVotacaoForm] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  
+  // Estado para secções ocultas
+  const [hiddenSections, setHiddenSections] = useState<Set<string>>(new Set());
+  
+  // Função para alternar visibilidade de uma secção
+  const toggleSectionVisibility = (sectionId: string) => {
+    setHiddenSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+        toast.success("Secção reativada");
+      } else {
+        newSet.add(sectionId);
+        toast.info("Secção ocultada da revista");
+      }
+      return newSet;
+    });
+  };
+  
+  // Mensagem do síndico state
+  const [mensagemSindico, setMensagemSindico] = useState({
+    titulo: "Mensagem do Síndico",
+    nomeSindico: "",
+    fotoSindicoUrl: "",
+    mensagem: "",
+    assinatura: "",
+  });
+
+  const { data: revista, isLoading: revistaLoading } = trpc.revista.get.useQuery(
+    { id: revistaId },
+    { enabled: revistaId > 0 }
+  );
+
+  const { data: avisos, isLoading: avisosLoading } = trpc.aviso.list.useQuery(
+    { revistaId },
+    { enabled: revistaId > 0 }
+  );
+
+  const { data: votacoes } = trpc.votacao.list.useQuery(
+    { revistaId },
+    { enabled: revistaId > 0 }
+  );
+
+  const { data: telefones } = trpc.telefone.list.useQuery(
+    { revistaId },
+    { enabled: revistaId > 0 }
+  );
+
+  const { data: links } = trpc.link.list.useQuery(
+    { revistaId },
+    { enabled: revistaId > 0 }
+  );
+
+  const utils = trpc.useUtils();
+
+  const publishMutation = trpc.revista.update.useMutation({
+    onSuccess: () => {
+      toast.success("Revista publicada com sucesso!");
+      utils.revista.get.invalidate({ id: revistaId });
+    },
+    onError: (error) => {
+      toast.error("Erro ao publicar: " + error.message);
+    },
+  });
+
+  const deleteAvisoMutation = trpc.aviso.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Aviso removido!");
+      utils.aviso.list.invalidate({ revistaId });
+    },
+  });
+
+  const createTelefoneMutation = trpc.telefone.create.useMutation({
+    onSuccess: () => {
+      toast.success("Telefone adicionado!");
+      utils.telefone.list.invalidate({ revistaId });
+    },
+  });
+
+  const createLinkMutation = trpc.link.create.useMutation({
+    onSuccess: () => {
+      toast.success("Link adicionado!");
+      utils.link.list.invalidate({ revistaId });
+    },
+  });
+
+  if (authLoading || revistaLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">A carregar editor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!revista) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Revista não encontrada</h2>
+          <Link href="/dashboard">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar ao Painel
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const handlePublish = () => {
+    publishMutation.mutate({ id: revistaId, status: "publicada" });
+  };
+
+  const shareUrl = `${window.location.origin}/revista/${revista.shareLink}`;
+
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    toast.success("Link copiado!");
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border">
+        <div className="container py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </Link>
+              <div>
+                <h1 className="font-serif text-lg font-bold">{revista.titulo}</h1>
+                <p className="text-sm text-muted-foreground">{revista.edicao}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link href={`/revista/${revista.shareLink}`}>
+                <Button variant="outline" size="sm">
+                  <Eye className="w-4 h-4 mr-2" />
+                  Pré-visualizar
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm" onClick={copyShareLink}>
+                <Share2 className="w-4 h-4 mr-2" />
+                Partilhar
+              </Button>
+              <Button
+                size="sm"
+                className="btn-magazine"
+                onClick={handlePublish}
+                disabled={publishMutation.isPending || revista.status === "publicada"}
+              >
+                {publishMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2" />
+                )}
+                {revista.status === "publicada" ? "Publicada" : "Publicar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="conteudo">
+              <FileText className="w-4 h-4 mr-2" />
+              Conteúdo
+            </TabsTrigger>
+            <TabsTrigger value="secoes">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Secções
+            </TabsTrigger>
+            <TabsTrigger value="config">
+              <Settings className="w-4 h-4 mr-2" />
+              Configurações
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Conteúdo Tab */}
+          <TabsContent value="conteudo" className="space-y-6">
+            {/* Secções Ocultas - Painel para reativar */}
+            {hiddenSections.size > 0 && (
+              <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <EyeOff className="w-4 h-4 text-slate-500" />
+                  <span className="text-sm font-medium text-slate-700">Secções Ocultas ({hiddenSections.size})</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from(hiddenSections).map((sectionId) => {
+                    const sectionNames: Record<string, string> = {
+                      mensagem_sindico: "Mensagem do Síndico",
+                      avisos: "Avisos",
+                      votacoes: "Votações",
+                    };
+                    return (
+                      <Button
+                        key={sectionId}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleSectionVisibility(sectionId)}
+                        className="bg-white hover:bg-green-50 hover:border-green-300 hover:text-green-700"
+                      >
+                        <Eye className="w-3.5 h-3.5 mr-1.5" />
+                        Mostrar {sectionNames[sectionId] || sectionId}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            {/* Mensagem do Síndico - Premium */}
+            {!hiddenSections.has("mensagem_sindico") && (
+            <div id="mensagem-sindico-section" className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 rounded-2xl border border-blue-100 shadow-sm hover:shadow-lg transition-all duration-300">
+              {/* Barra decorativa superior */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-violet-500" />
+              
+              {/* Elemento decorativo */}
+              <div className="absolute -right-12 -top-12 w-40 h-40 bg-blue-200/20 rounded-full blur-3xl" />
+              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-indigo-200/20 rounded-full blur-2xl" />
+              
+              <div className="relative p-6">
+                {/* Header da secção */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
+                      <MessageSquare className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Mensagem do Síndico</h3>
+                      <p className="text-sm text-slate-500">Escreva uma mensagem personalizada para os moradores</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleSectionVisibility("mensagem_sindico")}
+                    className="text-slate-500 hover:text-red-500 hover:bg-red-50"
+                    title="Ocultar esta secção da revista"
+                  >
+                    <EyeOff className="w-4 h-4 mr-1" />
+                    Ocultar
+                  </Button>
+                </div>
+                
+                <div className="space-y-5">
+                  {/* Foto e Nome do Síndico */}
+                  <div className="flex gap-6 items-start">
+                    <div className="space-y-3 min-w-[180px]">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-slate-700 font-medium">Foto do Síndico</Label>
+                        {mensagemSindico.fotoSindicoUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setMensagemSindico({ ...mensagemSindico, fotoSindicoUrl: "" })}
+                            className="h-7 px-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      <div className="relative group">
+                        <ImageUpload
+                          value={mensagemSindico.fotoSindicoUrl || undefined}
+                          onChange={(url) => setMensagemSindico({ ...mensagemSindico, fotoSindicoUrl: url || "" })}
+                          folder="revistas/sindicos"
+                          aspectRatio="square"
+                          placeholder="Carregar foto"
+                          className="w-40 h-40 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 transition-colors bg-white/50"
+                          compact={true}
+                        />
+                        <div className="absolute -bottom-1 -right-1 p-1.5 bg-blue-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Plus className="w-3.5 h-3.5 text-white" />
+                        </div>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-xs text-slate-500">JPEG, PNG, GIF ou WebP</p>
+                        <p className="text-xs text-slate-400">(máx. 10MB)</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 font-medium">Nome do Síndico</Label>
+                        <Input
+                          value={mensagemSindico.nomeSindico}
+                          onChange={(e) => setMensagemSindico({ ...mensagemSindico, nomeSindico: e.target.value })}
+                          placeholder="Ex: João Silva"
+                          className="bg-white/70 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl h-11"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 font-medium">Título da Mensagem</Label>
+                        <Input
+                          value={mensagemSindico.titulo}
+                          onChange={(e) => setMensagemSindico({ ...mensagemSindico, titulo: e.target.value })}
+                          placeholder="Mensagem do Síndico"
+                          className="bg-white/70 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl h-11"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Mensagem */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-medium">Mensagem</Label>
+                    <Textarea
+                      value={mensagemSindico.mensagem}
+                      onChange={(e) => setMensagemSindico({ ...mensagemSindico, mensagem: e.target.value })}
+                      placeholder="Prezados moradores, é com grande satisfação que apresento mais uma edição da nossa revista digital..."
+                      rows={6}
+                      className="bg-white/70 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl resize-none"
+                    />
+                  </div>
+                  
+                  {/* Assinatura */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-medium">Assinatura</Label>
+                    <Input
+                      value={mensagemSindico.assinatura}
+                      onChange={(e) => setMensagemSindico({ ...mensagemSindico, assinatura: e.target.value })}
+                      placeholder="Ex: Síndico do Residencial Jardins"
+                      className="bg-white/70 border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 rounded-xl h-11"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            )}
+
+            {/* Avisos - Premium */}
+            {!hiddenSections.has("avisos") && (
+            <div id="avisos-section" className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl border border-amber-100 shadow-sm hover:shadow-lg transition-all duration-300">
+              {/* Barra decorativa superior */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-500" />
+              
+              {/* Elementos decorativos */}
+              <div className="absolute -right-12 -top-12 w-40 h-40 bg-amber-200/20 rounded-full blur-3xl" />
+              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-orange-200/20 rounded-full blur-2xl" />
+              
+              <div className="relative p-6">
+                {/* Header da secção */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/30">
+                      <Megaphone className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Avisos</h3>
+                      <p className="text-sm text-slate-500">Gerencie os avisos desta edição</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleSectionVisibility("avisos")}
+                      className="text-slate-500 hover:text-red-500 hover:bg-red-50"
+                      title="Ocultar esta secção da revista"
+                    >
+                      <EyeOff className="w-4 h-4 mr-1" />
+                      Ocultar
+                    </Button>
+                    <Dialog open={showAvisoForm} onOpenChange={setShowAvisoForm}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md shadow-amber-500/25">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Novo Aviso
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-lg">
+                        <AvisoForm
+                          revistaId={revistaId}
+                          onSuccess={() => setShowAvisoForm(false)}
+                          onCancel={() => setShowAvisoForm(false)}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                
+                {/* Conteúdo */}
+                {avisosLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-amber-500 mx-auto mb-2" />
+                      <p className="text-sm text-slate-500">Carregando avisos...</p>
+                    </div>
+                  </div>
+                ) : avisos && avisos.length > 0 ? (
+                  <div className="space-y-3">
+                    {avisos.map((aviso) => (
+                      <div
+                        key={aviso.id}
+                        className={cn(
+                          "group relative p-4 rounded-xl border-l-4 flex items-start justify-between bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-200",
+                          aviso.tipo === "urgente"
+                            ? "border-red-500 hover:shadow-red-100"
+                            : aviso.tipo === "importante"
+                            ? "border-amber-500 hover:shadow-amber-100"
+                            : "border-blue-500 hover:shadow-blue-100"
+                        )}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-slate-800">{aviso.titulo}</h4>
+                            <span className={cn(
+                              "px-2 py-0.5 text-xs font-medium rounded-full",
+                              aviso.tipo === "urgente"
+                                ? "bg-red-100 text-red-700"
+                                : aviso.tipo === "importante"
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-blue-100 text-blue-700"
+                            )}>
+                              {aviso.tipo}
+                            </span>
+                          </div>
+                          {aviso.conteudo && (
+                            <p className="text-sm text-slate-600 line-clamp-2">{aviso.conteudo}</p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => deleteAvisoMutation.mutate({ id: aviso.id })}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-white/40 rounded-xl border border-dashed border-amber-200">
+                    <div className="p-3 bg-amber-100 rounded-full w-fit mx-auto mb-3">
+                      <Megaphone className="w-6 h-6 text-amber-500" />
+                    </div>
+                    <p className="font-medium text-slate-700">Nenhum aviso adicionado</p>
+                    <p className="text-sm text-slate-500 mt-1">Clique em "Novo Aviso" para começar</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            )}
+
+            {/* Votações - Premium */}
+            {!hiddenSections.has("votacoes") && (
+            <div id="votacoes-section" className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-rose-50 to-fuchsia-50 rounded-2xl border border-pink-100 shadow-sm hover:shadow-lg transition-all duration-300">
+              {/* Barra decorativa superior */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-pink-400 via-rose-500 to-fuchsia-500" />
+              
+              {/* Elementos decorativos */}
+              <div className="absolute -right-12 -top-12 w-40 h-40 bg-pink-200/20 rounded-full blur-3xl" />
+              <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-rose-200/20 rounded-full blur-2xl" />
+              
+              <div className="relative p-6">
+                {/* Header da secção */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl shadow-lg shadow-pink-500/30">
+                      <Vote className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Votações</h3>
+                      <p className="text-sm text-slate-500">Crie enquetes e votações interativas</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleSectionVisibility("votacoes")}
+                      className="text-slate-500 hover:text-red-500 hover:bg-red-50"
+                      title="Ocultar esta secção da revista"
+                    >
+                      <EyeOff className="w-4 h-4 mr-1" />
+                      Ocultar
+                    </Button>
+                    <Dialog open={showVotacaoForm} onOpenChange={setShowVotacaoForm}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-md shadow-pink-500/25">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Nova Votação
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-lg">
+                        <VotacaoForm
+                          revistaId={revistaId}
+                          onSuccess={() => setShowVotacaoForm(false)}
+                          onCancel={() => setShowVotacaoForm(false)}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                
+                {/* Conteúdo */}
+                {votacoes && votacoes.length > 0 ? (
+                  <div className="space-y-3">
+                    {votacoes.map((votacao) => (
+                      <div
+                        key={votacao.id}
+                        className="group relative p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-pink-100 hover:bg-white/80 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-slate-800">{votacao.titulo}</h4>
+                              <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-pink-100 text-pink-700">
+                                {votacao.tipo?.replace("_", " ")}
+                              </span>
+                            </div>
+                            {votacao.descricao && (
+                              <p className="text-sm text-slate-600 line-clamp-2">{votacao.descricao}</p>
+                            )}
+                          </div>
+                          <div className="p-2 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-lg">
+                            <Star className="w-4 h-4 text-amber-500" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-white/40 rounded-xl border border-dashed border-pink-200">
+                    <div className="p-3 bg-pink-100 rounded-full w-fit mx-auto mb-3">
+                      <Vote className="w-6 h-6 text-pink-500" />
+                    </div>
+                    <p className="font-medium text-slate-700">Nenhuma votação criada</p>
+                    <p className="text-sm text-slate-500 mt-1">Crie enquetes para engajar os moradores</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            )}
+          </TabsContent>
+
+          {/* Secções Tab */}
+          <TabsContent value="secoes" className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {sectionTypes.map((section) => {
+                const Icon = section.icon;
+                const isSelected = selectedSection === section.id;
+                return (
+                  <button
+                    key={section.id}
+                    onClick={() => {
+                      setSelectedSection(section.id);
+                      // Navegar para a aba Conteúdo e abrir o formulário correspondente
+                      setActiveTab("conteudo");
+                      // Abrir formulários específicos
+                      if (section.id === "avisos") {
+                        setShowAvisoForm(true);
+                      } else if (section.id === "funcionarios") {
+                        setShowFuncionarioForm(true);
+                      } else if (section.id === "votacao") {
+                        setShowVotacaoForm(true);
+                      }
+                      // Scroll para a secção correspondente
+                      setTimeout(() => {
+                        const sectionMap: Record<string, string> = {
+                          mensagem_sindico: "mensagem-sindico-section",
+                          avisos: "avisos-section",
+                          eventos: "eventos-section",
+                          funcionarios: "funcionarios-section",
+                          votacao: "votacoes-section",
+                          telefones: "telefones-section",
+                          links: "links-section",
+                          classificados: "classificados-section",
+                          caronas: "caronas-section",
+                          achados: "achados-section",
+                        };
+                        const elementId = sectionMap[section.id];
+                        if (elementId) {
+                          const element = document.getElementById(elementId);
+                          if (element) {
+                            element.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }
+                        }
+                      }, 100);
+                      toast.success(`Secção "${section.name}" selecionada`);
+                    }}
+                    className={cn(
+                      "p-4 rounded-xl border transition-all text-center group",
+                      isSelected 
+                        ? "border-primary bg-primary/10 ring-2 ring-primary" 
+                        : "border-border hover:border-primary/50 hover:bg-primary/5"
+                    )}
+                  >
+                    <div className={cn("w-10 h-10 rounded-lg mx-auto mb-3 flex items-center justify-center bg-secondary", section.color)}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-sm font-medium">{section.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Add Sections */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-serif">Adicionar Conteúdo Rápido</CardTitle>
+                <CardDescription>
+                  Selecione uma secção acima para adicionar conteúdo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Telefones */}
+                  <div id="telefones-section" className="p-4 rounded-xl border border-border">
+                    <h4 className="font-medium flex items-center gap-2 mb-3">
+                      <Phone className="w-4 h-4 text-cyan-500" />
+                      Telefones Úteis
+                    </h4>
+                    <div className="space-y-2">
+                      <Input placeholder="Nome (ex: Portaria)" id="tel-nome" />
+                      <Input placeholder="Telefone" id="tel-numero" />
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          const nome = (document.getElementById("tel-nome") as HTMLInputElement).value;
+                          const telefone = (document.getElementById("tel-numero") as HTMLInputElement).value;
+                          if (nome && telefone) {
+                            createTelefoneMutation.mutate({ revistaId, nome, telefone });
+                            (document.getElementById("tel-nome") as HTMLInputElement).value = "";
+                            (document.getElementById("tel-numero") as HTMLInputElement).value = "";
+                          }
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Adicionar
+                      </Button>
+                    </div>
+                    {telefones && telefones.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        {telefones.map((tel) => (
+                          <div key={tel.id} className="text-sm flex justify-between">
+                            <span>{tel.nome}</span>
+                            <span className="text-muted-foreground">{tel.telefone}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Links */}
+                  <div id="links-section" className="p-4 rounded-xl border border-border">
+                    <h4 className="font-medium flex items-center gap-2 mb-3">
+                      <LinkIcon className="w-4 h-4 text-indigo-500" />
+                      Links Úteis
+                    </h4>
+                    <div className="space-y-2">
+                      <Input placeholder="Título" id="link-titulo" />
+                      <Input placeholder="URL (https://...)" id="link-url" />
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          const titulo = (document.getElementById("link-titulo") as HTMLInputElement).value;
+                          const url = (document.getElementById("link-url") as HTMLInputElement).value;
+                          if (titulo && url) {
+                            createLinkMutation.mutate({ revistaId, titulo, url });
+                            (document.getElementById("link-titulo") as HTMLInputElement).value = "";
+                            (document.getElementById("link-url") as HTMLInputElement).value = "";
+                          }
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Adicionar
+                      </Button>
+                    </div>
+                    {links && links.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        {links.map((link) => (
+                          <div key={link.id} className="text-sm">
+                            <a href={link.url || "#"} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                              {link.titulo}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Configurações Tab */}
+          <TabsContent value="config" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-serif">Informações da Revista</CardTitle>
+                <CardDescription>
+                  Configure os detalhes desta edição
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Título</Label>
+                    <Input value={revista.titulo} readOnly />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Edição</Label>
+                    <Input value={revista.edicao || ""} readOnly />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Link de Partilha</Label>
+                  <div className="flex gap-2">
+                    <Input value={shareUrl} readOnly />
+                    <Button variant="outline" onClick={copyShareLink}>
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <div className={cn(
+                    "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
+                    revista.status === "publicada" ? "bg-emerald-100 text-emerald-700" :
+                    revista.status === "rascunho" ? "bg-amber-100 text-amber-700" :
+                    "bg-gray-100 text-gray-700"
+                  )}>
+                    {revista.status === "publicada" ? "Publicada" :
+                     revista.status === "rascunho" ? "Rascunho" : "Arquivada"}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
