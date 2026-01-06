@@ -28,3 +28,4 @@
 - [x] Hover effect nos cards com fundo azul e descrição
 - [x] Secção "Como Funciona" com números 01, 02, 03 à direita do texto
 - [x] Secção "Desenvolvimento Personalizado" - Como Funciona à esquerda, Prazos e Fidelidade à direita
+- [x] Substituir logo atual pelo LogoAppSindico.png no header

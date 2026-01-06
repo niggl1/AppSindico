@@ -168,16 +168,12 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 glass-effect">
         <div className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            {/* Logo SVG */}
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight">
-                <span className="text-blue-600">APP</span>
-                <span className="text-gray-700"> SÍNDICO</span>
-              </span>
-            </div>
+            {/* Logo */}
+            <img 
+              src="/LogoAppSindico.png" 
+              alt="App Síndico" 
+              className="h-12 object-contain"
+            />
           </Link>
 
           <nav className="flex items-center gap-6">
