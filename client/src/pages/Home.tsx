@@ -167,11 +167,19 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 glass-effect">
         <div className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-appsindico.png" alt="App Síndico" className="w-10 h-10 object-contain" />
-            <img src="/logo-appsindico-texto.png" alt="App Síndico" className="h-8 object-contain" />
+            {/* Logo SVG */}
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <span className="text-xl font-bold tracking-tight">
+                <span className="text-blue-600">APP</span>
+                <span className="text-gray-700"> SÍNDICO</span>
+              </span>
+            </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="flex items-center gap-6">
             <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Recursos
             </a>
@@ -241,74 +249,70 @@ export default function Home() {
               </p>
 
               <TooltipProvider>
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {/* Botão Criar Meu App - Azul */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link href="/app">
-                          <Button size="lg" className="text-base w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white">
-                            <LayoutGrid className="w-5 h-5 mr-2" />
-                            Criar Meu App
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs">
-                        <p className="font-medium">Layout em Grade</p>
-                        <p className="text-xs text-muted-foreground">Ideal para dashboards, painéis e aplicativos com cards organizados</p>
-                      </TooltipContent>
-                    </Tooltip>
+                <div className="grid grid-cols-2 gap-3 max-w-md">
+                  {/* Botão Criar Meu App - Azul */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/app">
+                        <Button size="lg" className="text-base w-full bg-blue-600 hover:bg-blue-700 text-white">
+                          <LayoutGrid className="w-5 h-5 mr-2" />
+                          Criar Meu App
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Layout em Grade</p>
+                      <p className="text-xs text-muted-foreground">Ideal para dashboards, painéis e aplicativos com cards organizados</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                    {/* Botão Criar Minha Revista - Verde */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link href="/revista">
-                          <Button size="lg" className="text-base w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white">
-                            <BookOpenIcon className="w-5 h-5 mr-2" />
-                            Criar Minha Revista
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs">
-                        <p className="font-medium">Formato de Páginas</p>
-                        <p className="text-xs text-muted-foreground">Navegação como uma revista real, com efeito de virar páginas</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
+                  {/* Botão Criar Minha Revista - Verde */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/revista">
+                        <Button size="lg" className="text-base w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                          <BookOpenIcon className="w-5 h-5 mr-2" />
+                          Criar Minha Revista
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Formato de Páginas</p>
+                      <p className="text-xs text-muted-foreground">Navegação como uma revista real, com efeito de virar páginas</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {/* Botão Criar Relatórios - Roxo */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link href="/relatorio">
-                          <Button size="lg" className="text-base w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white">
-                            <ScrollText className="w-5 h-5 mr-2" />
-                            Criar Relatórios Detalhados
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs">
-                        <p className="font-medium">Documento Contínuo</p>
-                        <p className="text-xs text-muted-foreground">Rolagem vertical para relatórios longos e documentos detalhados</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  {/* Botão Criar Relatórios - Roxo */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/relatorio">
+                        <Button size="lg" className="text-base w-full bg-purple-600 hover:bg-purple-700 text-white">
+                          <ScrollText className="w-5 h-5 mr-2" />
+                          Criar Relatórios Detalhados
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Documento Contínuo</p>
+                      <p className="text-xs text-muted-foreground">Rolagem vertical para relatórios longos e documentos detalhados</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                    {/* Botão Ver Demonstração - Laranja */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link href="/demo-layouts">
-                          <Button size="lg" className="text-base w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white">
-                            <Play className="w-5 h-5 mr-2" />
-                            Ver Demonstração
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs">
-                        <p className="font-medium">Veja na Prática</p>
-                        <p className="text-xs text-muted-foreground">Explore um exemplo completo da plataforma em ação</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
+                  {/* Botão Ver Demonstração - Laranja */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/demo-layouts">
+                        <Button size="lg" className="text-base w-full bg-orange-500 hover:bg-orange-600 text-white">
+                          <Play className="w-5 h-5 mr-2" />
+                          Ver Demonstração
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Veja na Prática</p>
+                      <p className="text-xs text-muted-foreground">Explore um exemplo completo da plataforma em ação</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </TooltipProvider>
 
@@ -400,7 +404,7 @@ export default function Home() {
             <div className="section-divider mt-6" />
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}

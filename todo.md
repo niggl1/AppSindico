@@ -17,3 +17,6 @@
 ## Pendente
 - [ ] Configurar domínio www.appsindico.com.br
 - [ ] Fazer deploy/publicação
+
+## Bugs Reportados
+- [x] Layout da página inicial está diferente do anterior - CORRIGIDO (grid 3x3 nos features, menu de navegação visível, botões em grid 2x2)
