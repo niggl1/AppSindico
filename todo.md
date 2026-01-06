@@ -29,3 +29,4 @@
 - [x] Secção "Como Funciona" com números 01, 02, 03 à direita do texto
 - [x] Secção "Desenvolvimento Personalizado" - Como Funciona à esquerda, Prazos e Fidelidade à direita
 - [x] Substituir logo atual pelo LogoAppSindico.png no header
+- [x] Colocar preview da revista ao lado dos botões no Hero Section (layout lado a lado)

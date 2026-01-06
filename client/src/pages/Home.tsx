@@ -225,11 +225,12 @@ export default function Home() {
         </div>
 
         <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-row gap-6 items-start">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="flex-1"
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Sparkles className="w-4 h-4" />
@@ -321,9 +322,9 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
+              className="relative flex-shrink-0 w-[280px]"
             >
-              <div className="relative mx-auto max-w-md">
+              <div className="relative mx-auto">
                 {/* Magazine mockup */}
                 <div className="magazine-page aspect-[3/4] p-6 bg-gradient-to-br from-white to-gray-50">
                   <div className="h-full flex flex-col">
