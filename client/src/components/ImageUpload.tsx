@@ -294,11 +294,11 @@ export default function ImageUpload({
               <>
                 {compact || placeholder.length <= 3 ? (
                   // Modo compacto - centralizado
-                  <div className="flex flex-col items-center justify-center w-full h-full">
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200">
-                      <Upload className="w-5 h-5 text-slate-400" />
+                  <div className="flex flex-col items-center justify-center w-full h-full p-3">
+                    <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 mb-2">
+                      <Upload className="w-6 h-6 text-slate-400" />
                     </div>
-                    <span className="text-xs text-slate-400 mt-1.5 text-center px-2">
+                    <span className="text-xs text-slate-500 text-center leading-tight max-w-full break-words">
                       {placeholder}
                     </span>
                   </div>

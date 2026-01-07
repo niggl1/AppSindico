@@ -50,3 +50,4 @@
 - [x] Aplicar estilo premium aos modais: DashboardLayout, EnvioMulticanalModal, FuncoesRapidas, QuickFunctionsEditor, ShareModal, AgendaVencimentos, AppViewer
 - [x] Aplicar estilo premium ao modal de Novo Morador
 - [x] Aplicar estilo premium ao modal de Novo Membro da Equipe
+- [x] Ajustar tamanho do local de upload para textos aparecerem integralmente
