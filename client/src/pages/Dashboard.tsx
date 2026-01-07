@@ -2262,13 +2262,14 @@ function CondominioSection() {
                   </div>
                   <div className="grid gap-4">
                     <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
-                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
+                      <div className="w-20 h-20 flex-shrink-0">
                         <ImageUpload
                           value={formData.logoUrl || undefined}
                           onChange={(url) => setFormData({ ...formData, logoUrl: url || "" })}
                           folder="condominios/logos"
                           aspectRatio="square"
                           placeholder="+"
+                          className="w-full h-full"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -2278,13 +2279,14 @@ function CondominioSection() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
-                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
+                      <div className="w-20 h-20 flex-shrink-0">
                         <ImageUpload
                           value={formData.bannerUrl || undefined}
                           onChange={(url) => setFormData({ ...formData, bannerUrl: url || "" })}
                           folder="condominios/banners"
                           aspectRatio="square"
                           placeholder="+"
+                          className="w-full h-full"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -2294,13 +2296,14 @@ function CondominioSection() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-indigo-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
-                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
+                      <div className="w-20 h-20 flex-shrink-0">
                         <ImageUpload
                           value={formData.capaUrl || undefined}
                           onChange={(url) => setFormData({ ...formData, capaUrl: url || "" })}
                           folder="condominios/capas"
                           aspectRatio="square"
                           placeholder="+"
+                          className="w-full h-full"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -2456,13 +2459,14 @@ function CondominioSection() {
                     </div>
                     <div className="grid gap-4">
                       <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
-                        <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
+                        <div className="w-20 h-20 flex-shrink-0">
                           <ImageUpload
                             value={formData.logoUrl || undefined}
                             onChange={(url) => setFormData({ ...formData, logoUrl: url || "" })}
                             folder="condominios/logos"
                             aspectRatio="square"
                             placeholder="+"
+                            className="w-full h-full"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -2472,13 +2476,14 @@ function CondominioSection() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
-                        <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
+                        <div className="w-20 h-20 flex-shrink-0">
                           <ImageUpload
                             value={formData.bannerUrl || undefined}
                             onChange={(url) => setFormData({ ...formData, bannerUrl: url || "" })}
                             folder="condominios/banners"
-                            aspectRatio="banner"
+                            aspectRatio="square"
                             placeholder="+"
+                            className="w-full h-full"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -2488,13 +2493,14 @@ function CondominioSection() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-indigo-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
-                        <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
+                        <div className="w-20 h-20 flex-shrink-0">
                           <ImageUpload
                             value={formData.capaUrl || undefined}
                             onChange={(url) => setFormData({ ...formData, capaUrl: url || "" })}
                             folder="condominios/capas"
-                            aspectRatio="portrait"
+                            aspectRatio="square"
                             placeholder="+"
+                            className="w-full h-full"
                           />
                         </div>
                         <div className="flex-1 min-w-0">

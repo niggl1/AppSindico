@@ -46,3 +46,4 @@
 - [x] Melhorar design do modal Cadastrar Condomínio
 - [x] Ajustar campos de upload de imagem no modal Cadastrar Condomínio
 - [x] Centralizar ícone de upload no ImageUpload
+- [x] Corrigir centralização do ícone de upload dentro do quadrado tracejado
