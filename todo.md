@@ -36,3 +36,4 @@
 - [x] Colocar os planos de preços lado a lado (horizontalmente)
 - [x] Ajustar Hero Section: aumentar revista, trazer para esquerda, aumentar textos e botões
 - [x] Ajustar LandingApp.tsx: tablet ao lado do texto, cards maiores, ícones coloridos, badge Online
+- [x] Remover secção Prazos e Fidelidade e itens relacionados, substituir por quadro premium

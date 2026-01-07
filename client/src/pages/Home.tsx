@@ -446,50 +446,38 @@ export default function Home() {
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* Prazos e Fidelidade */}
+            {/* Quadro Premium - Solicite Ajustes */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Code className="w-5 h-5 text-primary" />
-                <h3 className="font-serif text-xl font-bold text-foreground">Prazos e Fidelidade</h3>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="divide-y divide-slate-100">
-                  <div className="flex items-center justify-between p-4 bg-slate-50">
-                    <span className="text-muted-foreground text-sm font-medium"></span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-muted-foreground text-sm font-medium">Tempo de desenvolvimento</span>
-                      <span className="text-muted-foreground text-sm font-medium">Fidelidade</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-4">
-                    <span className="text-foreground font-medium">Ajustes simples</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-muted-foreground">7 dias</span>
-                      <span className="bg-primary text-white text-sm font-semibold px-4 py-1.5 rounded-full">90 dias</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-4">
-                    <span className="text-foreground font-medium">Ajustes maiores</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-muted-foreground">15 dias</span>
-                      <span className="bg-primary text-white text-sm font-semibold px-4 py-1.5 rounded-full">120 dias</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-4">
-                    <span className="text-foreground font-medium">Novas funções</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-muted-foreground">21 dias</span>
-                      <span className="bg-primary text-white text-sm font-semibold px-4 py-1.5 rounded-full">180 dias</span>
-                    </div>
-                  </div>
+              <div className="relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 rounded-2xl p-8 shadow-2xl overflow-hidden">
+                {/* Decorative elements */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+                <div className="absolute top-1/2 right-4 w-16 h-16 bg-white/5 rounded-full" />
+                
+                {/* Premium badge */}
+                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                  <Crown className="w-5 h-5 text-yellow-300" />
+                  <span className="text-white font-semibold text-sm">Exclusivo para Clientes</span>
                 </div>
-                <div className="bg-slate-50 px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground">
-                  <AlertTriangle className="w-4 h-4 text-primary" />
-                  <span>Solicite novas funções, ajustes ou parâmetros personalizados. Para funções relacionadas ao sistema de gestão. Não peça desenvolvimento de funções que nada tenham a ver com a gestão do condomínio.</span>
+                
+                {/* Main content */}
+                <h3 className="text-white text-2xl md:text-3xl font-bold mb-4 relative z-10">
+                  Solicite ajustes, melhorias, parâmetros ou mesmo novas funções
+                </h3>
+                <p className="text-white/90 text-lg mb-6 relative z-10">
+                  Se fizer sentido para a gente, <span className="font-bold text-yellow-300">desenvolvemos sem nenhum custo adicional</span>.
+                </p>
+                
+                {/* Features */}
+                <div className="flex flex-wrap gap-3 relative z-10">
+                  <span className="bg-white/20 backdrop-blur-sm text-white text-sm px-4 py-2 rounded-full">✓ Ajustes</span>
+                  <span className="bg-white/20 backdrop-blur-sm text-white text-sm px-4 py-2 rounded-full">✓ Melhorias</span>
+                  <span className="bg-white/20 backdrop-blur-sm text-white text-sm px-4 py-2 rounded-full">✓ Parâmetros</span>
+                  <span className="bg-white/20 backdrop-blur-sm text-white text-sm px-4 py-2 rounded-full">✓ Novas Funções</span>
                 </div>
               </div>
             </motion.div>
@@ -508,9 +496,7 @@ export default function Home() {
                 {[
                   "Contrate um dos planos",
                   "Precisou de melhorias? Envie pelo WhatsApp",
-                  "Assine o adendo de fidelidade",
                   "Iniciamos o desenvolvimento",
-                  "Ajustamos conforme sua aprovação",
                   "Sistema pronto para PC, Android e iOS"
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
