@@ -775,20 +775,20 @@ export const appRouter = router({
         if (!condominio) throw new Error("Condomínio não encontrado");
         
         // Buscar mensagem do síndico
-        const mensagemResult = await db.select().from(mensagensSindico).where(eq(mensagensSindico.revistaId, input.id)).limit(1);
+        const mensagemResult = await db.select().from(mensagensSindico).where(eq(mensagensSindico.revistaId, revista.id)).limit(1);
         const mensagem = mensagemResult[0];
         
         // Buscar avisos
-        const avisosResult = await db.select().from(avisos).where(eq(avisos.revistaId, input.id));
+        const avisosResult = await db.select().from(avisos).where(eq(avisos.revistaId, revista.id));
         
         // Buscar eventos
-        const eventosResult = await db.select().from(eventos).where(eq(eventos.revistaId, input.id));
+        const eventosResult = await db.select().from(eventos).where(eq(eventos.revistaId, revista.id));
         
         // Buscar funcionários
         const funcionariosResult = await db.select().from(funcionarios).where(eq(funcionarios.condominioId, revista.condominioId));
         
         // Buscar telefones
-        const telefonesResult = await db.select().from(telefonesUteis).where(eq(telefonesUteis.revistaId, input.id));
+        const telefonesResult = await db.select().from(telefonesUteis).where(eq(telefonesUteis.revistaId, revista.id));
         
         // Buscar anunciantes ativos
         const anunciantesResult = await db.select().from(anunciantes)
