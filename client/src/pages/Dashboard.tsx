@@ -2181,53 +2181,72 @@ function CondominioSection() {
                 Novo Condomínio
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="font-serif">Cadastrar Condomínio</DialogTitle>
-                <DialogDescription>
-                  Adicione as informações do seu condomínio
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+              {/* Header Premium */}
+              <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-xl font-bold text-white">Cadastrar Condomínio</DialogTitle>
+                    <DialogDescription className="text-blue-100 mt-1">
+                      Adicione as informações do seu condomínio
+                    </DialogDescription>
+                  </div>
+                </div>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* Dados Básicos */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">Dados do Condomínio</h3>
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <div className="p-1.5 bg-blue-100 rounded-lg">
+                      <Building2 className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados do Condomínio</h3>
+                  </div>
                   <div className="space-y-2">
-                    <Label htmlFor="nome">Nome do Condomínio *</Label>
+                    <Label htmlFor="nome" className="text-sm font-medium text-slate-700">Nome do Condomínio <span className="text-red-500">*</span></Label>
                     <Input
                       id="nome"
                       placeholder="Ex: Residencial Jardins"
                       value={formData.nome}
                       onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                       required
+                      className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="endereco">Endereço</Label>
+                    <Label htmlFor="endereco" className="text-sm font-medium text-slate-700">Endereço</Label>
                     <Input
                       id="endereco"
                       placeholder="Ex: Rua das Flores, 123"
                       value={formData.endereco}
                       onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                      className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="cidade">Cidade</Label>
+                      <Label htmlFor="cidade" className="text-sm font-medium text-slate-700">Cidade</Label>
                       <Input
                         id="cidade"
                         placeholder="Ex: São Paulo"
                         value={formData.cidade}
                         onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                        className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="estado">Estado</Label>
+                      <Label htmlFor="estado" className="text-sm font-medium text-slate-700">Estado</Label>
                       <Input
                         id="estado"
                         placeholder="Ex: SP"
                         value={formData.estado}
                         onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                        className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                       />
                     </div>
                   </div>
@@ -2235,10 +2254,15 @@ function CondominioSection() {
 
                 {/* Imagens */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">Imagens (Opcional)</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-4 p-3 border rounded-lg">
-                      <div className="w-24 h-24 flex-shrink-0">
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <div className="p-1.5 bg-purple-100 rounded-lg">
+                      <Image className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Imagens (Opcional)</h3>
+                  </div>
+                  <div className="grid gap-4">
+                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
                         <ImageUpload
                           value={formData.logoUrl || undefined}
                           onChange={(url) => setFormData({ ...formData, logoUrl: url || "" })}
@@ -2247,14 +2271,14 @@ function CondominioSection() {
                           placeholder="+"
                         />
                       </div>
-                      <div className="flex-1 min-w-0 pt-2">
-                        <Label className="font-medium text-base">Logotipo</Label>
-                        <p className="text-sm text-muted-foreground mt-1">Aparece na capa do projeto</p>
-                        <p className="text-xs text-muted-foreground mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
+                      <div className="flex-1 min-w-0">
+                        <Label className="font-semibold text-slate-800">Logotipo</Label>
+                        <p className="text-sm text-slate-500 mt-0.5">Aparece na capa do projeto</p>
+                        <p className="text-xs text-slate-400 mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-4 p-3 border rounded-lg">
-                      <div className="w-24 h-24 flex-shrink-0">
+                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
                         <ImageUpload
                           value={formData.bannerUrl || undefined}
                           onChange={(url) => setFormData({ ...formData, bannerUrl: url || "" })}
@@ -2263,14 +2287,14 @@ function CondominioSection() {
                           placeholder="+"
                         />
                       </div>
-                      <div className="flex-1 min-w-0 pt-2">
-                        <Label className="font-medium text-base">Banner</Label>
-                        <p className="text-sm text-muted-foreground mt-1">Topo da revista</p>
-                        <p className="text-xs text-muted-foreground mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
+                      <div className="flex-1 min-w-0">
+                        <Label className="font-semibold text-slate-800">Banner</Label>
+                        <p className="text-sm text-slate-500 mt-0.5">Topo da revista</p>
+                        <p className="text-xs text-slate-400 mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-4 p-3 border rounded-lg">
-                      <div className="w-24 h-24 flex-shrink-0">
+                    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-indigo-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+                      <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
                         <ImageUpload
                           value={formData.capaUrl || undefined}
                           onChange={(url) => setFormData({ ...formData, capaUrl: url || "" })}
@@ -2279,25 +2303,25 @@ function CondominioSection() {
                           placeholder="+"
                         />
                       </div>
-                      <div className="flex-1 min-w-0 pt-2">
-                        <Label className="font-medium text-base">Foto de Capa</Label>
-                        <p className="text-sm text-muted-foreground mt-1">Imagem de fundo do projeto</p>
-                        <p className="text-xs text-muted-foreground mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
+                      <div className="flex-1 min-w-0">
+                        <Label className="font-semibold text-slate-800">Foto de Capa</Label>
+                        <p className="text-sm text-slate-500 mt-0.5">Imagem de fundo do projeto</p>
+                        <p className="text-xs text-slate-400 mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Botões */}
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setIsDialogOpen(false)}>
+                <div className="flex gap-3 pt-4 border-t border-slate-200">
+                  <Button type="button" variant="outline" className="flex-1 h-11 border-slate-300 hover:bg-slate-50" onClick={() => setIsDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" className="flex-1 btn-magazine" disabled={createMutation.isPending}>
+                  <Button type="submit" className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25" disabled={createMutation.isPending}>
                     {createMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Cadastrar"
+                      <><Building2 className="w-4 h-4 mr-2" />Cadastrar Condomínio</>
                     )}
                   </Button>
                 </div>
@@ -2351,53 +2375,72 @@ function CondominioSection() {
                   Cadastrar Condomínio
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="font-serif">Cadastrar Condomínio</DialogTitle>
-                  <DialogDescription>
-                    Adicione as informações do seu condomínio
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+                {/* Header Premium */}
+                <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white">
+                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+                  <div className="relative z-10 flex items-center gap-4">
+                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                      <Building2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-xl font-bold text-white">Cadastrar Condomínio</DialogTitle>
+                      <DialogDescription className="text-blue-100 mt-1">
+                        Adicione as informações do seu condomínio
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </div>
+                
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
                   {/* Dados Básicos */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">Dados do Condomínio</h3>
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <div className="p-1.5 bg-blue-100 rounded-lg">
+                        <Building2 className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados do Condomínio</h3>
+                    </div>
                     <div className="space-y-2">
-                      <Label htmlFor="nome2">Nome do Condomínio *</Label>
+                      <Label htmlFor="nome2" className="text-sm font-medium text-slate-700">Nome do Condomínio <span className="text-red-500">*</span></Label>
                       <Input
                         id="nome2"
                         placeholder="Ex: Residencial Jardins"
                         value={formData.nome}
                         onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
                         required
+                        className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="endereco2">Endereço</Label>
+                      <Label htmlFor="endereco2" className="text-sm font-medium text-slate-700">Endereço</Label>
                       <Input
                         id="endereco2"
                         placeholder="Ex: Rua das Flores, 123"
                         value={formData.endereco}
                         onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                        className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="cidade2">Cidade</Label>
+                        <Label htmlFor="cidade2" className="text-sm font-medium text-slate-700">Cidade</Label>
                         <Input
                           id="cidade2"
                           placeholder="Ex: São Paulo"
                           value={formData.cidade}
                           onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                          className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="estado2">Estado</Label>
+                        <Label htmlFor="estado2" className="text-sm font-medium text-slate-700">Estado</Label>
                         <Input
                           id="estado2"
                           placeholder="Ex: SP"
                           value={formData.estado}
                           onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                          className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                         />
                       </div>
                     </div>
@@ -2405,10 +2448,15 @@ function CondominioSection() {
 
                   {/* Imagens */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">Imagens (Opcional)</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 p-3 border rounded-lg">
-                        <div className="w-20 flex-shrink-0">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <div className="p-1.5 bg-purple-100 rounded-lg">
+                        <Image className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Imagens (Opcional)</h3>
+                    </div>
+                    <div className="grid gap-4">
+                      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
                           <ImageUpload
                             value={formData.logoUrl || undefined}
                             onChange={(url) => setFormData({ ...formData, logoUrl: url || "" })}
@@ -2417,13 +2465,14 @@ function CondominioSection() {
                             placeholder="+"
                           />
                         </div>
-                        <div>
-                          <Label className="font-medium">Logotipo</Label>
-                          <p className="text-xs text-muted-foreground">Aparece na capa do projeto</p>
+                        <div className="flex-1 min-w-0">
+                          <Label className="font-semibold text-slate-800">Logotipo</Label>
+                          <p className="text-sm text-slate-500 mt-0.5">Aparece na capa do projeto</p>
+                          <p className="text-xs text-slate-400 mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 p-3 border rounded-lg">
-                        <div className="w-20 flex-shrink-0">
+                      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-purple-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
                           <ImageUpload
                             value={formData.bannerUrl || undefined}
                             onChange={(url) => setFormData({ ...formData, bannerUrl: url || "" })}
@@ -2432,13 +2481,14 @@ function CondominioSection() {
                             placeholder="+"
                           />
                         </div>
-                        <div>
-                          <Label className="font-medium">Banner</Label>
-                          <p className="text-xs text-muted-foreground">Topo da revista</p>
+                        <div className="flex-1 min-w-0">
+                          <Label className="font-semibold text-slate-800">Banner</Label>
+                          <p className="text-sm text-slate-500 mt-0.5">Topo da revista</p>
+                          <p className="text-xs text-slate-400 mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 p-3 border rounded-lg">
-                        <div className="w-20 flex-shrink-0">
+                      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-indigo-50/50 border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+                        <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-dashed border-slate-300 bg-white">
                           <ImageUpload
                             value={formData.capaUrl || undefined}
                             onChange={(url) => setFormData({ ...formData, capaUrl: url || "" })}
@@ -2447,24 +2497,25 @@ function CondominioSection() {
                             placeholder="+"
                           />
                         </div>
-                        <div>
-                          <Label className="font-medium">Foto de Capa</Label>
-                          <p className="text-xs text-muted-foreground">Imagem de fundo do projeto</p>
+                        <div className="flex-1 min-w-0">
+                          <Label className="font-semibold text-slate-800">Foto de Capa</Label>
+                          <p className="text-sm text-slate-500 mt-0.5">Imagem de fundo do projeto</p>
+                          <p className="text-xs text-slate-400 mt-1">JPEG, PNG, GIF ou WebP (máx. 10MB)</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Botões */}
-                  <div className="flex gap-3 pt-4 border-t">
-                    <Button type="button" variant="outline" className="flex-1" onClick={() => setIsDialogOpen(false)}>
+                  <div className="flex gap-3 pt-4 border-t border-slate-200">
+                    <Button type="button" variant="outline" className="flex-1 h-11 border-slate-300 hover:bg-slate-50" onClick={() => setIsDialogOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit" className="flex-1 btn-magazine" disabled={createMutation.isPending}>
+                    <Button type="submit" className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25" disabled={createMutation.isPending}>
                       {createMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        "Cadastrar"
+                        <><Building2 className="w-4 h-4 mr-2" />Cadastrar Condomínio</>
                       )}
                     </Button>
                   </div>

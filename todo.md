@@ -43,3 +43,4 @@
 - [x] Adicionar opção "Ordem de Serviço" ao Construtor de App
 - [x] Ao clicar em "+ Novo Projeto" abrir Assistente de Criação em modal diretamente
 - [x] Corrigir erro de acessibilidade: DialogContent sem DialogTitle no modal do Assistente
+- [x] Melhorar design do modal Cadastrar Condomínio
