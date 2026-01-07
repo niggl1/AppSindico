@@ -1992,17 +1992,21 @@ function RevistasSection() {
 
       {/* Dialog de criação de revista */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-purple-500" />
-              Criar Nova Revista
-            </DialogTitle>
-            <DialogDescription>
-              Preencha os dados para criar sua revista digital
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateRevista} className="space-y-4">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-white" />
+                </div>
+                Criar Nova Revista
+              </DialogTitle>
+              <DialogDescription className="text-purple-100">
+                Preencha os dados para criar sua revista digital
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <form onSubmit={handleCreateRevista} className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             <div className="space-y-2">
               <Label htmlFor="titulo">Título da Revista *</Label>
               <Input
@@ -2075,17 +2079,21 @@ function RevistasSection() {
 
       {/* Dialog de confirmação de exclusão */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <Trash2 className="w-5 h-5" />
-              Excluir Projeto
-            </DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3 pt-4">
+        <DialogContent className="sm:max-w-[400px] max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-red-500 to-rose-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-white" />
+                </div>
+                Excluir Projeto
+              </DialogTitle>
+              <DialogDescription className="text-red-100">
+                Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6 flex gap-3">
             <Button 
               variant="outline" 
               className="flex-1" 
@@ -3089,18 +3097,21 @@ function MoradoresSection() {
 
       {/* Modal de Importação Excel */}
       <Dialog open={showExcelDialog} onOpenChange={setShowExcelDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
-              Importar Moradores via Excel
-            </DialogTitle>
-            <DialogDescription>
-              Faça upload de um arquivo CSV ou Excel com os dados dos moradores
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <FileSpreadsheet className="w-5 h-5 text-white" />
+                </div>
+                Importar Moradores via Excel
+              </DialogTitle>
+              <DialogDescription className="text-emerald-100">
+                Faça upload de um arquivo CSV ou Excel com os dados dos moradores
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             {/* Instruções */}
             <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
               <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Formato do arquivo:</h4>
@@ -3184,42 +3195,44 @@ function MoradoresSection() {
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => { setShowExcelDialog(false); setExcelData([]); }}>
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white"
-              onClick={handleBatchSubmit}
-              disabled={excelData.length === 0 || createBatch.isPending}
-            >
-              {createBatch.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Check className="w-4 h-4 mr-2" />
-              )}
-              Cadastrar {excelData.length} Moradores
-            </Button>
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => { setShowExcelDialog(false); setExcelData([]); }}>
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white"
+                onClick={handleBatchSubmit}
+                disabled={excelData.length === 0 || createBatch.isPending}
+              >
+                {createBatch.isPending ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4 mr-2" />
+                )}
+                Cadastrar {excelData.length} Moradores
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Modal QR Code */}
       <Dialog open={showQRCodeDialog} onOpenChange={setShowQRCodeDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-purple-600" />
-              QR Code para Cadastro
-            </DialogTitle>
-            <DialogDescription>
-              Imprima este folder e distribua para os moradores se cadastrarem
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-purple-500 to-violet-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <QrCode className="w-5 h-5 text-white" />
+                </div>
+                QR Code para Cadastro
+              </DialogTitle>
+              <DialogDescription className="text-purple-100">
+                Imprima este folder e distribua para os moradores se cadastrarem
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             {cadastroUrl ? (
               <>
                 {/* Preview do QR Code */}
@@ -3868,14 +3881,21 @@ function FuncionariosSection() {
               Adicionar Funcionário
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editingFuncionario ? "Editar Funcionário" : "Novo Funcionário"}</DialogTitle>
-              <DialogDescription>
-                {editingFuncionario ? "Atualize os dados do funcionário" : "Adicione um novo membro à equipe"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  {editingFuncionario ? "Editar Funcionário" : "Novo Funcionário"}
+                </DialogTitle>
+                <DialogDescription className="text-indigo-100">
+                  {editingFuncionario ? "Atualize os dados do funcionário" : "Adicione um novo membro à equipe"}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div className="flex justify-center">
                 <ImageUpload
                   value={formData.fotoUrl}
@@ -4042,17 +4062,21 @@ function FuncionariosSection() {
             setAccessFormData({ loginEmail: "", senha: "", loginAtivo: true });
           }
         }}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Key className="w-5 h-5" />
-                Configurar Acesso - {selectedFuncionarioForAccess?.nome}
-              </DialogTitle>
-              <DialogDescription>
-                Configure o login e as funções que este funcionário terá acesso
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Key className="w-5 h-5 text-white" />
+                  </div>
+                  Configurar Acesso - {selectedFuncionarioForAccess?.nome}
+                </DialogTitle>
+                <DialogDescription className="text-violet-100">
+                  Configure o login e as funções que este funcionário terá acesso
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-6">
               {/* Configuração de Login */}
               <div className="space-y-4">
                 <h4 className="font-semibold text-sm flex items-center gap-2">
@@ -4455,16 +4479,21 @@ function AvisosSection() {
               Criar Aviso
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="font-serif">
-                {editingAviso ? "Editar Aviso" : "Novo Aviso"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingAviso ? "Atualize as informações do aviso" : "Crie um novo aviso para os moradores"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-white" />
+                  </div>
+                  {editingAviso ? "Editar Aviso" : "Novo Aviso"}
+                </DialogTitle>
+                <DialogDescription className="text-blue-100">
+                  {editingAviso ? "Atualize as informações do aviso" : "Crie um novo aviso para os moradores"}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="titulo">Título *</Label>
                 <Input
@@ -4502,26 +4531,26 @@ function AvisosSection() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => {
-                setShowAvisoDialog(false);
-                setEditingAviso(null);
-                resetForm();
-              }}>
-                Cancelar
-              </Button>
-              <Button 
-                className="btn-magazine" 
-                onClick={handleSubmit}
-                disabled={createAviso.isPending || updateAviso.isPending}
-              >
-                {(createAviso.isPending || updateAviso.isPending) && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                )}
-                <Save className="w-4 h-4 mr-2" />
-                {editingAviso ? "Salvar Alterações" : "Criar Aviso"}
-              </Button>
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => {
+                  setShowAvisoDialog(false);
+                  setEditingAviso(null);
+                  resetForm();
+                }}>
+                  Cancelar
+                </Button>
+                <Button 
+                  className="btn-magazine" 
+                  onClick={handleSubmit}
+                  disabled={createAviso.isPending || updateAviso.isPending}
+                >
+                  {(createAviso.isPending || updateAviso.isPending) && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
+                  <Save className="w-4 h-4 mr-2" />
+                  {editingAviso ? "Salvar Alterações" : "Criar Aviso"}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -4831,14 +4860,21 @@ function EventosSection() {
             <Bell className="w-4 h-4 mr-2" />
             {sendAllReminders.isPending ? "Enviando..." : "Enviar Lembretes"}
           </Button>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editingEvento ? "Editar Evento" : "Novo Evento"}</DialogTitle>
-              <DialogDescription>
-                {editingEvento ? "Atualize as informações do evento" : "Adicione um novo evento à agenda"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-white" />
+                  </div>
+                  {editingEvento ? "Editar Evento" : "Novo Evento"}
+                </DialogTitle>
+                <DialogDescription className="text-emerald-100">
+                  {editingEvento ? "Atualize as informações do evento" : "Adicione um novo evento à agenda"}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label htmlFor="titulo">Título *</Label>
                 <Input
@@ -5730,12 +5766,21 @@ function CaronasSection() {
               Nova Carona
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nova Carona</DialogTitle>
-              <DialogDescription>Ofereça ou procure uma carona</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Car className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Carona
+                </DialogTitle>
+                <DialogDescription className="text-green-100">
+                  Ofereça ou procure uma carona
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Tipo</Label>
                 <Select value={tipo} onValueChange={(v) => setTipo(v as any)}>
@@ -5772,7 +5817,7 @@ function CaronasSection() {
                 <Label>Observações</Label>
                 <Textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Detalhes adicionais..." />
               </div>
-              <Button onClick={handleSubmit} disabled={createCarona.isPending} className="w-full">
+              <Button onClick={handleSubmit} disabled={createCarona.isPending} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
                 {createCarona.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Publicar Carona
               </Button>
@@ -5939,12 +5984,21 @@ function AchadosSection() {
               Novo Item
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Registrar Item</DialogTitle>
-              <DialogDescription>Informe os detalhes do item encontrado ou perdido</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-white" />
+                  </div>
+                  Registrar Item
+                </DialogTitle>
+                <DialogDescription className="text-amber-100">
+                  Informe os detalhes do item encontrado ou perdido
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Tipo</Label>
                 <Select value={tipo} onValueChange={(v) => setTipo(v as any)}>
@@ -5977,7 +6031,7 @@ function AchadosSection() {
                 <Label>Fotos (pode adicionar várias)</Label>
                 <MultiImageUpload value={imagens} onChange={setImagens} maxImages={10} />
               </div>
-              <Button onClick={handleSubmit} disabled={createAchado.isPending} className="w-full">
+              <Button onClick={handleSubmit} disabled={createAchado.isPending} className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600">
                 {createAchado.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Registrar Item
               </Button>
@@ -6011,12 +6065,21 @@ function AchadosSection() {
       )}
 
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{selectedAchado?.titulo}</DialogTitle>
-            {selectedAchado?.descricao && <DialogDescription>{selectedAchado.descricao}</DialogDescription>}
-          </DialogHeader>
-          {selectedAchado && <AchadoGallery achadoId={selectedAchado.id} imagemPrincipal={selectedAchado.fotoUrl} />}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Image className="w-5 h-5 text-white" />
+                </div>
+                {selectedAchado?.titulo}
+              </DialogTitle>
+              {selectedAchado?.descricao && <DialogDescription className="text-amber-100">{selectedAchado.descricao}</DialogDescription>}
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
+            {selectedAchado && <AchadoGallery achadoId={selectedAchado.id} imagemPrincipal={selectedAchado.fotoUrl} />}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -6312,12 +6375,21 @@ function PublicidadeSection() {
                 Novo Anúncio
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Criar Anúncio</DialogTitle>
-                <DialogDescription>Configure um novo anúncio para exibir na plataforma</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+              <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-4">
+                <DialogHeader className="space-y-1">
+                  <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                      <Image className="w-5 h-5 text-white" />
+                    </div>
+                    Criar Anúncio
+                  </DialogTitle>
+                  <DialogDescription className="text-pink-100">
+                    Configure um novo anúncio para exibir na plataforma
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
                 <div>
                   <Label>Anunciante *</Label>
                   <Select value={selectedAnuncianteId?.toString() || ""} onValueChange={(v) => setSelectedAnuncianteId(Number(v))}>
@@ -6378,7 +6450,7 @@ function PublicidadeSection() {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={handleSubmitAnuncio} disabled={createAnuncio.isPending} className="w-full">
+                <Button onClick={handleSubmitAnuncio} disabled={createAnuncio.isPending} className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600">
                   {createAnuncio.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   Criar Anúncio
                 </Button>
@@ -6393,12 +6465,21 @@ function PublicidadeSection() {
                 Novo Anunciante
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingAnunciante ? "Editar Anunciante" : "Novo Anunciante"}</DialogTitle>
-                <DialogDescription>Cadastre um parceiro comercial para anunciar na plataforma</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+              <div className="bg-gradient-to-r from-indigo-500 to-blue-500 px-6 py-4">
+                <DialogHeader className="space-y-1">
+                  <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-white" />
+                    </div>
+                    {editingAnunciante ? "Editar Anunciante" : "Novo Anunciante"}
+                  </DialogTitle>
+                  <DialogDescription className="text-indigo-100">
+                    Cadastre um parceiro comercial para anunciar na plataforma
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Nome *</Label>
@@ -6476,7 +6557,7 @@ function PublicidadeSection() {
                     maxImages={10}
                   />
                 </div>
-                <Button onClick={handleSubmitAnunciante} disabled={createAnunciante.isPending || updateAnunciante.isPending} className="w-full">
+                <Button onClick={handleSubmitAnunciante} disabled={createAnunciante.isPending || updateAnunciante.isPending} className="w-full bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600">
                   {(createAnunciante.isPending || updateAnunciante.isPending) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   {editingAnunciante ? "Salvar Alterações" : "Cadastrar Anunciante"}
                 </Button>
@@ -7253,12 +7334,21 @@ function RealizacoesSection() {
               Nova Realização
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nova Realização</DialogTitle>
-              <DialogDescription>Adicione uma conquista ou feito do condomínio</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-yellow-500 to-amber-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Realização
+                </DialogTitle>
+                <DialogDescription className="text-yellow-100">
+                  Adicione uma conquista ou feito do condomínio
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Título *</Label>
                 <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: Certificação ISO 9001" />
@@ -7275,7 +7365,7 @@ function RealizacoesSection() {
                   maxImages={10}
                 />
               </div>
-              <Button onClick={handleSubmit} disabled={createRealizacao.isPending} className="w-full">
+              <Button onClick={handleSubmit} disabled={createRealizacao.isPending} className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600">
                 {createRealizacao.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Adicionar Realização
               </Button>
@@ -7307,16 +7397,25 @@ function RealizacoesSection() {
 
       {/* Diálogo de Galeria */}
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{selectedRealizacao?.titulo}</DialogTitle>
-            {selectedRealizacao?.descricao && (
-              <DialogDescription>{selectedRealizacao.descricao}</DialogDescription>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Image className="w-5 h-5 text-white" />
+                </div>
+                {selectedRealizacao?.titulo}
+              </DialogTitle>
+              {selectedRealizacao?.descricao && (
+                <DialogDescription className="text-yellow-100">{selectedRealizacao.descricao}</DialogDescription>
+              )}
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
+            {selectedRealizacao && (
+              <RealizacaoGallery realizacaoId={selectedRealizacao.id} imagemPrincipal={selectedRealizacao.imagemUrl} />
             )}
-          </DialogHeader>
-          {selectedRealizacao && (
-            <RealizacaoGallery realizacaoId={selectedRealizacao.id} imagemPrincipal={selectedRealizacao.imagemUrl} />
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -7538,12 +7637,21 @@ function AntesDepoisSection() {
               Novo Registro
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Antes e Depois</DialogTitle>
-              <DialogDescription>Adicione fotos mostrando a transformação (jardinagem, manutenção, limpeza, etc.)</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <ArrowLeftRight className="w-5 h-5 text-white" />
+                  </div>
+                  Antes e Depois
+                </DialogTitle>
+                <DialogDescription className="text-teal-100">
+                  Adicione fotos mostrando a transformação (jardinagem, manutenção, limpeza, etc.)
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Título *</Label>
                 <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: Limpeza do Jardim" />
@@ -7612,7 +7720,7 @@ function AntesDepoisSection() {
                   }}
                 />
               </div>
-              <Button onClick={handleSubmit} disabled={createRegistro.isPending} className="w-full">
+              <Button onClick={handleSubmit} disabled={createRegistro.isPending} className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600">
                 {createRegistro.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Adicionar Registro
               </Button>
@@ -7810,12 +7918,21 @@ function MelhoriasSection() {
               Nova Melhoria
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nova Melhoria</DialogTitle>
-              <DialogDescription>Adicione uma melhoria ao condomínio</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Melhoria
+                </DialogTitle>
+                <DialogDescription className="text-blue-100">
+                  Adicione uma melhoria ao condomínio
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Título *</Label>
                 <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: Instalação de câmeras" />
@@ -7847,7 +7964,7 @@ function MelhoriasSection() {
                 <Label>Imagens (pode adicionar várias)</Label>
                 <MultiImageUpload value={imagens} onChange={setImagens} maxImages={10} />
               </div>
-              <Button onClick={handleSubmit} disabled={createMelhoria.isPending} className="w-full">
+              <Button onClick={handleSubmit} disabled={createMelhoria.isPending} className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600">
                 {createMelhoria.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Adicionar Melhoria
               </Button>
@@ -7880,12 +7997,21 @@ function MelhoriasSection() {
       )}
 
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{selectedMelhoria?.titulo}</DialogTitle>
-            {selectedMelhoria?.descricao && <DialogDescription>{selectedMelhoria.descricao}</DialogDescription>}
-          </DialogHeader>
-          {selectedMelhoria && <MelhoriaGallery melhoriaId={selectedMelhoria.id} imagemPrincipal={selectedMelhoria.imagemUrl} />}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Image className="w-5 h-5 text-white" />
+                </div>
+                {selectedMelhoria?.titulo}
+              </DialogTitle>
+              {selectedMelhoria?.descricao && <DialogDescription className="text-blue-100">{selectedMelhoria.descricao}</DialogDescription>}
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
+            {selectedMelhoria && <MelhoriaGallery melhoriaId={selectedMelhoria.id} imagemPrincipal={selectedMelhoria.imagemUrl} />}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -8053,12 +8179,21 @@ function AquisicoesSection() {
               Nova Aquisição
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nova Aquisição</DialogTitle>
-              <DialogDescription>Adicione um item adquirido pelo condomínio</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Aquisição
+                </DialogTitle>
+                <DialogDescription className="text-emerald-100">
+                  Adicione um item adquirido pelo condomínio
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Título *</Label>
                 <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: Novo gerador de energia" />
@@ -8081,7 +8216,7 @@ function AquisicoesSection() {
                 <Label>Imagens (pode adicionar várias)</Label>
                 <MultiImageUpload value={imagens} onChange={setImagens} maxImages={10} />
               </div>
-              <Button onClick={handleSubmit} disabled={createAquisicao.isPending} className="w-full">
+              <Button onClick={handleSubmit} disabled={createAquisicao.isPending} className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600">
                 {createAquisicao.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Adicionar Aquisição
               </Button>
@@ -8112,12 +8247,21 @@ function AquisicoesSection() {
       )}
 
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{selectedAquisicao?.titulo}</DialogTitle>
-            {selectedAquisicao?.descricao && <DialogDescription>{selectedAquisicao.descricao}</DialogDescription>}
-          </DialogHeader>
-          {selectedAquisicao && <AquisicaoGallery aquisicaoId={selectedAquisicao.id} imagemPrincipal={selectedAquisicao.imagemUrl} />}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Image className="w-5 h-5 text-white" />
+                </div>
+                {selectedAquisicao?.titulo}
+              </DialogTitle>
+              {selectedAquisicao?.descricao && <DialogDescription className="text-emerald-100">{selectedAquisicao.descricao}</DialogDescription>}
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
+            {selectedAquisicao && <AquisicaoGallery aquisicaoId={selectedAquisicao.id} imagemPrincipal={selectedAquisicao.imagemUrl} />}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -8263,12 +8407,21 @@ function VagasEstacionamentoSection() {
               Nova Vaga
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adicionar Vaga de Estacionamento</DialogTitle>
-              <DialogDescription>Cadastre uma nova vaga de estacionamento</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-slate-600 to-gray-700 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Car className="w-5 h-5 text-white" />
+                  </div>
+                  Adicionar Vaga de Estacionamento
+                </DialogTitle>
+                <DialogDescription className="text-slate-300">
+                  Cadastre uma nova vaga de estacionamento
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Número da Vaga *</Label>
@@ -8344,7 +8497,7 @@ function VagasEstacionamentoSection() {
                   </div>
                 </div>
               </div>
-              <Button onClick={handleSubmit} className="w-full" disabled={createVaga.isPending}>
+              <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800" disabled={createVaga.isPending}>
                 {createVaga.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
                 Cadastrar Vaga
               </Button>
@@ -8711,12 +8864,21 @@ function ComunicadosSection() {
               Novo Comunicado
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Novo Comunicado</DialogTitle>
-              <DialogDescription>Crie um comunicado oficial para os moradores</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
+                  Novo Comunicado
+                </DialogTitle>
+                <DialogDescription className="text-violet-100">
+                  Crie um comunicado oficial para os moradores
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label htmlFor="titulo">Título *</Label>
                 <Input
@@ -8815,7 +8977,7 @@ function ComunicadosSection() {
                   Cancelar
                 </Button>
                 <Button
-                  className="btn-magazine"
+                  className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
                   onClick={handleSubmit}
                   disabled={createComunicado.isPending || uploading}
                 >
@@ -9214,14 +9376,21 @@ function GaleriaSection() {
               Novo Álbum
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{editingAlbum ? "Editar Álbum" : "Criar Novo Álbum"}</DialogTitle>
-              <DialogDescription>
-                {editingAlbum ? "Atualize as informações do álbum" : "Preencha as informações do novo álbum de fotos"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Image className="w-5 h-5 text-white" />
+                  </div>
+                  {editingAlbum ? "Editar Álbum" : "Criar Novo Álbum"}
+                </DialogTitle>
+                <DialogDescription className="text-fuchsia-100">
+                  {editingAlbum ? "Atualize as informações do álbum" : "Preencha as informações do novo álbum de fotos"}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Título *</Label>
                 <Input
@@ -9312,7 +9481,7 @@ function GaleriaSection() {
               </div>
               <Button 
                 onClick={handleSubmit} 
-                className="w-full"
+                className="w-full bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-600 hover:to-pink-600"
                 disabled={createAlbum.isPending || updateAlbum.isPending}
               >
                 {(createAlbum.isPending || updateAlbum.isPending) && (
@@ -9557,12 +9726,21 @@ function SegurancaSection() {
               Nova Dica
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{editingItem ? "Editar Dica" : "Nova Dica de Segurança"}</DialogTitle>
-              <DialogDescription>Adicione informações importantes sobre segurança</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                  {editingItem ? "Editar Dica" : "Nova Dica de Segurança"}
+                </DialogTitle>
+                <DialogDescription className="text-red-100">
+                  Adicione informações importantes sobre segurança
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label htmlFor="titulo">Título *</Label>
                 <Input
@@ -9645,7 +9823,7 @@ function SegurancaSection() {
                   </label>
                 </div>
               </div>
-              <Button onClick={handleSubmit} className="w-full" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600" disabled={createMutation.isPending || updateMutation.isPending}>
                 {createMutation.isPending || updateMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
@@ -9830,12 +10008,21 @@ function RegrasSection() {
               Nova Regra
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{editingItem ? "Editar Regra" : "Nova Regra"}</DialogTitle>
-              <DialogDescription>Adicione ou edite regras do condomínio</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
+                  {editingItem ? "Editar Regra" : "Nova Regra"}
+                </DialogTitle>
+                <DialogDescription className="text-indigo-100">
+                  Adicione ou edite regras do condomínio
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label htmlFor="titulo">Título *</Label>
                 <Input
@@ -9912,7 +10099,7 @@ function RegrasSection() {
                   maxImages={10}
                 />
               </div>
-              <Button onClick={handleSubmit} className="w-full" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600" disabled={createMutation.isPending || updateMutation.isPending}>
                 {createMutation.isPending || updateMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (

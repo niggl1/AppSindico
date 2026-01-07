@@ -58,3 +58,20 @@
 - [x] Integrar envio de emails no sistema de notificações
 - [x] Criar templates de email (notificação, vencimento, recuperação de senha, link mágico)
 - [x] Testar envio de email com sucesso
+
+## Design Premium - Modais (07/01/2026)
+- [x] Aplicar design premium aos modais do Dashboard.tsx (15 modais)
+- [x] Aplicar design premium aos modais de ChecklistsPage (3 modais)
+- [x] Aplicar design premium aos modais de CondominioManager (2 modais)
+- [x] Aplicar design premium aos modais de CriarProjeto (1 modal)
+- [x] Aplicar design premium aos modais de Destaques (1 modal)
+- [x] Aplicar design premium aos modais de HistoricoInfracoesPage (2 modais)
+- [x] Aplicar design premium aos modais de ManutencoesPage (1 modal detalhes)
+- [x] Aplicar design premium aos modais de MoradorDashboard (2 modais)
+- [x] Aplicar design premium aos modais de OcorrenciasPage (1 modal detalhes)
+- [x] Aplicar design premium aos modais de OrdensServico (2 modais)
+- [x] Aplicar design premium aos modais de OrdensServicoConfig (5 modais)
+- [x] Aplicar design premium aos modais de OrdemServicoDetalhe (7 modais)
+- [x] Aplicar design premium aos modais de PaginasCustom (1 modal)
+- [x] Aplicar design premium aos modais de RevistaEditor (2 modais)
+- [x] Aplicar design premium aos modais de VistoriasPage (1 modal detalhes)

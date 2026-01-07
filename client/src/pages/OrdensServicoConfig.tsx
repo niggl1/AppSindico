@@ -693,14 +693,18 @@ export default function OrdensServicoConfig() {
 
         {/* Modal Nova Categoria */}
         <Dialog open={showAddCategoria} onOpenChange={setShowAddCategoria}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Plus className="w-5 h-5" />
-                Nova Categoria
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Categoria
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome *</Label>
                 <Input
@@ -781,14 +785,18 @@ export default function OrdensServicoConfig() {
 
         {/* Modal Nova Prioridade */}
         <Dialog open={showAddPrioridade} onOpenChange={setShowAddPrioridade}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Plus className="w-5 h-5" />
-                Nova Prioridade
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-red-500 to-rose-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Prioridade
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome *</Label>
                 <Input
@@ -880,14 +888,18 @@ export default function OrdensServicoConfig() {
 
         {/* Modal Novo Status */}
         <Dialog open={showAddStatus} onOpenChange={setShowAddStatus}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Plus className="w-5 h-5" />
-                Novo Status
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Novo Status
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome *</Label>
                 <Input
@@ -977,14 +989,18 @@ export default function OrdensServicoConfig() {
 
         {/* Modal Novo Setor */}
         <Dialog open={showAddSetor} onOpenChange={setShowAddSetor}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Plus className="w-5 h-5" />
-                Novo Setor
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Novo Setor
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome *</Label>
                 <Input
@@ -1031,17 +1047,21 @@ export default function OrdensServicoConfig() {
 
         {/* Modal Editar Item */}
         <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Edit className="w-5 h-5" />
-                Editar {editingItem?.type === "categoria" ? "Categoria" : 
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Edit className="w-5 h-5 text-white" />
+                  </div>
+                  Editar {editingItem?.type === "categoria" ? "Categoria" : 
                         editingItem?.type === "prioridade" ? "Prioridade" :
                         editingItem?.type === "status" ? "Status" : "Setor"}
-              </DialogTitle>
-            </DialogHeader>
+                </DialogTitle>
+              </DialogHeader>
+            </div>
             {editingItem && (
-              <div className="space-y-4 py-4">
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
                 <div>
                   <Label>Nome *</Label>
                   <Input

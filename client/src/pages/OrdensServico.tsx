@@ -632,14 +632,18 @@ export default function OrdensServico() {
 
         {/* Modal Nova OS */}
         <Dialog open={showNovaOS} onOpenChange={setShowNovaOS}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Plus className="w-5 h-5" />
-                Nova Ordem de Serviço
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Ordem de Serviço
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-6">
               {/* Título */}
               <div>
                 <Label className="text-gray-700">Título *</Label>
@@ -791,7 +795,7 @@ export default function OrdensServico() {
                   Cancelar
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-amber-400 to-yellow-400 text-white"
+                  className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
                   onClick={handleCreateOS}
                   disabled={createOS.isPending}
                 >
@@ -804,14 +808,18 @@ export default function OrdensServico() {
 
         {/* Modal Configurações */}
         <Dialog open={showConfiguracoes} onOpenChange={setShowConfiguracoes}>
-          <DialogContent className="max-w-lg bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Settings className="w-5 h-5" />
-                Configurações de OS
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Settings className="w-5 h-5 text-white" />
+                  </div>
+                  Configurações de OS
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-6">
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-gray-700">Orçamentos</Label>

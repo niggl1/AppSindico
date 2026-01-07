@@ -913,14 +913,18 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
 
       {/* Dialog Detalhes */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Detalhes do Checklist
-            </DialogTitle>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-white" />
+                </div>
+                Detalhes do Checklist
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
           {selectedChecklist && (
             <div className="space-y-6">
               <Card>
@@ -1112,6 +1116,7 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
               </Card>
             </div>
           )}
+          </div>
           
           <DialogFooter className="flex justify-between sm:justify-between">
             <Button 
@@ -1143,14 +1148,18 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
 
       {/* Modal de Reportar Problema */}
       <Dialog open={showProblemModal} onOpenChange={setShowProblemModal}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-orange-600">
-              <AlertTriangle className="h-5 w-5" />
-              Reportar Problema
-            </DialogTitle>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-white" />
+                </div>
+                Reportar Problema
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
           {selectedItemForProblem && (
             <div className="space-y-4">
               <div className="p-3 bg-muted rounded-lg">
@@ -1193,43 +1202,47 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
             </div>
           )}
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowProblemModal(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-orange-600 hover:bg-orange-700"
-              onClick={() => {
-                if (!problemData.titulo.trim() || !problemData.descricao.trim()) {
-                  toast.error("Preencha o título e a descrição do problema");
-                  return;
-                }
-                // Aqui poderia salvar no banco de dados
-                toast.success("Problema reportado com sucesso!");
-                setShowProblemModal(false);
-                setProblemData({ titulo: "", descricao: "", imagens: [] });
-                setSelectedItemForProblem(null);
-              }}
-              disabled={!problemData.titulo.trim() || !problemData.descricao.trim()}
-            >
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Reportar Problema
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowProblemModal(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+                onClick={() => {
+                  if (!problemData.titulo.trim() || !problemData.descricao.trim()) {
+                    toast.error("Preencha o título e a descrição do problema");
+                    return;
+                  }
+                  // Aqui poderia salvar no banco de dados
+                  toast.success("Problema reportado com sucesso!");
+                  setShowProblemModal(false);
+                  setProblemData({ titulo: "", descricao: "", imagens: [] });
+                  setSelectedItemForProblem(null);
+                }}
+                disabled={!problemData.titulo.trim() || !problemData.descricao.trim()}
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Reportar Problema
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Modal de Salvar como Template */}
       <Dialog open={showSaveTemplateModal} onOpenChange={setShowSaveTemplateModal}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-purple-600">
-              <BookTemplate className="h-5 w-5" />
-              Salvar como Template Personalizado
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-purple-500 to-violet-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <BookTemplate className="w-5 h-5 text-white" />
+                </div>
+                Salvar como Template Personalizado
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-sm text-purple-700">
                 <strong>Dica:</strong> Ao salvar este checklist como template, você poderá reutilizá-lo 
@@ -1280,21 +1293,20 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
                 ))}
               </div>
             </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowSaveTemplateModal(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 gap-2"
+                onClick={handleConfirmSaveTemplate}
+                disabled={!saveTemplateData.nome.trim() || createTemplateMutation.isPending}
+              >
+                <Save className="h-4 w-4" />
+                {createTemplateMutation.isPending ? "Salvando..." : "Salvar Template"}
+              </Button>
+            </DialogFooter>
           </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSaveTemplateModal(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              className="bg-purple-600 hover:bg-purple-700 gap-2"
-              onClick={handleConfirmSaveTemplate}
-              disabled={!saveTemplateData.nome.trim() || createTemplateMutation.isPending}
-            >
-              <Save className="h-4 w-4" />
-              {createTemplateMutation.isPending ? "Salvando..." : "Salvar Template"}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

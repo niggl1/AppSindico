@@ -248,15 +248,21 @@ export default function PaginasCustomSection({ condominioId }: PaginasCustomSect
               Nova Página
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingPagina ? "Editar Página" : "Nova Página Personalizada"}</DialogTitle>
-              <DialogDescription>
-                Crie uma página com conteúdo totalmente personalizado
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  {editingPagina ? "Editar Página" : "Nova Página Personalizada"}
+                </DialogTitle>
+                <DialogDescription className="text-violet-100">
+                  Crie uma página com conteúdo totalmente personalizado
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="titulo">Título *</Label>
@@ -381,19 +387,19 @@ export default function PaginasCustomSection({ condominioId }: PaginasCustomSect
                   )}
                 </div>
               </div>
+              <DialogFooter className="pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={!formData.titulo || createMutation.isPending || updateMutation.isPending}
+                  className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+                >
+                  {editingPagina ? "Salvar Alterações" : "Criar Página"}
+                </Button>
+              </DialogFooter>
             </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleSubmit} 
-                disabled={!formData.titulo || createMutation.isPending || updateMutation.isPending}
-              >
-                {editingPagina ? "Salvar Alterações" : "Criar Página"}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

@@ -794,14 +794,18 @@ export default function VistoriasPage({ condominioId }: VistoriasPageProps) {
 
       {/* Dialog Detalhes */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Detalhes da Vistoria
-            </DialogTitle>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-white" />
+                </div>
+                Detalhes da Vistoria
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
           {selectedVistoria && (
             <div className="space-y-6">
               {/* Info Card */}
@@ -952,15 +956,16 @@ export default function VistoriasPage({ condominioId }: VistoriasPageProps) {
             </div>
           )}
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDetailDialog(false)}>
-              Fechar
-            </Button>
-            <Button variant="outline" onClick={generatePDF}>
-              <Download className="h-4 w-4 mr-1" />
-              Gerar PDF
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowDetailDialog(false)}>
+                Fechar
+              </Button>
+              <Button variant="outline" onClick={generatePDF}>
+                <Download className="h-4 w-4 mr-1" />
+                Gerar PDF
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

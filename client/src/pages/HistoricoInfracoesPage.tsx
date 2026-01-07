@@ -441,17 +441,21 @@ export default function HistoricoInfracoesPage() {
 
       {/* Modal de Detalhes */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              {selectedNotificacao?.notificacao?.titulo}
-            </DialogTitle>
-            <DialogDescription>
-              Detalhes da notificação e histórico de respostas
-            </DialogDescription>
-          </DialogHeader>
-
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-white" />
+                </div>
+                {selectedNotificacao?.notificacao?.titulo}
+              </DialogTitle>
+              <DialogDescription className="text-amber-100">
+                Detalhes da notificação e histórico de respostas
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
           {selectedNotificacao && (
             <div className="space-y-6 pt-4">
               {/* Dados do Morador */}
@@ -586,19 +590,27 @@ export default function HistoricoInfracoesPage() {
               </div>
             </div>
           )}
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Modal de Resposta */}
       <Dialog open={showRespostaModal} onOpenChange={setShowRespostaModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Responder Notificação</DialogTitle>
-            <DialogDescription>
-              Envie uma resposta para o morador
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
+        <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Send className="w-5 h-5 text-white" />
+                </div>
+                Responder Notificação
+              </DialogTitle>
+              <DialogDescription className="text-blue-100">
+                Envie uma resposta para o morador
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             <Textarea
               placeholder="Digite sua resposta..."
               value={resposta}
@@ -612,6 +624,7 @@ export default function HistoricoInfracoesPage() {
               <Button
                 onClick={handleEnviarResposta}
                 disabled={!resposta.trim() || enviarRespostaMutation.isPending}
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
               >
                 {enviarRespostaMutation.isPending ? (
                   <Loader2 className="h-4 w-4 mr-1 animate-spin" />
@@ -651,18 +664,21 @@ export default function HistoricoInfracoesPage() {
       
       {/* Modal de Gerar Relatório */}
       <Dialog open={showRelatorioModal} onOpenChange={setShowRelatorioModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileDown className="h-5 w-5 text-primary" />
-              Gerar Relatório de Infrações
-            </DialogTitle>
-            <DialogDescription>
-              Selecione os filtros para gerar o relatório em PDF
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 pt-4">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <FileDown className="w-5 h-5 text-white" />
+                </div>
+                Gerar Relatório de Infrações
+              </DialogTitle>
+              <DialogDescription className="text-emerald-100">
+                Selecione os filtros para gerar o relatório em PDF
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             {/* Período */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import {
+  AlertTriangle,
   ArrowLeft,
   BookOpen,
   Calendar,
@@ -452,12 +453,22 @@ export default function RevistaEditor() {
                           Novo Aviso
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-lg">
-                        <AvisoForm
-                          revistaId={revistaId}
-                          onSuccess={() => setShowAvisoForm(false)}
-                          onCancel={() => setShowAvisoForm(false)}
-                        />
+                      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+                        <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                              <AlertTriangle className="w-5 h-5 text-white" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">Novo Aviso</h3>
+                          </div>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[70vh]">
+                          <AvisoForm
+                            revistaId={revistaId}
+                            onSuccess={() => setShowAvisoForm(false)}
+                            onCancel={() => setShowAvisoForm(false)}
+                          />
+                        </div>
                       </DialogContent>
                     </Dialog>
                   </div>
@@ -567,12 +578,22 @@ export default function RevistaEditor() {
                           Nova Votação
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-lg">
-                        <VotacaoForm
-                          revistaId={revistaId}
-                          onSuccess={() => setShowVotacaoForm(false)}
-                          onCancel={() => setShowVotacaoForm(false)}
-                        />
+                      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+                        <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                              <Vote className="w-5 h-5 text-white" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white">Nova Votação</h3>
+                          </div>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[70vh]">
+                          <VotacaoForm
+                            revistaId={revistaId}
+                            onSuccess={() => setShowVotacaoForm(false)}
+                            onCancel={() => setShowVotacaoForm(false)}
+                          />
+                        </div>
                       </DialogContent>
                     </Dialog>
                   </div>

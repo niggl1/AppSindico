@@ -185,11 +185,21 @@ export default function CondominioManager() {
                     Novo Projeto
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle className="font-serif">Novo Projeto</DialogTitle>
-                    <DialogDescription>Configure os detalhes do seu novo projeto</DialogDescription>
-                  </DialogHeader>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
+                    <DialogHeader className="space-y-1">
+                      <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-white" />
+                        </div>
+                        Novo Projeto
+                      </DialogTitle>
+                      <DialogDescription className="text-blue-100">
+                        Configure os detalhes do seu novo projeto
+                      </DialogDescription>
+                    </DialogHeader>
+                  </div>
+                  <div className="p-6 overflow-y-auto max-h-[70vh]">
                   <RevistaForm
                     condominioId={condominioId}
                     onSuccess={(id, shareLink) => {
@@ -197,6 +207,7 @@ export default function CondominioManager() {
                       navigate(`/revista/editor/${id}`);
                     }}
                   />
+                  </div>
                 </DialogContent>
               </Dialog>
             </div>
@@ -292,16 +303,27 @@ export default function CondominioManager() {
                     Novo Funcionário
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="font-serif">Novo Funcionário</DialogTitle>
-                    <DialogDescription>Adicione um novo funcionário ao condomínio</DialogDescription>
-                  </DialogHeader>
+                <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+                  <div className="bg-gradient-to-r from-teal-500 to-emerald-500 px-6 py-4">
+                    <DialogHeader className="space-y-1">
+                      <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-white" />
+                        </div>
+                        Novo Funcionário
+                      </DialogTitle>
+                      <DialogDescription className="text-teal-100">
+                        Adicione um novo funcionário ao condomínio
+                      </DialogDescription>
+                    </DialogHeader>
+                  </div>
+                  <div className="p-6 overflow-y-auto max-h-[70vh]">
                   <FuncionarioForm
                     condominioId={condominioId}
                     onSuccess={() => setShowFuncionarioForm(false)}
                     onCancel={() => setShowFuncionarioForm(false)}
                   />
+                  </div>
                 </DialogContent>
               </Dialog>
             </div>

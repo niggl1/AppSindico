@@ -382,14 +382,21 @@ export default function MoradorDashboard() {
                     Novo Classificado
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Criar Classificado</DialogTitle>
-                    <DialogDescription>
-                      Publique um anúncio para os moradores do condomínio
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleCriarClassificado} className="space-y-4">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+                  <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+                    <DialogHeader className="space-y-1">
+                      <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Tag className="w-5 h-5 text-white" />
+                        </div>
+                        Criar Classificado
+                      </DialogTitle>
+                      <DialogDescription className="text-emerald-100">
+                        Publique um anúncio para os moradores do condomínio
+                      </DialogDescription>
+                    </DialogHeader>
+                  </div>
+                  <form onSubmit={handleCriarClassificado} className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="titulo">Título *</Label>
                       <Input
@@ -458,7 +465,7 @@ export default function MoradorDashboard() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
                       disabled={criarClassificadoMutation.isPending}
                     >
                       {criarClassificadoMutation.isPending ? (
@@ -542,14 +549,21 @@ export default function MoradorDashboard() {
                     Nova Carona
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Publicar Carona</DialogTitle>
-                    <DialogDescription>
-                      Ofereça ou procure uma carona com outros moradores
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleCriarCarona} className="space-y-4">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+                  <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+                    <DialogHeader className="space-y-1">
+                      <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Car className="w-5 h-5 text-white" />
+                        </div>
+                        Publicar Carona
+                      </DialogTitle>
+                      <DialogDescription className="text-blue-100">
+                        Ofereça ou procure uma carona com outros moradores
+                      </DialogDescription>
+                    </DialogHeader>
+                  </div>
+                  <form onSubmit={handleCriarCarona} className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
                     <div className="space-y-2">
                       <Label>Tipo</Label>
                       <Select 
@@ -636,7 +650,7 @@ export default function MoradorDashboard() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
                       disabled={criarCaronaMutation.isPending}
                     >
                       {criarCaronaMutation.isPending ? (

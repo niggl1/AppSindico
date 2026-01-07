@@ -1692,14 +1692,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Categoria */}
         <Dialog open={showGerenciarCategorias} onOpenChange={setShowGerenciarCategorias}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Tag className="w-5 h-5" />
-                Nova Categoria
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Tag className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Categoria
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome</Label>
                 <Input
@@ -1760,14 +1764,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Prioridade */}
         <Dialog open={showGerenciarPrioridades} onOpenChange={setShowGerenciarPrioridades}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Flag className="w-5 h-5" />
-                Nova Prioridade
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-red-500 to-rose-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Flag className="w-5 h-5 text-white" />
+                  </div>
+                  Nova Prioridade
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome</Label>
                 <Input
@@ -1839,14 +1847,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Status */}
         <Dialog open={showGerenciarStatus} onOpenChange={setShowGerenciarStatus}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Circle className="w-5 h-5" />
-                Novo Status
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Circle className="w-5 h-5 text-white" />
+                  </div>
+                  Novo Status
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome</Label>
                 <Input
@@ -1918,14 +1930,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Setor */}
         <Dialog open={showGerenciarSetores} onOpenChange={setShowGerenciarSetores}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Building2 className="w-5 h-5" />
-                Novo Setor
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  Novo Setor
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome</Label>
                 <Input
@@ -1954,14 +1970,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Material */}
         <Dialog open={showAddMaterial} onOpenChange={setShowAddMaterial}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Package className="w-5 h-5" />
-                Adicionar Material
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
+                  Adicionar Material
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome do Material</Label>
                 <Input
@@ -2050,14 +2070,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Orçamento */}
         <Dialog open={showAddOrcamento} onOpenChange={setShowAddOrcamento}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <DollarSign className="w-5 h-5" />
-                Adicionar Orçamento
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-white" />
+                  </div>
+                  Adicionar Orçamento
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Descrição</Label>
                 <Input
@@ -2105,14 +2129,18 @@ export default function OrdemServicoDetalhe() {
 
         {/* Modal Adicionar Responsável */}
         <Dialog open={showAddResponsavel} onOpenChange={setShowAddResponsavel}>
-          <DialogContent className="bg-gradient-to-br from-amber-50 to-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-amber-700">
-                <Users className="w-5 h-5" />
-                Adicionar Responsável
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  Adicionar Responsável
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
               <div>
                 <Label>Nome</Label>
                 <Input
