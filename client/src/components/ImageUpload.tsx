@@ -295,10 +295,10 @@ export default function ImageUpload({
                 {compact || placeholder.length <= 3 ? (
                   // Modo compacto
                   <>
-                    <div className="w-10 h-10 rounded-full bg-secondary/50 flex items-center justify-center">
-                      <Upload className="w-5 h-5 text-muted-foreground" />
+                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200">
+                      <Upload className="w-5 h-5 text-slate-400" />
                     </div>
-                    <span className="text-sm text-muted-foreground mt-1 text-center px-2">
+                    <span className="text-xs text-slate-400 mt-1.5 text-center px-2">
                       {placeholder}
                     </span>
                   </>
