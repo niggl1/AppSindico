@@ -447,12 +447,13 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+          <div className="flex flex-row gap-6 mb-12">
             {/* Como Funciona */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="flex-1"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="w-5 h-5 text-primary" />
@@ -492,6 +493,7 @@ export default function Home() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="flex-1"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Code className="w-5 h-5 text-primary" />

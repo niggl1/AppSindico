@@ -30,3 +30,5 @@
 - [x] Secção "Desenvolvimento Personalizado" - Como Funciona à esquerda, Prazos e Fidelidade à direita
 - [x] Substituir logo atual pelo LogoAppSindico.png no header
 - [x] Colocar preview da revista ao lado dos botões no Hero Section (layout lado a lado)
+- [ ] Colocar todos os cards de Secções Disponíveis numa única linha horizontal
+- [x] Colocar as secções Como Funciona e Prazos e Fidelidade lado a lado numa única linha
