@@ -2942,16 +2942,21 @@ function MoradoresSection() {
                 Adicionar Morador
               </Button>
             </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="font-serif">
-                {editingMorador ? "Editar Morador" : "Novo Morador"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingMorador ? "Atualize as informações do morador" : "Cadastre um novo morador do condomínio"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  {editingMorador ? "Editar Morador" : "Novo Morador"}
+                </DialogTitle>
+                <DialogDescription className="text-indigo-100">
+                  {editingMorador ? "Atualize as informações do morador" : "Cadastre um novo morador do condomínio"}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="space-y-4 p-6 overflow-y-auto max-h-[65vh]">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="nome">Nome Completo *</Label>
@@ -3057,7 +3062,7 @@ function MoradoresSection() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t">
               <Button variant="outline" onClick={() => {
                 setShowMoradorDialog(false);
                 setEditingMorador(null);
@@ -3066,7 +3071,7 @@ function MoradoresSection() {
                 Cancelar
               </Button>
               <Button 
-                className="btn-magazine" 
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white" 
                 onClick={handleSubmit}
                 disabled={createMorador.isPending || updateMorador.isPending}
               >

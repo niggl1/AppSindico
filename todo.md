@@ -48,3 +48,4 @@
 - [x] Centralizar ícone de upload no ImageUpload
 - [x] Corrigir centralização do ícone de upload dentro do quadrado tracejado
 - [x] Aplicar estilo premium aos modais: DashboardLayout, EnvioMulticanalModal, FuncoesRapidas, QuickFunctionsEditor, ShareModal, AgendaVencimentos, AppViewer
+- [x] Aplicar estilo premium ao modal de Novo Morador
