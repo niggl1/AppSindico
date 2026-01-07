@@ -82,6 +82,7 @@ import {
   ClipboardList,
   FileCheck,
   BadgeCheck,
+  ClipboardPen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -131,6 +132,7 @@ const availableModules: Omit<AppModule, "enabled" | "order">[] = [
   { id: "notificar_morador", key: "notificar_morador", title: "Notificar Morador", icon: Bell, color: "text-white", bgColor: "bg-rose-600" },
   { id: "novidades", key: "novidades", title: "Novidades", icon: Newspaper, color: "text-white", bgColor: "bg-cyan-600" },
   { id: "ocorrencias", key: "ocorrencias", title: "Ocorrências", icon: AlertTriangle, color: "text-white", bgColor: "bg-yellow-500" },
+  { id: "ordem_servico", key: "ordem_servico", title: "Ordem de Serviço", icon: ClipboardPen, color: "text-white", bgColor: "bg-teal-600" },
   { id: "parceiros", key: "parceiros", title: "Parceiros", icon: HeartHandshake, color: "text-white", bgColor: "bg-red-600" },
   { id: "portaria", key: "portaria", title: "Portaria", icon: BadgeCheck, color: "text-white", bgColor: "bg-green-500" },
   { id: "publicidade", key: "publicidade", title: "Publicidade", icon: Sparkles, color: "text-white", bgColor: "bg-pink-600" },
