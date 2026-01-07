@@ -41,3 +41,4 @@
 - [x] Adicionar "Integração com moradores" ao plano Condomínios
 - [x] Adicionar "Integração com funcionários" ao plano Síndicos
 - [x] Adicionar opção "Ordem de Serviço" ao Construtor de App
+- [x] Ao clicar em "+ Novo Projeto" abrir Assistente de Criação em modal diretamente

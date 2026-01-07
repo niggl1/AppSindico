@@ -121,6 +121,7 @@ import NotificationAlert from "@/components/NotificationAlert";
 import FuncoesRapidas from "@/components/FuncoesRapidas";
 import FuncoesRapidasGrid from "@/components/FuncoesRapidasGrid";
 import QuickFunctionsEditor, { getSelectedQuickFunctions, allQuickFunctions, CORES_FUNCOES_RAPIDAS } from "@/components/QuickFunctionsEditor";
+import AssistenteCriacao from "@/components/AssistenteCriacao";
 
 // Estrutura do menu com 11 seções
 // Cada item tem um funcaoId que mapeia para as funções do admin
@@ -1502,6 +1503,7 @@ function getCurrentEdition(): string {
 // Revistas Section
 function RevistasSection() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [mostrarAssistente, setMostrarAssistente] = useState(false);
   const [formData, setFormData] = useState({
     titulo: "",
     subtitulo: "Informativo Mensal",
@@ -1647,12 +1649,13 @@ function RevistasSection() {
             <h1 className="text-3xl font-bold mb-2">Meus Projetos</h1>
             <p className="text-purple-200 max-w-md">Crie e gerencie apps, revistas digitais e relatórios personalizados para seu condomínio</p>
           </div>
-          <Link href="/dashboard/criar-projeto">
-            <Button className="bg-white text-purple-700 hover:bg-purple-50 shadow-lg shadow-purple-900/30 font-semibold px-6 py-3 h-auto">
-              <Plus className="w-5 h-5 mr-2" />
-              Novo Projeto
-            </Button>
-          </Link>
+          <Button 
+            className="bg-white text-purple-700 hover:bg-purple-50 shadow-lg shadow-purple-900/30 font-semibold px-6 py-3 h-auto"
+            onClick={() => setMostrarAssistente(true)}
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Novo Projeto
+          </Button>
         </div>
         {/* Stats */}
         <div className="relative z-10 grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/20">
@@ -2104,6 +2107,16 @@ function RevistasSection() {
               Excluir
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal do Assistente de Criação */}
+      <Dialog open={mostrarAssistente} onOpenChange={setMostrarAssistente}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <AssistenteCriacao 
+            onClose={() => setMostrarAssistente(false)}
+            onComplete={() => setMostrarAssistente(false)}
+          />
         </DialogContent>
       </Dialog>
     </div>
