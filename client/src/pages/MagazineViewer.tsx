@@ -638,6 +638,20 @@ export default function MagazineViewer() {
               variant="ghost"
               size="sm"
               className="text-white/70 hover:text-white hover:bg-white/10"
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPDF}
+            >
+              {isGeneratingPDF ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              <span className="hidden sm:inline">{isGeneratingPDF ? 'A gerar...' : 'PDF'}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/70 hover:text-white hover:bg-white/10"
               onClick={() => window.print()}
             >
               <Printer className="w-4 h-4 mr-2" />
