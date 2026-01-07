@@ -104,13 +104,18 @@ export function MembrosEquipePage({ condominioId }: MembrosEquipePageProps) {
               Novo Membro
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">
-                {editingId ? "Editar Membro" : "Novo Membro da Equipe"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <DialogContent className="sm:max-w-md overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  {editingId ? "Editar Membro" : "Novo Membro da Equipe"}
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4 p-6">
               <div className="flex justify-center">
                 <ImageUpload
                   value={formData.fotoUrl}
@@ -157,19 +162,19 @@ export function MembrosEquipePage({ condominioId }: MembrosEquipePageProps) {
                   rows={3}
                 />
               </div>
-              <div className="flex gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
-                  disabled={createMutation.isPending || updateMutation.isPending}
-                >
-                  {editingId ? "Salvar" : "Adicionar"}
-                </Button>
-              </div>
             </form>
+            <div className="flex gap-2 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t">
+              <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleSubmit}
+                className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {editingId ? "Salvar" : "Adicionar"}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
