@@ -237,22 +237,22 @@ export default function Home() {
                 Nova forma de comunicar no condomínio
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground leading-tight mb-6">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight mb-8">
                 Plataforma Digital
                 <span className="text-gradient block">para Condomínios</span>
               </h1>
 
-              <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+              <p className="text-xl text-muted-foreground mb-10 max-w-xl">
                 Aplicativos, revistas digitais interativas e relatórios personalizados
               </p>
 
               <TooltipProvider>
-                <div className="grid grid-cols-2 gap-3 max-w-md">
+                <div className="grid grid-cols-2 gap-4 max-w-lg">
                   {/* Botão Criar Meu App - Azul */}
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link href="/app">
-                        <Button size="lg" className="text-base w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        <Button size="lg" className="text-lg py-6 w-full bg-blue-600 hover:bg-blue-700 text-white">
                           <LayoutGrid className="w-5 h-5 mr-2" />
                           Criar Meu App
                         </Button>
@@ -268,7 +268,7 @@ export default function Home() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link href="/revista">
-                        <Button size="lg" className="text-base w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                        <Button size="lg" className="text-lg py-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white">
                           <BookOpenIcon className="w-5 h-5 mr-2" />
                           Criar Minha Revista
                         </Button>
@@ -284,7 +284,7 @@ export default function Home() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link href="/relatorio">
-                        <Button size="lg" className="text-base w-full bg-purple-600 hover:bg-purple-700 text-white">
+                        <Button size="lg" className="text-lg py-6 w-full bg-purple-600 hover:bg-purple-700 text-white">
                           <ScrollText className="w-5 h-5 mr-2" />
                           Criar Relatórios
                         </Button>
@@ -300,7 +300,7 @@ export default function Home() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link href="/demo-layouts">
-                        <Button size="lg" className="text-base w-full bg-orange-500 hover:bg-orange-600 text-white">
+                        <Button size="lg" className="text-lg py-6 w-full bg-orange-500 hover:bg-orange-600 text-white">
                           <Play className="w-5 h-5 mr-2" />
                           Ver Demonstração
                         </Button>
@@ -322,18 +322,18 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative flex-shrink-0 w-[280px]"
+              className="relative flex-shrink-0 w-[380px]"
             >
               <div className="relative mx-auto">
                 {/* Magazine mockup */}
-                <div className="magazine-page aspect-[3/4] p-6 bg-gradient-to-br from-white to-gray-50">
+                <div className="magazine-page aspect-[3/4] p-8 bg-gradient-to-br from-white to-gray-50">
                   <div className="h-full flex flex-col">
                     {/* Magazine header */}
                     <div className="text-center mb-4">
                       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
                         Edição Dezembro 2024
                       </div>
-                      <h2 className="font-serif text-2xl font-bold text-foreground">
+                      <h2 className="font-serif text-3xl font-bold text-foreground">
                         Residencial Jardins
                       </h2>
                       <div className="section-divider mt-3" />
@@ -345,26 +345,26 @@ export default function Home() {
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-primary/30" />
                           <div>
-                            <div className="text-sm font-semibold">Mensagem do Síndico</div>
+                            <div className="text-base font-semibold">Mensagem do Síndico</div>
                             <div className="text-xs text-muted-foreground">João Silva</div>
                           </div>
                         </div>
                       </div>
                       <div className="rounded-lg bg-amber-50 p-3">
-                        <Megaphone className="w-5 h-5 text-amber-600 mb-2" />
-                        <div className="text-xs font-medium">Avisos</div>
+                        <Megaphone className="w-6 h-6 text-amber-600 mb-2" />
+                        <div className="text-sm font-medium">Avisos</div>
                       </div>
                       <div className="rounded-lg bg-emerald-50 p-3">
-                        <Calendar className="w-5 h-5 text-emerald-600 mb-2" />
-                        <div className="text-xs font-medium">Eventos</div>
+                        <Calendar className="w-6 h-6 text-emerald-600 mb-2" />
+                        <div className="text-sm font-medium">Eventos</div>
                       </div>
                       <div className="rounded-lg bg-blue-50 p-3">
-                        <Vote className="w-5 h-5 text-blue-600 mb-2" />
-                        <div className="text-xs font-medium">Votações</div>
+                        <Vote className="w-6 h-6 text-blue-600 mb-2" />
+                        <div className="text-sm font-medium">Votações</div>
                       </div>
                       <div className="rounded-lg bg-purple-50 p-3">
-                        <Package className="w-5 h-5 text-purple-600 mb-2" />
-                        <div className="text-xs font-medium">Classificados</div>
+                        <Package className="w-6 h-6 text-purple-600 mb-2" />
+                        <div className="text-sm font-medium">Classificados</div>
                       </div>
                     </div>
 
