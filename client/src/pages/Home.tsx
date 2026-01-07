@@ -942,6 +942,10 @@ export default function Home() {
                       <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                       <span className="text-sm">Relatórios básicos</span>
                     </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                      <span className="text-sm">Integração com funcionários</span>
+                    </li>
                   </ul>
                   <a href="https://wa.me/5581999618516?text=Olá! Tenho interesse no plano Síndicos." target="_blank" rel="noopener noreferrer" className="w-full">
                     <Button className="w-full">

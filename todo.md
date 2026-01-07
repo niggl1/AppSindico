@@ -39,3 +39,4 @@
 - [x] Remover secção Prazos e Fidelidade e itens relacionados, substituir por quadro premium
 - [x] Ajustar planos: Síndicos remover suporte por e-mail, Condomínios remover suporte prioritário e reservas de áreas comuns, Administradoras remover gerente dedicado e API de integração, adicionar condomínios ilimitados
 - [x] Adicionar "Integração com moradores" ao plano Condomínios
+- [x] Adicionar "Integração com funcionários" ao plano Síndicos
