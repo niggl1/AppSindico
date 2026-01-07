@@ -92,3 +92,12 @@
 - [x] Adicionar campo de upload de imagem de capa no editor de revistas
 - [x] Permitir preview da imagem antes de salvar
 - [x] Integrar com o sistema de storage existente
+
+## Formulários de Secções em Falta (07/01/2026)
+
+- [x] Adicionar formulário para secção Classificados
+- [x] Adicionar formulário para secção Eventos
+- [x] Adicionar formulário para secção Funcionários
+- [x] Adicionar formulário para secção Caronas
+- [x] Adicionar formulário para secção Achados e Perdidos
+- [x] Telefones e Links já têm formulários na aba Secções

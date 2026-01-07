@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import ImageUpload from "@/components/ImageUpload";
 
 interface FuncionarioFormProps {
-  condominioId: number;
+  condominioId?: number;
+  revistaId?: number;
   onSuccess?: () => void;
   onCancel?: () => void;
   initialData?: {
@@ -22,7 +23,7 @@ interface FuncionarioFormProps {
   };
 }
 
-export default function FuncionarioForm({ condominioId, onSuccess, onCancel, initialData }: FuncionarioFormProps) {
+export default function FuncionarioForm({ condominioId, revistaId, onSuccess, onCancel, initialData }: FuncionarioFormProps) {
   const [formData, setFormData] = useState({
     nome: initialData?.nome || "",
     cargo: initialData?.cargo || "",
@@ -35,7 +36,11 @@ export default function FuncionarioForm({ condominioId, onSuccess, onCancel, ini
   const createMutation = trpc.funcionario.create.useMutation({
     onSuccess: () => {
       toast.success("Funcionário cadastrado com sucesso!");
-      utils.funcionario.list.invalidate({ condominioId });
+      if (revistaId) {
+        utils.funcionario.list.invalidate({ revistaId });
+      } else if (condominioId) {
+        utils.funcionario.list.invalidate({ condominioId });
+      }
       onSuccess?.();
     },
     onError: (error) => {
@@ -46,7 +51,11 @@ export default function FuncionarioForm({ condominioId, onSuccess, onCancel, ini
   const updateMutation = trpc.funcionario.update.useMutation({
     onSuccess: () => {
       toast.success("Funcionário atualizado com sucesso!");
-      utils.funcionario.list.invalidate({ condominioId });
+      if (revistaId) {
+        utils.funcionario.list.invalidate({ revistaId });
+      } else if (condominioId) {
+        utils.funcionario.list.invalidate({ condominioId });
+      }
       onSuccess?.();
     },
     onError: (error) => {
@@ -64,7 +73,7 @@ export default function FuncionarioForm({ condominioId, onSuccess, onCancel, ini
     if (initialData?.id) {
       updateMutation.mutate({ id: initialData.id, ...formData });
     } else {
-      createMutation.mutate({ condominioId, ...formData });
+      createMutation.mutate({ condominioId, revistaId, ...formData });
     }
   };
 
