@@ -86,3 +86,9 @@
 
 - [x] Corrigir MagazineViewer para mostrar revista.titulo na capa em vez de condominio.nome
 - [x] Manter nome do condomínio como informação secundária na capa
+
+## Nova Funcionalidade: Upload de Imagem de Capa (07/01/2026)
+
+- [x] Adicionar campo de upload de imagem de capa no editor de revistas
+- [x] Permitir preview da imagem antes de salvar
+- [x] Integrar com o sistema de storage existente

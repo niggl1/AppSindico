@@ -136,6 +136,16 @@ export default function RevistaEditor() {
     },
   });
 
+  const updateCapaMutation = trpc.revista.update.useMutation({
+    onSuccess: () => {
+      toast.success("Capa atualizada com sucesso!");
+      utils.revista.get.invalidate({ id: revistaId });
+    },
+    onError: (error) => {
+      toast.error("Erro ao atualizar capa: " + error.message);
+    },
+  });
+
   const deleteAvisoMutation = trpc.aviso.delete.useMutation({
     onSuccess: () => {
       toast.success("Aviso removido!");
@@ -794,6 +804,84 @@ export default function RevistaEditor() {
 
           {/* Configurações Tab */}
           <TabsContent value="config" className="space-y-6">
+            {/* Card de Imagem de Capa */}
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+                <CardTitle className="font-serif flex items-center gap-2">
+                  <Image className="w-5 h-5 text-purple-600" />
+                  Imagem de Capa
+                </CardTitle>
+                <CardDescription>
+                  Personalize a capa da sua revista com uma imagem de fundo
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Upload de Imagem */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-slate-700">Imagem de Fundo da Capa</Label>
+                    <ImageUpload
+                      value={revista.capaUrl || undefined}
+                      onChange={(url) => {
+                        updateCapaMutation.mutate({ id: revistaId, capaUrl: url || "" });
+                      }}
+                      folder="revistas/capas"
+                      aspectRatio="portrait"
+                      placeholder="Clique para adicionar imagem de capa"
+                      className="w-full"
+                      compressionPreset="cover"
+                      enableEditor={true}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Recomendado: imagem vertical (3:4) com pelo menos 800x1066 pixels
+                    </p>
+                  </div>
+                  
+                  {/* Preview da Capa */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-slate-700">Pré-visualização</Label>
+                    <div 
+                      className="relative aspect-[3/4] rounded-xl overflow-hidden border-2 border-dashed border-slate-200 bg-gradient-to-br from-purple-100 via-white to-pink-100"
+                      style={{
+                        backgroundImage: revista.capaUrl 
+                          ? `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url(${revista.capaUrl})`
+                          : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                        {!revista.capaUrl && (
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-3">
+                            <Building2 className="w-6 h-6 text-white" />
+                          </div>
+                        )}
+                        <p className={cn(
+                          "text-xs uppercase tracking-widest mb-1",
+                          revista.capaUrl ? "text-white/80" : "text-slate-500"
+                        )}>
+                          Edição {revista.edicao}
+                        </p>
+                        <h3 className={cn(
+                          "font-serif text-lg font-bold mb-1",
+                          revista.capaUrl ? "text-white drop-shadow-lg" : "text-slate-800"
+                        )}>
+                          {revista.titulo}
+                        </h3>
+                        <p className={cn(
+                          "text-sm",
+                          revista.capaUrl ? "text-white/90" : "text-slate-600"
+                        )}>
+                          {revista.subtitulo || "Informativo Mensal"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Card de Informações */}
             <Card>
               <CardHeader>
                 <CardTitle className="font-serif">Informações da Revista</CardTitle>
