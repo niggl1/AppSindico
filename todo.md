@@ -32,3 +32,4 @@
 - [x] Colocar preview da revista ao lado dos botões no Hero Section (layout lado a lado)
 - [ ] Colocar todos os cards de Secções Disponíveis numa única linha horizontal
 - [x] Colocar as secções Como Funciona e Prazos e Fidelidade lado a lado numa única linha
+- [x] Mover números 01, 02, 03 para a frente dos tópicos na secção Como Funciona

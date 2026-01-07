@@ -640,16 +640,18 @@ export default function Home() {
                 transition={{ delay: index * 0.2 }}
                 className="relative"
               >
-                <div className="text-6xl font-serif font-bold text-primary/10 absolute top-0 right-4">
-                  {item.step}
-                </div>
-                <div className="relative pt-2">
-                  <h3 className="font-serif text-xl font-semibold text-foreground mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {item.description}
-                  </p>
+                <div className="flex items-start gap-4">
+                  <div className="text-6xl font-serif font-bold text-primary/10 flex-shrink-0">
+                    {item.step}
+                  </div>
+                  <div className="pt-2">
+                    <h3 className="font-serif text-xl font-semibold text-foreground mb-3">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             ))}
