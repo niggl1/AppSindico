@@ -109,17 +109,19 @@ export function ShareModal({ isOpen, onClose, tipo, itemId, itemTitulo, itemProt
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <div className={`p-2 rounded-lg bg-gradient-to-r ${getTipoColor(tipo)} text-white`}>
-              <Share2 className="w-5 h-5" />
-            </div>
-            Compartilhar {getTipoLabel(tipo)}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden p-0">
+        <div className={`bg-gradient-to-r ${getTipoColor(tipo)} px-6 py-4`}>
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="flex items-center gap-2 text-white text-lg">
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <Share2 className="w-5 h-5 text-white" />
+              </div>
+              Compartilhar {getTipoLabel(tipo)}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 p-6 overflow-y-auto max-h-[60vh]">
           {/* Info do Item */}
           <Card className="border-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
             <CardContent className="p-4">

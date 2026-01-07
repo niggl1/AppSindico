@@ -137,18 +137,22 @@ Administração do Condomínio`);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Check className="h-5 w-5 text-green-500" />
-            Notificação Registrada!
-          </DialogTitle>
-          <DialogDescription>
-            Escolha como deseja enviar a notificação para o morador
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-md p-0 overflow-hidden">
+        <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="flex items-center gap-2 text-white text-lg">
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <Check className="h-5 w-5 text-white" />
+              </div>
+              Notificação Registrada!
+            </DialogTitle>
+            <DialogDescription className="text-green-100">
+              Escolha como deseja enviar a notificação para o morador
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4 pt-4">
+        <div className="space-y-4 p-6">
           {/* Mensagem informativa */}
           <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
             <p className="text-sm text-blue-700 dark:text-blue-300 flex items-start gap-2">
@@ -238,9 +242,10 @@ Administração do Condomínio`);
             </a>
           </div>
 
-          {/* Botão fechar */}
+        </div>
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
           <Button 
-            className="w-full" 
+            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600" 
             onClick={() => onOpenChange(false)}
           >
             Concluir

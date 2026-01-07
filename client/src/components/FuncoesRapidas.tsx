@@ -966,22 +966,26 @@ export default function FuncoesRapidas({ condominioId }: FuncoesRapidasProps) {
 
       {/* Modal de Criação Rápida */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {funcaoSelecionada && (
-                <>
-                  <funcaoSelecionada.icon className={`w-5 h-5 ${funcaoSelecionada.color}`} />
-                  {getLabelSingular()}
-                </>
-              )}
-            </DialogTitle>
-            <DialogDescription>
-              Preencha os dados para registar rapidamente
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                {funcaoSelecionada && (
+                  <>
+                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                      <funcaoSelecionada.icon className="w-5 h-5 text-white" />
+                    </div>
+                    {getLabelSingular()}
+                  </>
+                )}
+              </DialogTitle>
+              <DialogDescription className="text-blue-100">
+                Preencha os dados para registar rapidamente
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4 p-6">
             {/* Título */}
             <div className="space-y-2">
               <Label>Título *</Label>
@@ -1105,22 +1109,25 @@ export default function FuncoesRapidas({ condominioId }: FuncoesRapidasProps) {
               </div>
             </div>
 
-            {/* Botões */}
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={closeModal}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSubmit} disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Registando...
-                  </>
-                ) : (
-                  "Registar"
-                )}
-              </Button>
-            </div>
+          </div>
+          <div className="flex justify-end gap-2 px-6 py-4 bg-slate-50 border-t border-slate-200">
+            <Button variant="outline" onClick={closeModal} className="border-slate-300">
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isLoading}
+              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Registando...
+                </>
+              ) : (
+                "Registar"
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

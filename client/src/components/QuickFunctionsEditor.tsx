@@ -234,15 +234,23 @@ export default function QuickFunctionsEditor({ onSave, triggerClassName, condomi
           <Settings className="w-3.5 h-3.5 text-sidebar-foreground/50" />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Personalizar Funções Rápidas</DialogTitle>
-          <DialogDescription>
-            Selecione de 4 a 12 funções para aparecer nos atalhos rápidos.
-            Selecionadas: {selected.length}/12
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden p-0">
+        <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="flex items-center gap-2 text-white text-lg">
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <Settings className="w-5 h-5 text-white" />
+              </div>
+              Personalizar Funções Rápidas
+            </DialogTitle>
+            <DialogDescription className="text-violet-100">
+              Selecione de 4 a 12 funções para aparecer nos atalhos rápidos.
+              Selecionadas: {selected.length}/12
+            </DialogDescription>
+          </DialogHeader>
+        </div>
         
+        <div className="overflow-y-auto max-h-[50vh] p-6">
         {isLoadingDB ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -282,15 +290,20 @@ export default function QuickFunctionsEditor({ onSave, triggerClassName, condomi
           </div>
         )}
 
-        <div className="flex justify-between pt-4 border-t">
-          <Button variant="outline" onClick={handleReset} disabled={isLoading}>
+        </div>
+        <div className="flex justify-between px-6 py-4 bg-slate-50 border-t border-slate-200">
+          <Button variant="outline" onClick={handleReset} disabled={isLoading} className="border-slate-300">
             Restaurar Padrão
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading} className="border-slate-300">
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={isLoading}>
+            <Button 
+              onClick={handleSave} 
+              disabled={isLoading}
+              className="bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+            >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Salvar
             </Button>

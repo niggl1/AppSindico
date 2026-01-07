@@ -536,26 +536,37 @@ function DashboardLayoutContent({
     <>
       {/* Diálogo de confirmação */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-amber-500" />
-              Funções Rápidas
-            </DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-white" />
+                </div>
+                Funções Rápidas
+              </DialogTitle>
+              <DialogDescription className="text-amber-100">
+                Gerir atalhos de acesso rápido
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="p-6">
+            <p className="text-slate-600">
               {selectedFuncao?.isRapida
                 ? `Gostaria de remover a função "${selectedFuncao?.nome}" das funções rápidas?`
                 : `Gostaria de adicionar a função "${selectedFuncao?.nome}" nas funções rápidas?`}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            </p>
+          </div>
+          <DialogFooter className="px-6 py-4 bg-slate-50 border-t border-slate-200">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="border-slate-300">
               Cancelar
             </Button>
             <Button 
               onClick={handleConfirm}
               disabled={adicionarFuncaoRapida.isPending || removerFuncaoRapida.isPending}
-              className={selectedFuncao?.isRapida ? "bg-red-500 hover:bg-red-600" : "bg-amber-500 hover:bg-amber-600"}
+              className={selectedFuncao?.isRapida 
+                ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"}
             >
               {adicionarFuncaoRapida.isPending || removerFuncaoRapida.isPending
                 ? "Processando..."

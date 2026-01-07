@@ -332,15 +332,19 @@ export default function AppViewer() {
                   Compartilhar
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Share2 className="w-5 h-5 text-blue-500" />
-                    Compartilhar App
-                  </DialogTitle>
-                </DialogHeader>
+              <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+                  <DialogHeader className="space-y-1">
+                    <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                      <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                        <Share2 className="w-5 h-5 text-white" />
+                      </div>
+                      Compartilhar App
+                    </DialogTitle>
+                  </DialogHeader>
+                </div>
                 
-                <div className="space-y-6 py-4">
+                <div className="space-y-6 p-6">
                   {/* QR Code */}
                   <div className="flex flex-col items-center">
                     <div className="p-4 bg-white rounded-2xl shadow-lg border">

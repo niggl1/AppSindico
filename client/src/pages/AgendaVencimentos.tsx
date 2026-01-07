@@ -427,19 +427,28 @@ function VencimentosList({ tipo, condominioId }: { tipo: TipoVencimento; condomi
               Adicionar {tipoLabels[tipo]}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Novo {tipoLabels[tipo]}</DialogTitle>
-              <DialogDescription>
-                Preencha os dados do {tipoLabels[tipo].toLowerCase()} a ser acompanhado.
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
+              <DialogHeader className="space-y-1">
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Novo {tipoLabels[tipo]}
+                </DialogTitle>
+                <DialogDescription className="text-blue-100">
+                  Preencha os dados do {tipoLabels[tipo].toLowerCase()} a ser acompanhado.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
             <VencimentoForm
               tipo={tipo}
               condominioId={condominioId}
               onSuccess={() => setIsCreating(false)}
               onCancel={() => setIsCreating(false)}
             />
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -526,10 +535,18 @@ function VencimentosList({ tipo, condominioId }: { tipo: TipoVencimento; condomi
                           <Pencil className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Editar {tipoLabels[tipo]}</DialogTitle>
-                        </DialogHeader>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+                          <DialogHeader className="space-y-1">
+                            <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                                <Pencil className="w-5 h-5 text-white" />
+                              </div>
+                              Editar {tipoLabels[tipo]}
+                            </DialogTitle>
+                          </DialogHeader>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[70vh]">
                         <VencimentoForm
                           tipo={tipo}
                           condominioId={condominioId}
@@ -537,6 +554,7 @@ function VencimentosList({ tipo, condominioId }: { tipo: TipoVencimento; condomi
                           onSuccess={() => setEditingId(null)}
                           onCancel={() => setEditingId(null)}
                         />
+                        </div>
                       </DialogContent>
                     </Dialog>
                     <Button
@@ -559,12 +577,19 @@ function VencimentosList({ tipo, condominioId }: { tipo: TipoVencimento; condomi
 
       {/* Modal de detalhes */}
       <Dialog open={!!viewingId} onOpenChange={(open) => !open && setViewingId(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalhes do {tipoLabels[tipo]}</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-slate-600 to-slate-700 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-white" />
+                </div>
+                Detalhes do {tipoLabels[tipo]}
+              </DialogTitle>
+            </DialogHeader>
+          </div>
           {vencimentoDetalhes && (
-            <div className="space-y-4">
+            <div className="space-y-4 p-6">
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold">{vencimentoDetalhes.titulo}</h3>
                 {getStatusBadge(vencimentoDetalhes.diasRestantes, vencimentoDetalhes.vencido)}
