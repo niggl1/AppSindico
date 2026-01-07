@@ -2113,6 +2113,10 @@ function RevistasSection() {
       {/* Modal do Assistente de Criação */}
       <Dialog open={mostrarAssistente} onOpenChange={setMostrarAssistente}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Assistente de Criação</DialogTitle>
+            <DialogDescription>Crie seu projeto passo a passo</DialogDescription>
+          </DialogHeader>
           <AssistenteCriacao 
             onClose={() => setMostrarAssistente(false)}
             onComplete={() => setMostrarAssistente(false)}
