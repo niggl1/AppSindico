@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer";
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 interface ItemFuncaoRapida {
   tipo: "checklist" | "manutencao" | "ocorrencia" | "vistoria";
@@ -15,7 +16,6 @@ interface ItemFuncaoRapida {
   longitude?: string | null;
   enderecoGeo?: string | null;
   createdAt: Date;
-  // Campos específicos por tipo
   dataAgendada?: Date | null;
   dataRealizada?: Date | null;
   dataOcorrencia?: Date | null;
@@ -27,12 +27,9 @@ interface ItemFuncaoRapida {
   fornecedor?: string | null;
   totalItens?: number | null;
   itensCompletos?: number | null;
-  // Imagens
   imagens?: Array<{ url: string; legenda?: string | null }>;
-  // Condomínio
   condominioNome: string;
   condominioLogo?: string | null;
-  // Cabeçalho e Rodapé personalizados
   cabecalhoLogoUrl?: string | null;
   cabecalhoNomeCondominio?: string | null;
   cabecalhoNomeSindico?: string | null;
@@ -70,14 +67,14 @@ function getTipoLabel(tipo: string): string {
   return labels[tipo] || tipo;
 }
 
-function getTipoColor(tipo: string): string {
-  const colors: Record<string, string> = {
-    checklist: "#3b82f6",
-    manutencao: "#f97316",
-    ocorrencia: "#ef4444",
-    vistoria: "#22c55e",
+function getTipoColor(tipo: string): [number, number, number] {
+  const colors: Record<string, [number, number, number]> = {
+    checklist: [59, 130, 246],
+    manutencao: [249, 115, 22],
+    ocorrencia: [239, 68, 68],
+    vistoria: [34, 197, 94],
   };
-  return colors[tipo] || "#6b7280";
+  return colors[tipo] || [107, 114, 128];
 }
 
 function getStatusLabel(status: string): string {
@@ -91,15 +88,15 @@ function getStatusLabel(status: string): string {
   return labels[status] || status;
 }
 
-function getStatusColor(status: string): string {
-  const colors: Record<string, string> = {
-    pendente: "#eab308",
-    realizada: "#22c55e",
-    acao_necessaria: "#ef4444",
-    finalizada: "#22c55e",
-    reaberta: "#f97316",
+function getStatusColor(status: string): [number, number, number] {
+  const colors: Record<string, [number, number, number]> = {
+    pendente: [234, 179, 8],
+    realizada: [34, 197, 94],
+    acao_necessaria: [239, 68, 68],
+    finalizada: [34, 197, 94],
+    reaberta: [249, 115, 22],
   };
-  return colors[status] || "#6b7280";
+  return colors[status] || [107, 114, 128];
 }
 
 function getPrioridadeLabel(prioridade: string | null | undefined): string {
@@ -113,617 +110,308 @@ function getPrioridadeLabel(prioridade: string | null | undefined): string {
   return labels[prioridade] || prioridade;
 }
 
-function getPrioridadeColor(prioridade: string | null | undefined): string {
-  if (!prioridade) return "#6b7280";
-  const colors: Record<string, string> = {
-    baixa: "#22c55e",
-    media: "#3b82f6",
-    alta: "#f97316",
-    urgente: "#ef4444",
+function getPrioridadeColor(prioridade: string | null | undefined): [number, number, number] {
+  if (!prioridade) return [107, 114, 128];
+  const colors: Record<string, [number, number, number]> = {
+    baixa: [34, 197, 94],
+    media: [59, 130, 246],
+    alta: [249, 115, 22],
+    urgente: [239, 68, 68],
   };
-  return colors[prioridade] || "#6b7280";
-}
-
-function generateHTML(item: ItemFuncaoRapida): string {
-  const tipoColor = getTipoColor(item.tipo);
-  const statusColor = getStatusColor(item.status);
-  const prioridadeColor = getPrioridadeColor(item.prioridade);
-  
-  // Gerar URL do mapa estático se tiver coordenadas
-  const mapUrl = item.latitude && item.longitude
-    ? `https://maps.googleapis.com/maps/api/staticmap?center=${item.latitude},${item.longitude}&zoom=16&size=600x300&markers=color:red%7C${item.latitude},${item.longitude}&key=AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik`
-    : null;
-  
-  // Fallback para OpenStreetMap se não tiver API key do Google
-  const osmMapUrl = item.latitude && item.longitude
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(item.longitude) - 0.005},${parseFloat(item.latitude) - 0.003},${parseFloat(item.longitude) + 0.005},${parseFloat(item.latitude) + 0.003}&layer=mapnik&marker=${item.latitude},${item.longitude}`
-    : null;
-
-  return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${getTipoLabel(item.tipo)} - ${item.protocolo}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      color: #1a1a1a;
-      line-height: 1.6;
-      background: #f9fafb;
-    }
-    
-    .page {
-      width: 210mm;
-      min-height: 297mm;
-      padding: 15mm;
-      background: white;
-      margin: 0 auto;
-    }
-    
-    /* Header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 25px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .logo {
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, ${tipoColor}, ${tipoColor}dd);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    
-    .logo img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-    
-    .header-info h1 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-    
-    .header-info p {
-      font-size: 12px;
-      color: #6b7280;
-    }
-    
-    .header-right {
-      text-align: right;
-    }
-    
-    .protocolo {
-      font-size: 14px;
-      font-weight: 600;
-      color: ${tipoColor};
-      margin-bottom: 5px;
-    }
-    
-    .data-criacao {
-      font-size: 11px;
-      color: #6b7280;
-    }
-    
-    /* Title Section */
-    .title-section {
-      margin-bottom: 25px;
-    }
-    
-    .tipo-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      background: ${tipoColor}15;
-      color: ${tipoColor};
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 12px;
-    }
-    
-    .titulo {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 8px;
-    }
-    
-    .subtitulo {
-      font-size: 14px;
-      color: #6b7280;
-    }
-    
-    /* Status Row */
-    .status-row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-    
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: #f9fafb;
-      border-radius: 10px;
-    }
-    
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    
-    .status-label {
-      font-size: 11px;
-      color: #6b7280;
-      text-transform: uppercase;
-    }
-    
-    .status-value {
-      font-size: 13px;
-      font-weight: 600;
-    }
-    
-    /* Info Grid */
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-    
-    .info-card {
-      padding: 15px;
-      background: #f9fafb;
-      border-radius: 10px;
-    }
-    
-    .info-card.full-width {
-      grid-column: span 2;
-    }
-    
-    .info-label {
-      font-size: 11px;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-    }
-    
-    .info-value {
-      font-size: 14px;
-      font-weight: 500;
-      color: #1a1a1a;
-    }
-    
-    .info-value.empty {
-      color: #9ca3af;
-      font-style: italic;
-    }
-    
-    /* Description */
-    .description-section {
-      margin-bottom: 25px;
-    }
-    
-    .section-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 10px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .description-text {
-      font-size: 13px;
-      color: #374151;
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
-    
-    /* Location Section */
-    .location-section {
-      margin-bottom: 25px;
-    }
-    
-    .location-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    
-    .location-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #ef4444;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 16px;
-    }
-    
-    .location-info h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-    
-    .location-info p {
-      font-size: 12px;
-      color: #6b7280;
-    }
-    
-    .location-address {
-      font-size: 13px;
-      color: #374151;
-      margin-bottom: 15px;
-      padding: 12px;
-      background: #f9fafb;
-      border-radius: 8px;
-    }
-    
-    .location-coords {
-      font-size: 11px;
-      color: #6b7280;
-      margin-bottom: 15px;
-    }
-    
-    .map-container {
-      width: 100%;
-      height: 200px;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .map-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .map-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    
-    /* Images Section */
-    .images-section {
-      margin-bottom: 25px;
-    }
-    
-    .images-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    
-    .image-item {
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .image-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-    }
-    
-    .image-legenda {
-      font-size: 10px;
-      color: #6b7280;
-      padding: 5px;
-      text-align: center;
-      background: #f9fafb;
-    }
-    
-    /* Footer */
-    .footer {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 2px solid #e5e7eb;
-      text-align: center;
-    }
-    
-    .footer-text {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-    
-    .footer-qr {
-      margin-top: 10px;
-      font-size: 10px;
-      color: #6b7280;
-    }
-    
-    @media print {
-      body {
-        background: white;
-      }
-      .page {
-        margin: 0;
-        padding: 10mm;
-        box-shadow: none;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="page">
-    <!-- Header Personalizado -->
-    <div class="header">
-      <div class="header-left">
-        ${(item.cabecalhoLogoUrl || item.condominioLogo) ? `
-        <div class="logo">
-          <img src="${item.cabecalhoLogoUrl || item.condominioLogo}" alt="Logo" />
-        </div>
-        ` : `
-        <div class="logo">
-          ${getTipoLabel(item.tipo).charAt(0)}
-        </div>
-        `}
-        <div class="header-info">
-          <h1>${item.cabecalhoNomeCondominio || item.condominioNome}</h1>
-          ${item.cabecalhoNomeSindico ? `<p>Síndico: ${item.cabecalhoNomeSindico}</p>` : `<p>Relatório de ${getTipoLabel(item.tipo)}</p>`}
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="protocolo">${item.protocolo}</div>
-        <div class="data-criacao">Criado em ${formatDate(item.createdAt)}</div>
-      </div>
-    </div>
-    
-    <!-- Title Section -->
-    <div class="title-section">
-      <span class="tipo-badge">${getTipoLabel(item.tipo)}</span>
-      <h2 class="titulo">${item.titulo}</h2>
-      ${item.subtitulo ? `<p class="subtitulo">${item.subtitulo}</p>` : ''}
-    </div>
-    
-    <!-- Status Row -->
-    <div class="status-row">
-      <div class="status-item">
-        <div class="status-dot" style="background: ${statusColor}"></div>
-        <div>
-          <div class="status-label">Status</div>
-          <div class="status-value" style="color: ${statusColor}">${getStatusLabel(item.status)}</div>
-        </div>
-      </div>
-      <div class="status-item">
-        <div class="status-dot" style="background: ${prioridadeColor}"></div>
-        <div>
-          <div class="status-label">Prioridade</div>
-          <div class="status-value" style="color: ${prioridadeColor}">${getPrioridadeLabel(item.prioridade)}</div>
-        </div>
-      </div>
-      ${item.categoria ? `
-      <div class="status-item">
-        <div class="status-dot" style="background: #6b7280"></div>
-        <div>
-          <div class="status-label">Categoria</div>
-          <div class="status-value">${item.categoria}</div>
-        </div>
-      </div>
-      ` : ''}
-    </div>
-    
-    <!-- Info Grid -->
-    <div class="info-grid">
-      ${item.responsavelNome ? `
-      <div class="info-card">
-        <div class="info-label">Responsável</div>
-        <div class="info-value">${item.responsavelNome}</div>
-      </div>
-      ` : ''}
-      
-      ${item.localizacao ? `
-      <div class="info-card">
-        <div class="info-label">Localização</div>
-        <div class="info-value">${item.localizacao}</div>
-      </div>
-      ` : ''}
-      
-      ${(item.latitude && item.longitude) ? `
-      <div class="info-card" style="grid-column: span 2;">
-        <div class="info-label">📍 Localização GPS (Clique para abrir no mapa)</div>
-        <div class="info-value">
-          <a href="https://www.google.com/maps?q=${item.latitude},${item.longitude}" 
-             target="_blank" 
-             style="color: #2563eb; text-decoration: underline; font-weight: 500;">
-            Ver no Google Maps →
-          </a>
-          <div style="font-size: 11px; color: #666; margin-top: 4px;">
-            Coordenadas: ${item.latitude}, ${item.longitude}
-          </div>
-          ${item.enderecoGeo ? `<div style="font-size: 11px; color: #666; margin-top: 2px;">Endereço: ${item.enderecoGeo}</div>` : ''}
-        </div>
-      </div>
-      ` : ''}
-      
-      ${item.dataAgendada ? `
-      <div class="info-card">
-        <div class="info-label">Data Agendada</div>
-        <div class="info-value">${formatDateShort(item.dataAgendada)}</div>
-      </div>
-      ` : ''}
-      
-      ${item.dataRealizada ? `
-      <div class="info-card">
-        <div class="info-label">Data Realizada</div>
-        <div class="info-value">${formatDateShort(item.dataRealizada)}</div>
-      </div>
-      ` : ''}
-      
-      ${item.dataOcorrencia ? `
-      <div class="info-card">
-        <div class="info-label">Data da Ocorrência</div>
-        <div class="info-value">${formatDate(item.dataOcorrencia)}</div>
-      </div>
-      ` : ''}
-      
-      ${item.tipo_manutencao ? `
-      <div class="info-card">
-        <div class="info-label">Tipo de Manutenção</div>
-        <div class="info-value">${item.tipo_manutencao}</div>
-      </div>
-      ` : ''}
-      
-      ${item.fornecedor ? `
-      <div class="info-card">
-        <div class="info-label">Fornecedor</div>
-        <div class="info-value">${item.fornecedor}</div>
-      </div>
-      ` : ''}
-      
-      ${(item.tempoEstimadoDias || item.tempoEstimadoHoras || item.tempoEstimadoMinutos) ? `
-      <div class="info-card">
-        <div class="info-label">Tempo Estimado</div>
-        <div class="info-value">${item.tempoEstimadoDias ? `${item.tempoEstimadoDias}d ` : ''}${item.tempoEstimadoHoras ? `${item.tempoEstimadoHoras}h ` : ''}${item.tempoEstimadoMinutos ? `${item.tempoEstimadoMinutos}min` : ''}</div>
-      </div>
-      ` : ''}
-      
-      ${item.totalItens !== null && item.totalItens !== undefined ? `
-      <div class="info-card">
-        <div class="info-label">Progresso do Checklist</div>
-        <div class="info-value">${item.itensCompletos || 0} de ${item.totalItens} itens</div>
-      </div>
-      ` : ''}
-    </div>
-    
-    <!-- Description -->
-    ${item.descricao ? `
-    <div class="description-section">
-      <h3 class="section-title">Descrição</h3>
-      <p class="description-text">${item.descricao}</p>
-    </div>
-    ` : ''}
-    
-    <!-- Observations -->
-    ${item.observacoes ? `
-    <div class="description-section">
-      <h3 class="section-title">Observações</h3>
-      <p class="description-text">${item.observacoes}</p>
-    </div>
-    ` : ''}
-    
-    <!-- Location Section with Map -->
-    ${item.latitude && item.longitude ? `
-    <div class="location-section">
-      <h3 class="section-title">Localização Geográfica</h3>
-      <div class="location-header">
-        <div class="location-icon">📍</div>
-        <div class="location-info">
-          <h3>Coordenadas GPS</h3>
-          <p>Capturadas no momento do registo</p>
-        </div>
-      </div>
-      ${item.enderecoGeo ? `
-      <div class="location-address">
-        <strong>Endereço:</strong> ${item.enderecoGeo}
-      </div>
-      ` : ''}
-      <div class="location-coords">
-        <strong>Latitude:</strong> ${item.latitude} | <strong>Longitude:</strong> ${item.longitude}
-      </div>
-      <div class="map-container">
-        <iframe src="${osmMapUrl}" loading="lazy"></iframe>
-      </div>
-    </div>
-    ` : ''}
-    
-    <!-- Images -->
-    ${item.imagens && item.imagens.length > 0 ? `
-    <div class="images-section">
-      <h3 class="section-title">Imagens (${item.imagens.length})</h3>
-      <div class="images-grid">
-        ${item.imagens.map(img => `
-          <div class="image-item">
-            <img src="${img.url}" alt="${img.legenda || 'Imagem'}" />
-            ${img.legenda ? `<div class="image-legenda">${img.legenda}</div>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    ` : ''}
-    
-    <!-- Footer Personalizado -->
-    <div class="footer">
-      <p class="footer-text">
-        ${item.rodapeTexto || 'Documento gerado automaticamente pelo sistema'}<br>
-        ${item.rodapeContato ? `${item.rodapeContato}<br>` : ''}
-        ${item.cabecalhoNomeCondominio || item.condominioNome} • ${formatDate(new Date())}
-      </p>
-    </div>
-  </div>
-</body>
-</html>
-  `;
+  return colors[prioridade] || [107, 114, 128];
 }
 
 export async function generateFuncaoRapidaPDF(item: ItemFuncaoRapida): Promise<Buffer> {
-  const html = generateHTML(item);
-  
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
   });
-  
-  try {
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '0',
-        right: '0',
-        bottom: '0',
-        left: '0',
-      },
-    });
-    
-    return Buffer.from(pdfBuffer);
-  } finally {
-    await browser.close();
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 15;
+  const contentWidth = pageWidth - 2 * margin;
+  let yPos = margin;
+
+  const tipoColor = getTipoColor(item.tipo);
+  const statusColor = getStatusColor(item.status);
+  const prioridadeColor = getPrioridadeColor(item.prioridade);
+
+  // Função auxiliar para adicionar nova página se necessário
+  const checkNewPage = (neededSpace: number) => {
+    if (yPos + neededSpace > pageHeight - margin - 20) {
+      doc.addPage();
+      yPos = margin;
+      return true;
+    }
+    return false;
+  };
+
+  // ==================== HEADER ====================
+  // Barra colorida do tipo
+  doc.setFillColor(tipoColor[0], tipoColor[1], tipoColor[2]);
+  doc.rect(0, 0, pageWidth, 25, 'F');
+
+  // Nome do condomínio
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text(item.cabecalhoNomeCondominio || item.condominioNome, margin, 12);
+
+  // Subtítulo
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Relatório de ${getTipoLabel(item.tipo)}`, margin, 18);
+
+  // Protocolo
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text(item.protocolo, pageWidth - margin, 15, { align: 'right' });
+
+  yPos = 35;
+
+  // ==================== TÍTULO E STATUS ====================
+  // Título
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  const tituloLines = doc.splitTextToSize(item.titulo, contentWidth);
+  doc.text(tituloLines, margin, yPos);
+  yPos += tituloLines.length * 7 + 5;
+
+  // Subtítulo
+  if (item.subtitulo) {
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(item.subtitulo, margin, yPos);
+    yPos += 7;
   }
+
+  yPos += 5;
+
+  // Badges de status e prioridade
+  // Status badge
+  doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+  doc.roundedRect(margin, yPos, 30, 7, 2, 2, 'F');
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(getStatusLabel(item.status), margin + 2, yPos + 5);
+
+  // Prioridade badge
+  if (item.prioridade) {
+    doc.setFillColor(prioridadeColor[0], prioridadeColor[1], prioridadeColor[2]);
+    doc.roundedRect(margin + 35, yPos, 25, 7, 2, 2, 'F');
+    doc.text(getPrioridadeLabel(item.prioridade), margin + 37, yPos + 5);
+  }
+
+  // Tipo badge
+  doc.setFillColor(tipoColor[0], tipoColor[1], tipoColor[2]);
+  doc.roundedRect(margin + 65, yPos, 25, 7, 2, 2, 'F');
+  doc.text(getTipoLabel(item.tipo), margin + 67, yPos + 5);
+
+  yPos += 15;
+
+  // ==================== INFORMAÇÕES ====================
+  doc.setDrawColor(229, 231, 235);
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPos, pageWidth - margin, yPos);
+  yPos += 8;
+
+  // Grid de informações
+  const infoItems: Array<{ label: string; value: string }> = [];
+
+  infoItems.push({ label: 'Data de Criação', value: formatDate(item.createdAt) });
+
+  if (item.responsavelNome) {
+    infoItems.push({ label: 'Responsável', value: item.responsavelNome });
+  }
+
+  if (item.localizacao) {
+    infoItems.push({ label: 'Localização', value: item.localizacao });
+  }
+
+  if (item.dataAgendada) {
+    infoItems.push({ label: 'Data Agendada', value: formatDateShort(item.dataAgendada) });
+  }
+
+  if (item.dataRealizada) {
+    infoItems.push({ label: 'Data Realizada', value: formatDateShort(item.dataRealizada) });
+  }
+
+  if (item.dataOcorrencia) {
+    infoItems.push({ label: 'Data da Ocorrência', value: formatDateShort(item.dataOcorrencia) });
+  }
+
+  if (item.categoria) {
+    infoItems.push({ label: 'Categoria', value: item.categoria });
+  }
+
+  if (item.tipo_manutencao) {
+    infoItems.push({ label: 'Tipo de Manutenção', value: item.tipo_manutencao });
+  }
+
+  if (item.fornecedor) {
+    infoItems.push({ label: 'Fornecedor', value: item.fornecedor });
+  }
+
+  if (item.totalItens !== null && item.totalItens !== undefined) {
+    const completos = item.itensCompletos || 0;
+    infoItems.push({ label: 'Progresso', value: `${completos}/${item.totalItens} itens` });
+  }
+
+  // Tempo estimado
+  if (item.tempoEstimadoDias || item.tempoEstimadoHoras || item.tempoEstimadoMinutos) {
+    const partes = [];
+    if (item.tempoEstimadoDias) partes.push(`${item.tempoEstimadoDias}d`);
+    if (item.tempoEstimadoHoras) partes.push(`${item.tempoEstimadoHoras}h`);
+    if (item.tempoEstimadoMinutos) partes.push(`${item.tempoEstimadoMinutos}min`);
+    infoItems.push({ label: 'Tempo Estimado', value: partes.join(' ') });
+  }
+
+  // Renderizar informações em 2 colunas
+  const colWidth = contentWidth / 2;
+  for (let i = 0; i < infoItems.length; i += 2) {
+    checkNewPage(15);
+
+    // Coluna 1
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(128, 128, 128);
+    doc.text(infoItems[i].label, margin, yPos);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(infoItems[i].value, margin, yPos + 5);
+
+    // Coluna 2
+    if (infoItems[i + 1]) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(128, 128, 128);
+      doc.text(infoItems[i + 1].label, margin + colWidth, yPos);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text(infoItems[i + 1].value, margin + colWidth, yPos + 5);
+    }
+
+    yPos += 15;
+  }
+
+  // ==================== DESCRIÇÃO ====================
+  if (item.descricao) {
+    checkNewPage(30);
+    yPos += 5;
+
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(229, 231, 235);
+    
+    const descLines = doc.splitTextToSize(item.descricao, contentWidth - 10);
+    const boxHeight = 15 + descLines.length * 5;
+    
+    doc.roundedRect(margin, yPos, contentWidth, boxHeight, 3, 3, 'FD');
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(tipoColor[0], tipoColor[1], tipoColor[2]);
+    doc.text('Descrição', margin + 5, yPos + 7);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 60, 60);
+    doc.text(descLines, margin + 5, yPos + 14);
+
+    yPos += boxHeight + 8;
+  }
+
+  // ==================== OBSERVAÇÕES ====================
+  if (item.observacoes) {
+    checkNewPage(30);
+
+    doc.setFillColor(254, 249, 195);
+    doc.setDrawColor(234, 179, 8);
+    
+    const obsLines = doc.splitTextToSize(item.observacoes, contentWidth - 10);
+    const boxHeight = 15 + obsLines.length * 5;
+    
+    doc.roundedRect(margin, yPos, contentWidth, boxHeight, 3, 3, 'FD');
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(161, 98, 7);
+    doc.text('Observações', margin + 5, yPos + 7);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(113, 63, 18);
+    doc.text(obsLines, margin + 5, yPos + 14);
+
+    yPos += boxHeight + 8;
+  }
+
+  // ==================== LOCALIZAÇÃO ====================
+  if (item.enderecoGeo || (item.latitude && item.longitude)) {
+    checkNewPage(25);
+
+    doc.setFillColor(240, 253, 244);
+    doc.setDrawColor(34, 197, 94);
+    doc.roundedRect(margin, yPos, contentWidth, 20, 3, 3, 'FD');
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(22, 101, 52);
+    doc.text('Localização', margin + 5, yPos + 7);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(21, 128, 61);
+    
+    if (item.enderecoGeo) {
+      doc.text(item.enderecoGeo, margin + 5, yPos + 14);
+    }
+    
+    if (item.latitude && item.longitude) {
+      doc.setFontSize(8);
+      doc.text(`Coordenadas: ${item.latitude}, ${item.longitude}`, margin + 5, yPos + 18);
+    }
+
+    yPos += 25;
+  }
+
+  // ==================== FOOTER ====================
+  // Adicionar footer em todas as páginas
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    
+    // Linha separadora
+    doc.setDrawColor(229, 231, 235);
+    doc.setLineWidth(0.5);
+    doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
+
+    // Texto do rodapé
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(156, 163, 175);
+    
+    const rodapeTexto = item.rodapeTexto || 'Documento gerado automaticamente pelo sistema';
+    doc.text(rodapeTexto, pageWidth / 2, pageHeight - 18, { align: 'center' });
+    
+    if (item.rodapeContato) {
+      doc.text(item.rodapeContato, pageWidth / 2, pageHeight - 13, { align: 'center' });
+    }
+    
+    doc.text(`${item.cabecalhoNomeCondominio || item.condominioNome} • ${formatDate(new Date())}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+    
+    // Número da página
+    doc.text(`Página ${i} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+  }
+
+  // Retornar como Buffer
+  const pdfOutput = doc.output('arraybuffer');
+  return Buffer.from(pdfOutput);
 }
 
 export type { ItemFuncaoRapida };

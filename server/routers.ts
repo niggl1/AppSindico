@@ -752,13 +752,20 @@ export const appRouter = router({
 
     // Gerar PDF da revista
     generatePDF: publicProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.number().optional(), shareLink: z.string().optional() }))
       .mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new Error("Database not available");
         
-        // Buscar revista
-        const revistaResult = await db.select().from(revistas).where(eq(revistas.id, input.id)).limit(1);
+        // Buscar revista por ID ou shareLink
+        let revistaResult;
+        if (input.shareLink) {
+          revistaResult = await db.select().from(revistas).where(eq(revistas.shareLink, input.shareLink)).limit(1);
+        } else if (input.id) {
+          revistaResult = await db.select().from(revistas).where(eq(revistas.id, input.id)).limit(1);
+        } else {
+          throw new Error("ID ou shareLink é obrigatório");
+        }
         const revista = revistaResult[0];
         if (!revista) throw new Error("Revista não encontrada");
         
@@ -13104,51 +13111,105 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
   }),
 });
 
-// Função auxiliar para gerar PDF de infrações
+// Função auxiliar para gerar PDF de infrações usando jsPDF
+// Nota: Esta função recebe HTML mas gera um PDF simples com o conteúdo
 async function generateInfracoesPDF(htmlContent: string): Promise<Buffer> {
   try {
-    const { default: puppeteer } = await import('puppeteer');
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const { jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
+    
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
     });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '15px', right: '15px', bottom: '15px', left: '15px' },
-    });
-    await browser.close();
-    return Buffer.from(pdfBuffer);
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const contentWidth = pageWidth - 2 * margin;
+    
+    // Header
+    doc.setFillColor(239, 68, 68);
+    doc.rect(0, 0, pageWidth, 20, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Relatório de Infrações', margin, 13);
+    
+    // Conteúdo simplificado - extrair texto do HTML
+    const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    const lines = doc.splitTextToSize(textContent, contentWidth);
+    let yPos = 30;
+    
+    for (const line of lines) {
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, margin, yPos);
+      yPos += 5;
+    }
+    
+    const pdfOutput = doc.output('arraybuffer');
+    return Buffer.from(pdfOutput);
   } catch (error) {
     console.error('Erro ao gerar PDF de infrações:', error);
     return Buffer.from(htmlContent, 'utf-8');
   }
 }
 
-// Função auxiliar para gerar PDF de vencimentos
+// Função auxiliar para gerar PDF de vencimentos usando jsPDF
 async function generateVencimentosPDF(htmlContent: string): Promise<Buffer> {
-  // Usar puppeteer ou similar para gerar PDF
-  // Por enquanto, retornar o HTML como buffer (pode ser melhorado)
   try {
-    const { default: puppeteer } = await import('puppeteer');
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const { jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
+    
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
     });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' },
-    });
-    await browser.close();
-    return Buffer.from(pdfBuffer);
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const contentWidth = pageWidth - 2 * margin;
+    
+    // Header
+    doc.setFillColor(37, 99, 235);
+    doc.rect(0, 0, pageWidth, 20, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Relatório de Vencimentos', margin, 13);
+    
+    // Conteúdo simplificado - extrair texto do HTML
+    const textContent = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    const lines = doc.splitTextToSize(textContent, contentWidth);
+    let yPos = 30;
+    
+    for (const line of lines) {
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, margin, yPos);
+      yPos += 5;
+    }
+    
+    const pdfOutput = doc.output('arraybuffer');
+    return Buffer.from(pdfOutput);
   } catch (error) {
     console.error('Erro ao gerar PDF:', error);
-    // Fallback: retornar HTML como texto
     return Buffer.from(htmlContent, 'utf-8');
   }
 }

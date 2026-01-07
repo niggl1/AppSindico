@@ -43,6 +43,7 @@ import {
   Hand,
   Layers,
   ScrollText,
+  Printer,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "wouter";
@@ -427,10 +428,14 @@ export default function MagazineViewer() {
   });
 
   const handleDownloadPDF = () => {
-    // Para demo, usar ID 1. Em produção, usar o ID real da revista
-    const revistaId = 1; // TODO: obter do params ou contexto
+    // Usar o shareLink da URL para gerar o PDF da revista correta
+    const shareLink = params.shareLink;
+    if (!shareLink) {
+      toast.error('Link da revista não encontrado');
+      return;
+    }
     setIsGeneratingPDF(true);
-    generatePDF.mutate({ id: revistaId });
+    generatePDF.mutate({ shareLink });
   };
 
   const magazine = demoMagazine;
@@ -633,15 +638,10 @@ export default function MagazineViewer() {
               variant="ghost"
               size="sm"
               className="text-white/70 hover:text-white hover:bg-white/10"
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPDF}
+              onClick={() => window.print()}
             >
-              {isGeneratingPDF ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4 mr-2" />
-              )}
-              <span className="hidden sm:inline">{isGeneratingPDF ? 'A gerar...' : 'PDF'}</span>
+              <Printer className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Imprimir</span>
             </Button>
             {/* Zoom controls */}
             <div className="flex items-center gap-1 border-l border-white/20 pl-2 ml-1">
