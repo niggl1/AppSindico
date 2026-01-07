@@ -558,19 +558,25 @@ export function NotificacoesPage({ condominioId }: NotificacoesPageProps) {
                 Enviar Push em Massa
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Enviar Notificação Push em Massa
-                </DialogTitle>
-                <DialogDescription>
-                  Envie uma notificação para todos os moradores com push ativo
-                </DialogDescription>
-              </DialogHeader>
+            <DialogContent className="max-w-md p-0 overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 text-white">
+                <DialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Bell className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-white text-xl">Enviar Push em Massa</DialogTitle>
+                      <DialogDescription className="text-purple-100">
+                        Envie uma notificação para todos os moradores com push ativo
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+              </div>
               
               {!broadcastResult ? (
-                <div className="space-y-4 pt-4">
+                <div className="space-y-4 p-6">
                   {/* Contador de destinatários */}
                   <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="flex items-center justify-between">
@@ -865,14 +871,23 @@ export function NotificacoesPage({ condominioId }: NotificacoesPageProps) {
                 Novo Lembrete
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Criar Lembrete</DialogTitle>
-                <DialogDescription>
-                  Agende um lembrete para ser enviado automaticamente
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
+            <DialogContent className="max-w-md p-0 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                <DialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Clock className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-white text-xl">Criar Lembrete</DialogTitle>
+                      <DialogDescription className="text-blue-100">
+                        Agende um lembrete para ser enviado automaticamente
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+              </div>
+              <div className="space-y-4 p-6">
                 <div className="space-y-2">
                   <Label>Tipo</Label>
                   <Select value={lembreteTipo} onValueChange={(v: any) => setLembreteTipo(v)}>
@@ -935,18 +950,18 @@ export function NotificacoesPage({ condominioId }: NotificacoesPageProps) {
                   </Select>
                 </div>
                 
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setShowLembreteModal(false)}>
-                    Cancelar
-                  </Button>
-                  <Button 
-                    onClick={handleCreateLembrete}
-                    disabled={createLembreteMutation.isPending}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600"
-                  >
-                    {createLembreteMutation.isPending ? "Criando..." : "Criar Lembrete"}
-                  </Button>
-                </div>
+              </div>
+              <div className="flex justify-end gap-2 p-6 pt-0 bg-gray-50 border-t">
+                <Button variant="outline" onClick={() => setShowLembreteModal(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleCreateLembrete}
+                  disabled={createLembreteMutation.isPending}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600"
+                >
+                  {createLembreteMutation.isPending ? "Criando..." : "Criar Lembrete"}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -958,14 +973,23 @@ export function NotificacoesPage({ condominioId }: NotificacoesPageProps) {
                 Enviar Notificação
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Enviar Notificação</DialogTitle>
-                <DialogDescription>
-                  Envie uma notificação para os moradores do condomínio
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
+            <DialogContent className="max-w-md p-0 overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 text-white">
+                <DialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Send className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-white text-xl">Enviar Notificação</DialogTitle>
+                      <DialogDescription className="text-purple-100">
+                        Envie uma notificação para os moradores do condomínio
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+              </div>
+              <div className="space-y-4 p-6">
                 <div className="space-y-2">
                   <Label>Canal</Label>
                   <div className="flex gap-2">
@@ -1109,18 +1133,18 @@ export function NotificacoesPage({ condominioId }: NotificacoesPageProps) {
                   </p>
                 </div>
                 
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setShowSendModal(false)}>
-                    Cancelar
-                  </Button>
-                  <Button 
-                    onClick={handleSendNotification}
-                    className="bg-gradient-to-r from-purple-500 to-purple-600"
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Enviar
-                  </Button>
-                </div>
+              </div>
+              <div className="flex justify-end gap-2 p-6 pt-0 bg-gray-50 border-t">
+                <Button variant="outline" onClick={() => setShowSendModal(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleSendNotification}
+                  className="bg-gradient-to-r from-purple-500 to-purple-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Enviar
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
