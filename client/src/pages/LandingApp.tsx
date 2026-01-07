@@ -101,103 +101,60 @@ export default function LandingApp() {
       {/* Hero Section */}
       <section className="py-20 overflow-hidden">
         <div className="container">
-          <div className="flex flex-row gap-12 items-center">
-            {/* Left Side - Text */}
-            <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 mb-6">
-                <LayoutGrid className="w-4 h-4" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 mb-6">
+                <Smartphone className="w-4 h-4" />
                 <span className="text-sm font-medium">Layout Grid</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-6">
                 Seu Condomínio na
-                <span className="text-orange-500"> Palma da Mão</span>
+                <span className="text-blue-600"> Palma da Mão</span>
               </h1>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                 Um aplicativo completo para gestão condominial com interface moderna em grade, 
                 acesso rápido a todas as funcionalidades e notificações em tempo real.
               </p>
-              <div className="flex flex-row gap-4">
+              <div className="flex flex-wrap gap-4">
                 <Link href="/dashboard/revistas">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 px-6">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                     <LayoutGrid className="w-5 h-5 mr-2" />
                     Criar Meu App Agora
                   </Button>
                 </Link>
                 <Link href="/demo-layouts">
-                  <Button size="lg" variant="outline" className="px-6">
+                  <Button size="lg" variant="outline">
                     Ver Demonstração
                   </Button>
                 </Link>
               </div>
             </div>
             
-            {/* Right Side - Tablet Preview */}
-            <div className="flex-1 relative">
-              <div className="bg-slate-100 rounded-3xl p-6 shadow-xl border border-slate-200 relative" style={{ minWidth: '450px' }}>
-                {/* Notification Bell */}
-                <div className="absolute top-4 right-4">
-                  <Bell className="w-5 h-5 text-gray-400" />
-                </div>
-                
-                {/* App Grid */}
-                <div className="bg-white rounded-2xl p-6 mt-4">
-                  <div className="grid grid-cols-3 gap-6">
-                    {/* Avisos */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-2">
-                        <MessageSquare className="w-6 h-6 text-amber-500" />
+            {/* App Preview */}
+            <div className="relative">
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-8 shadow-2xl">
+                <div className="bg-white rounded-2xl p-4 shadow-inner">
+                  <div className="grid grid-cols-3 gap-3">
+                    {modules.map((module, index) => (
+                      <div 
+                        key={index}
+                        className="aspect-square rounded-xl bg-gray-50 flex flex-col items-center justify-center gap-2 p-3 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className={`w-10 h-10 rounded-lg ${module.color} flex items-center justify-center`}>
+                          <module.icon className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-xs font-medium text-gray-700">{module.name}</span>
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Avisos</span>
-                    </div>
-                    
-                    {/* Eventos */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-amber-400 flex items-center justify-center mb-2">
-                        <Calendar className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Eventos</span>
-                    </div>
-                    
-                    {/* Votações */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center mb-2">
-                        <Vote className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Votações</span>
-                    </div>
-                    
-                    {/* Classificados */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center mb-2">
-                        <Package className="w-6 h-6 text-purple-500" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Classificados</span>
-                    </div>
-                    
-                    {/* Funcionários */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-pink-500 flex items-center justify-center mb-2">
-                        <Users className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Funcionários</span>
-                    </div>
-                    
-                    {/* Manutenções */}
-                    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center mb-2">
-                        <Settings className="w-6 h-6 text-slate-500" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Manutenções</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
-                
-                {/* Online Badge */}
-                <div className="absolute -bottom-3 left-6 bg-white rounded-full shadow-lg px-4 py-2 border border-gray-100">
-                  <span className="text-sm font-medium text-emerald-500 flex items-center gap-1">
-                    <Check className="w-4 h-4" /> Online
-                  </span>
-                </div>
+              </div>
+              {/* Floating elements */}
+              <div className="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-3 animate-bounce">
+                <Bell className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg px-4 py-2">
+                <span className="text-sm font-medium text-emerald-600">✓ Online</span>
               </div>
             </div>
           </div>

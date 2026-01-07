@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `tipoConta` enum('sindico','administradora','admin') DEFAULT 'sindico';

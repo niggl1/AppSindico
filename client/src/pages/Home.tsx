@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -168,15 +167,11 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 glass-effect">
         <div className="container flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            {/* Logo */}
-            <img 
-              src="/LogoAppSindico.png" 
-              alt="App Síndico" 
-              className="h-12 object-contain"
-            />
+            <img src="/logo-appsindico.png" alt="App Síndico" className="w-10 h-10 object-contain" />
+            <img src="/logo-appsindico-texto.png" alt="App Síndico" className="h-8 object-contain" />
           </Link>
 
-          <nav className="flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Recursos
             </a>
@@ -225,92 +220,95 @@ export default function Home() {
         </div>
 
         <div className="container">
-          <div className="flex flex-row gap-6 items-start">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex-1"
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Sparkles className="w-4 h-4" />
                 Nova forma de comunicar no condomínio
               </div>
 
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight mb-8">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground leading-tight mb-6">
                 Plataforma Digital
                 <span className="text-gradient block">para Condomínios</span>
               </h1>
 
-              <p className="text-xl text-muted-foreground mb-10 max-w-xl">
+              <p className="text-lg text-muted-foreground mb-8 max-w-lg">
                 Aplicativos, revistas digitais interativas e relatórios personalizados
               </p>
 
               <TooltipProvider>
-                <div className="grid grid-cols-2 gap-4 max-w-lg">
-                  {/* Botão Criar Meu App - Azul */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href="/app">
-                        <Button size="lg" className="text-lg py-6 w-full bg-blue-600 hover:bg-blue-700 text-white">
-                          <LayoutGrid className="w-5 h-5 mr-2" />
-                          Criar Meu App
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs">
-                      <p className="font-medium">Layout em Grade</p>
-                      <p className="text-xs text-muted-foreground">Ideal para dashboards, painéis e aplicativos com cards organizados</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Botão Criar Meu App - Azul */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href="/app">
+                          <Button size="lg" className="text-base w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white">
+                            <LayoutGrid className="w-5 h-5 mr-2" />
+                            Criar Meu App
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs">
+                        <p className="font-medium">Layout em Grade</p>
+                        <p className="text-xs text-muted-foreground">Ideal para dashboards, painéis e aplicativos com cards organizados</p>
+                      </TooltipContent>
+                    </Tooltip>
 
-                  {/* Botão Criar Minha Revista - Verde */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href="/revista">
-                        <Button size="lg" className="text-lg py-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-                          <BookOpenIcon className="w-5 h-5 mr-2" />
-                          Criar Minha Revista
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs">
-                      <p className="font-medium">Formato de Páginas</p>
-                      <p className="text-xs text-muted-foreground">Navegação como uma revista real, com efeito de virar páginas</p>
-                    </TooltipContent>
-                  </Tooltip>
+                    {/* Botão Criar Minha Revista - Verde */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href="/revista">
+                          <Button size="lg" className="text-base w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white">
+                            <BookOpenIcon className="w-5 h-5 mr-2" />
+                            Criar Minha Revista
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs">
+                        <p className="font-medium">Formato de Páginas</p>
+                        <p className="text-xs text-muted-foreground">Navegação como uma revista real, com efeito de virar páginas</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
 
-                  {/* Botão Criar Relatórios - Roxo */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href="/relatorio">
-                        <Button size="lg" className="text-lg py-6 w-full bg-purple-600 hover:bg-purple-700 text-white">
-                          <ScrollText className="w-5 h-5 mr-2" />
-                          Criar Relatórios
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs">
-                      <p className="font-medium">Documento Contínuo</p>
-                      <p className="text-xs text-muted-foreground">Rolagem vertical para relatórios longos e documentos detalhados</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Botão Criar Relatórios - Roxo */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href="/relatorio">
+                          <Button size="lg" className="text-base w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white">
+                            <ScrollText className="w-5 h-5 mr-2" />
+                            Criar Relatórios Detalhados
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs">
+                        <p className="font-medium">Documento Contínuo</p>
+                        <p className="text-xs text-muted-foreground">Rolagem vertical para relatórios longos e documentos detalhados</p>
+                      </TooltipContent>
+                    </Tooltip>
 
-                  {/* Botão Ver Demonstração - Laranja */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href="/demo-layouts">
-                        <Button size="lg" className="text-lg py-6 w-full bg-orange-500 hover:bg-orange-600 text-white">
-                          <Play className="w-5 h-5 mr-2" />
-                          Ver Demonstração
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs">
-                      <p className="font-medium">Veja na Prática</p>
-                      <p className="text-xs text-muted-foreground">Explore um exemplo completo da plataforma em ação</p>
-                    </TooltipContent>
-                  </Tooltip>
+                    {/* Botão Ver Demonstração - Laranja */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link href="/demo-layouts">
+                          <Button size="lg" className="text-base w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white">
+                            <Play className="w-5 h-5 mr-2" />
+                            Ver Demonstração
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs">
+                        <p className="font-medium">Veja na Prática</p>
+                        <p className="text-xs text-muted-foreground">Explore um exemplo completo da plataforma em ação</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               </TooltipProvider>
 
@@ -322,18 +320,18 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative flex-shrink-0 w-[380px]"
+              className="relative"
             >
-              <div className="relative mx-auto">
+              <div className="relative mx-auto max-w-md">
                 {/* Magazine mockup */}
-                <div className="magazine-page aspect-[3/4] p-8 bg-gradient-to-br from-white to-gray-50">
+                <div className="magazine-page aspect-[3/4] p-6 bg-gradient-to-br from-white to-gray-50">
                   <div className="h-full flex flex-col">
                     {/* Magazine header */}
                     <div className="text-center mb-4">
                       <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
                         Edição Dezembro 2024
                       </div>
-                      <h2 className="font-serif text-3xl font-bold text-foreground">
+                      <h2 className="font-serif text-2xl font-bold text-foreground">
                         Residencial Jardins
                       </h2>
                       <div className="section-divider mt-3" />
@@ -345,26 +343,26 @@ export default function Home() {
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-primary/30" />
                           <div>
-                            <div className="text-base font-semibold">Mensagem do Síndico</div>
+                            <div className="text-sm font-semibold">Mensagem do Síndico</div>
                             <div className="text-xs text-muted-foreground">João Silva</div>
                           </div>
                         </div>
                       </div>
                       <div className="rounded-lg bg-amber-50 p-3">
-                        <Megaphone className="w-6 h-6 text-amber-600 mb-2" />
-                        <div className="text-sm font-medium">Avisos</div>
+                        <Megaphone className="w-5 h-5 text-amber-600 mb-2" />
+                        <div className="text-xs font-medium">Avisos</div>
                       </div>
                       <div className="rounded-lg bg-emerald-50 p-3">
-                        <Calendar className="w-6 h-6 text-emerald-600 mb-2" />
-                        <div className="text-sm font-medium">Eventos</div>
+                        <Calendar className="w-5 h-5 text-emerald-600 mb-2" />
+                        <div className="text-xs font-medium">Eventos</div>
                       </div>
                       <div className="rounded-lg bg-blue-50 p-3">
-                        <Vote className="w-6 h-6 text-blue-600 mb-2" />
-                        <div className="text-sm font-medium">Votações</div>
+                        <Vote className="w-5 h-5 text-blue-600 mb-2" />
+                        <div className="text-xs font-medium">Votações</div>
                       </div>
                       <div className="rounded-lg bg-purple-50 p-3">
-                        <Package className="w-6 h-6 text-purple-600 mb-2" />
-                        <div className="text-sm font-medium">Classificados</div>
+                        <Package className="w-5 h-5 text-purple-600 mb-2" />
+                        <div className="text-xs font-medium">Classificados</div>
                       </div>
                     </div>
 
@@ -402,7 +400,7 @@ export default function Home() {
             <div className="section-divider mt-6" />
           </motion.div>
 
-          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -447,53 +445,12 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="flex flex-row gap-6 mb-12">
-            {/* Como Funciona */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            {/* Prazos e Fidelidade */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="flex-1"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-serif text-xl font-bold text-foreground">Como Funciona</h3>
-              </div>
-              <div className="space-y-3">
-                {[
-                  "Contrate um dos planos",
-                  "Precisou de melhorias? Envie pelo WhatsApp",
-                  "Assine o adendo de fidelidade",
-                  "Iniciamos o desenvolvimento",
-                  "Ajustamos conforme sua aprovação",
-                  "Sistema pronto para PC, Android e iOS"
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary font-bold text-sm">{index + 1}.</span>
-                    </div>
-                    <span className="text-foreground">{item}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Botão WhatsApp */}
-              <a
-                href="https://wa.me/5581999618516?text=Ol%C3%A1!%20Gostaria%20de%20solicitar%20melhorias%20no%20App%20S%C3%ADndico."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-full transition-colors shadow-lg hover:shadow-xl"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Solicitar Melhoria via WhatsApp
-              </a>
-            </motion.div>
-
-            {/* Prazos e Fidelidade */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="flex-1"
             >
               <div className="flex items-center gap-2 mb-4">
                 <Code className="w-5 h-5 text-primary" />
@@ -536,6 +493,45 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Como Funciona */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h3 className="font-serif text-xl font-bold text-foreground">Como Funciona</h3>
+              </div>
+              <div className="space-y-3">
+                {[
+                  "Contrate um dos planos",
+                  "Precisou de melhorias? Envie pelo WhatsApp",
+                  "Assine o adendo de fidelidade",
+                  "Iniciamos o desenvolvimento",
+                  "Ajustamos conforme sua aprovação",
+                  "Sistema pronto para PC, Android e iOS"
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary font-bold text-sm">{index + 1}.</span>
+                    </div>
+                    <span className="text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Botão WhatsApp */}
+              <a
+                href="https://wa.me/5581999618516?text=Ol%C3%A1!%20Gostaria%20de%20solicitar%20melhorias%20no%20App%20S%C3%ADndico."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-full transition-colors shadow-lg hover:shadow-xl"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Solicitar Melhoria via WhatsApp
+              </a>
+            </motion.div>
           </div>
 
           {/* Banner Sem Taxas */}
@@ -548,7 +544,7 @@ export default function Home() {
             <h3 className="text-white text-xl md:text-2xl font-bold text-center mb-8">
               Sem Taxas. Sem Blá-blá-blá.
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 { icon: DollarSign, label: "Zero custo extra" },
                 { icon: FilePen, label: "Zero contratos gigantes" },
@@ -640,18 +636,16 @@ export default function Home() {
                 transition={{ delay: index * 0.2 }}
                 className="relative"
               >
-                <div className="flex items-start gap-4">
-                  <div className="text-6xl font-serif font-bold text-primary/10 flex-shrink-0">
-                    {item.step}
-                  </div>
-                  <div className="pt-2">
-                    <h3 className="font-serif text-xl font-semibold text-foreground mb-3">
-                      {item.title}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
+                <div className="text-7xl font-serif font-bold text-primary/10 absolute -top-4 -left-2">
+                  {item.step}
+                </div>
+                <div className="relative pt-8 pl-4">
+                  <h3 className="font-serif text-xl font-semibold text-foreground mb-3">
+                    {item.title}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {item.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -738,67 +732,59 @@ export default function Home() {
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '1rem' }}>
-            {sortedSections.map((section, index) => {
-              const [isHovered, setIsHovered] = useState(false);
-              return (
-                <div key={section.label} className="relative group">
-                  <Link href={section.link}>
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.05 }}
-                      className="h-32 cursor-pointer rounded-xl shadow-sm transition-all duration-300"
-                      style={{
-                        backgroundColor: isHovered ? '#2563eb' : '#ffffff',
-                        transform: isHovered ? 'translateY(-2px)' : 'none',
-                        boxShadow: isHovered ? '0 10px 15px -3px rgba(0, 0, 0, 0.2)' : '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-                      }}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
-                    >
-                      {!isHovered ? (
-                        <div className="p-4 flex flex-col items-center justify-center h-full">
-                          <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-3">
-                            <section.icon className="w-7 h-7 text-blue-600" />
-                          </div>
-                          <div className="text-xs font-medium text-gray-700 text-center leading-tight">
-                            {section.label}
-                          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {sortedSections.map((section, index) => (
+              <div key={section.label} className="relative group">
+                <Link href={section.link}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flip-card h-32 cursor-pointer"
+                  >
+                    <div className="flip-card-inner">
+                      {/* Front */}
+                      <div className="flip-card-front p-4 flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                          <section.icon className="w-6 h-6 text-primary" />
                         </div>
-                      ) : (
-                        <div className="p-4 flex flex-col items-center justify-center h-full">
-                          <section.icon className="w-8 h-8 text-white mb-2" />
-                          <div className="text-xs font-medium text-white text-center leading-tight">
-                            {section.description || section.label}
+                        <div className="text-sm font-medium text-foreground text-center">
+                          {section.label}
+                        </div>
+                        {favoritosCards?.some(f => f.cardSecaoId === section.label) && (
+                          <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 absolute top-2 right-2" />
+                        )}
+                        {/* Badge de notificações pendentes para Notificar Morador */}
+                        {section.label === "Notificar Morador" && notificacoesPendentes && notificacoesPendentes > 0 && (
+                          <div className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+                            {notificacoesPendentes > 99 ? "99+" : notificacoesPendentes}
                           </div>
+                        )}
+                      </div>
+                      {/* Back */}
+                      <div className="flip-card-back p-4 flex flex-col items-center justify-center">
+                        <section.icon className="w-8 h-8 mb-2 opacity-80" />
+                        <div className="text-xs text-center font-medium">
+                          {section.description}
                         </div>
-                      )}
-                      {favoritosCards?.some(f => f.cardSecaoId === section.label) && (
-                        <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 absolute top-2 right-2" />
-                      )}
-                      {section.label === "Notificar Morador" && notificacoesPendentes && notificacoesPendentes > 0 && (
-                        <div className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-                          {notificacoesPendentes > 99 ? "99+" : notificacoesPendentes}
-                        </div>
-                      )}
-                    </motion.div>
-                  </Link>
-                  {isAuthenticated && (
-                    <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <FavoriteButton
-                        tipoItem="card_secao"
-                        cardSecaoId={section.label}
-                        size="icon"
-                        variant="ghost"
-                        className="h-6 w-6 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
-                      />
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  </motion.div>
+                </Link>
+                {isAuthenticated && (
+                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <FavoriteButton
+                      tipoItem="card_secao"
+                      cardSecaoId={section.label}
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
 
@@ -924,14 +910,13 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="flex flex-row gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Plano Síndicos */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="flex-1"
             >
               <Card className="relative h-full border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">
@@ -991,7 +976,6 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="flex-1"
             >
               <Card className="relative h-full border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">
@@ -1055,7 +1039,6 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
-              className="flex-1"
             >
               <Card className="relative h-full border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">

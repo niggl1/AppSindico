@@ -1,0 +1,1 @@
+ALTER TABLE `preferencias_notificacao` ADD `efeitoTransicao` varchar(50) DEFAULT 'slide';

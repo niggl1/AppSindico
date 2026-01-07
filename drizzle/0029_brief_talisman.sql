@@ -1,0 +1,1 @@
+ALTER TABLE `respostas_infracao` ADD `lidaPeloSindico` boolean DEFAULT false NOT NULL;
