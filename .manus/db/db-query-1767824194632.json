@@ -1,0 +1,58 @@
+{
+  "query": "SELECT id, titulo, shareLink, condominioId FROM revistas ORDER BY id DESC LIMIT 20",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SELECT id, titulo, shareLink, condominioId FROM revistas ORDER BY id DESC LIMIT 20",
+  "rows": [
+    {
+      "id": "90001",
+      "titulo": "teste 1",
+      "shareLink": "8dpiQu8tOO",
+      "condominioId": "60001"
+    },
+    {
+      "id": "60005",
+      "titulo": "trbvwrbw",
+      "shareLink": "F8HAvMabjR",
+      "condominioId": "30001"
+    },
+    {
+      "id": "60004",
+      "titulo": "efcrv",
+      "shareLink": "wrc0U9Otjp",
+      "condominioId": "60001"
+    },
+    {
+      "id": "60003",
+      "titulo": "fcef",
+      "shareLink": "mXEbceL8pd",
+      "condominioId": "60001"
+    },
+    {
+      "id": "60002",
+      "titulo": "cgjhv",
+      "shareLink": "M3p6aykXXU",
+      "condominioId": "60001"
+    },
+    {
+      "id": "60001",
+      "titulo": "cgv",
+      "shareLink": "UOpU-aiafK",
+      "condominioId": "60001"
+    },
+    {
+      "id": "30001",
+      "titulo": "fxfgchf",
+      "shareLink": "5F5EC9CxeV",
+      "condominioId": "30001"
+    },
+    {
+      "id": "1",
+      "titulo": "Revista Teste",
+      "shareLink": "teste-123",
+      "condominioId": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitulo\tshareLink\tcondominioId\n90001\tteste 1\t8dpiQu8tOO\t60001\n60005\ttrbvwrbw\tF8HAvMabjR\t30001\n60004\tefcrv\twrc0U9Otjp\t60001\n60003\tfcef\tmXEbceL8pd\t60001\n60002\tcgjhv\tM3p6aykXXU\t60001\n60001\tcgv\tUOpU-aiafK\t60001\n30001\tfxfgchf\t5F5EC9CxeV\t30001\n1\tRevista Teste\tteste-123\t1\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

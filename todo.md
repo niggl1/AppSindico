@@ -82,3 +82,7 @@
 - [x] Corrigir procedimento getPublicFull para buscar dados corretos das tabelas
 - [x] Corrigir queries que usavam colunas inexistentes (revistaId vs condominioId)
 - [x] Corrigir status de filtros (ativo vs aprovado vs aberto)
+## Bug: Capa da revista mostra nome do condomínio em vez do título (07/01/2026)
+
+- [x] Corrigir MagazineViewer para mostrar revista.titulo na capa em vez de condominio.nome
+- [x] Manter nome do condomínio como informação secundária na capa

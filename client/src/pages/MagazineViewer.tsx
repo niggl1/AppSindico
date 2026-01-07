@@ -119,9 +119,10 @@ export default function MagazineViewer() {
       id: pageId++,
       type: "cover",
       content: {
-        titulo: condominio.nome,
-        subtitulo: `Edição ${revista.edicao}`,
+        titulo: revista.titulo || condominio.nome,
+        subtitulo: revista.subtitulo || `Edição ${revista.edicao}`,
         edicao: `Edição ${revista.edicao}`,
+        condominio: condominio.nome,
         logoUrl: condominio.logoUrl,
         capaUrl: revista.capaUrl,
       },
@@ -1188,9 +1189,18 @@ function CoverPage({ content }: { content: any }) {
           hasBackgroundImage && "bg-white/50"
         )} />
         
+        {content.condominio && (
+          <p className={cn(
+            "text-sm mt-6 font-medium",
+            hasBackgroundImage ? "text-white/80" : "text-foreground/70"
+          )}>
+            {content.condominio}
+          </p>
+        )}
+        
         <p className={cn(
-          "text-sm mt-8",
-          hasBackgroundImage ? "text-white/70" : "text-muted-foreground"
+          "text-xs mt-2",
+          hasBackgroundImage ? "text-white/60" : "text-muted-foreground"
         )}>
           App Síndico
         </p>
