@@ -676,6 +676,135 @@ export const appRouter = router({
         return result?.[0] || null;
       }),
 
+    // Obter revista completa com todos os dados (público)
+    getPublicFull: publicProcedure
+      .input(z.object({ shareLink: z.string() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        
+        // Buscar revista
+        const [revista] = await db.select().from(revistas)
+          .where(eq(revistas.shareLink, input.shareLink)).limit(1);
+        if (!revista) return null;
+        
+        // Buscar condomínio
+        const [condominio] = await db.select().from(condominios)
+          .where(eq(condominios.id, revista.condominioId)).limit(1);
+        
+        // Buscar mensagem do síndico
+        const [mensagemSindico] = await db.select().from(mensagensSindico)
+          .where(eq(mensagensSindico.revistaId, revista.id)).limit(1);
+        
+        // Buscar avisos
+        const avisosData = await db.select().from(avisos)
+          .where(eq(avisos.revistaId, revista.id));
+        
+        // Buscar eventos
+        const eventosData = await db.select().from(eventos)
+          .where(eq(eventos.revistaId, revista.id));
+        
+        // Buscar funcionários do condomínio
+        const funcionariosData = await db.select().from(funcionarios)
+          .where(eq(funcionarios.condominioId, revista.condominioId));
+        
+        // Buscar telefones úteis
+        const telefonesData = await db.select().from(telefonesUteis)
+          .where(eq(telefonesUteis.revistaId, revista.id));
+        
+        // Buscar anunciantes ativos
+        const anunciantesData = await db.select().from(anunciantes)
+          .where(and(
+            eq(anunciantes.condominioId, revista.condominioId),
+            eq(anunciantes.status, "ativo")
+          ));
+        
+        // Buscar realizações
+        const realizacoesData = await db.select().from(realizacoes)
+          .where(eq(realizacoes.revistaId, revista.id));
+        
+        // Buscar melhorias
+        const melhoriasData = await db.select().from(melhorias)
+          .where(eq(melhorias.revistaId, revista.id));
+        
+        // Buscar aquisições
+        const aquisicoesData = await db.select().from(aquisicoes)
+          .where(eq(aquisicoes.revistaId, revista.id));
+        
+        // Buscar álbuns e fotos
+        const albunsData = await db.select().from(albuns)
+          .where(eq(albuns.condominioId, revista.condominioId));
+        // Buscar fotos de todos os álbuns do condomínio
+        const albumIds = albunsData.map(a => a.id);
+        const fotosData = albumIds.length > 0 
+          ? await db.select().from(fotos).where(inArray(fotos.albumId, albumIds))
+          : [];
+        
+        // Buscar votações ativas
+        const votacoesData = await db.select().from(votacoes)
+          .where(and(
+            eq(votacoes.revistaId, revista.id),
+            eq(votacoes.status, "ativa")
+          ));
+        
+        // Buscar classificados aprovados
+        const classificadosData = await db.select().from(classificados)
+          .where(and(
+            eq(classificados.condominioId, revista.condominioId),
+            eq(classificados.status, "aprovado")
+          ));
+        
+        // Buscar achados e perdidos abertos
+        const achadosPerdidosData = await db.select().from(achadosPerdidos)
+          .where(and(
+            eq(achadosPerdidos.condominioId, revista.condominioId),
+            eq(achadosPerdidos.status, "aberto")
+          ));
+        
+        // Buscar caronas ativas
+        const caronasData = await db.select().from(caronas)
+          .where(and(
+            eq(caronas.condominioId, revista.condominioId),
+            eq(caronas.status, "ativa")
+          ));
+        
+        // Buscar dicas de segurança
+        const dicasSegurancaData = await db.select().from(dicasSeguranca)
+          .where(eq(dicasSeguranca.condominioId, revista.condominioId));
+        
+        // Buscar regras do condomínio
+        const regrasData = await db.select().from(regrasNormas)
+          .where(eq(regrasNormas.condominioId, revista.condominioId));
+        
+        // Buscar páginas personalizadas
+        const paginasCustomData = await db.select().from(paginasCustom)
+          .where(eq(paginasCustom.condominioId, revista.condominioId));
+        
+        return {
+          revista,
+          condominio,
+          mensagemSindico,
+          avisos: avisosData,
+          eventos: eventosData,
+          funcionarios: funcionariosData,
+          telefones: telefonesData,
+          anunciantes: anunciantesData,
+          realizacoes: realizacoesData,
+          melhorias: melhoriasData,
+          aquisicoes: aquisicoesData,
+          albuns: albunsData,
+          fotos: fotosData,
+          votacoes: votacoesData,
+          classificados: classificadosData,
+          achadosPerdidos: achadosPerdidosData,
+          caronas: caronasData,
+          dicasSeguranca: dicasSegurancaData,
+          regras: regrasData,
+          paginasCustom: paginasCustomData,
+          seccoesOcultas: [] as string[], // Sem tabela de secções ocultas por enquanto
+        };
+      }),
+
     create: protectedProcedure
       .input(z.object({
         condominioId: z.number(),

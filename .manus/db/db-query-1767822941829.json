@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, titulo, shareLink FROM revistas",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SELECT id, titulo, shareLink FROM revistas",
+  "rows": [
+    {
+      "id": "1",
+      "titulo": "Revista Teste",
+      "shareLink": "teste-123"
+    },
+    {
+      "id": "30001",
+      "titulo": "fxfgchf",
+      "shareLink": "5F5EC9CxeV"
+    },
+    {
+      "id": "60001",
+      "titulo": "cgv",
+      "shareLink": "UOpU-aiafK"
+    },
+    {
+      "id": "60002",
+      "titulo": "cgjhv",
+      "shareLink": "M3p6aykXXU"
+    },
+    {
+      "id": "60003",
+      "titulo": "fcef",
+      "shareLink": "mXEbceL8pd"
+    },
+    {
+      "id": "60004",
+      "titulo": "efcrv",
+      "shareLink": "wrc0U9Otjp"
+    },
+    {
+      "id": "60005",
+      "titulo": "trbvwrbw",
+      "shareLink": "F8HAvMabjR"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitulo\tshareLink\n1\tRevista Teste\tteste-123\n30001\tfxfgchf\t5F5EC9CxeV\n60001\tcgv\tUOpU-aiafK\n60002\tcgjhv\tM3p6aykXXU\n60003\tfcef\tmXEbceL8pd\n60004\tefcrv\twrc0U9Otjp\n60005\ttrbvwrbw\tF8HAvMabjR\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

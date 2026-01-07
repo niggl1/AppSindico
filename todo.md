@@ -75,3 +75,10 @@
 - [x] Aplicar design premium aos modais de PaginasCustom (1 modal)
 - [x] Aplicar design premium aos modais de RevistaEditor (2 modais)
 - [x] Aplicar design premium aos modais de VistoriasPage (1 modal detalhes)
+
+## Correção MagazineViewer (07/01/2026)
+
+- [x] Carregar dados reais da revista do banco de dados em vez de dados de demonstração
+- [x] Corrigir procedimento getPublicFull para buscar dados corretos das tabelas
+- [x] Corrigir queries que usavam colunas inexistentes (revistaId vs condominioId)
+- [x] Corrigir status de filtros (ativo vs aprovado vs aberto)

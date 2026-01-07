@@ -1,0 +1,52 @@
+{
+  "query": "SELECT id, titulo, shareLink, status FROM revistas LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SELECT id, titulo, shareLink, status FROM revistas LIMIT 10",
+  "rows": [
+    {
+      "id": "1",
+      "titulo": "Revista Teste",
+      "shareLink": "teste-123",
+      "status": "rascunho"
+    },
+    {
+      "id": "30001",
+      "titulo": "fxfgchf",
+      "shareLink": "5F5EC9CxeV",
+      "status": "publicada"
+    },
+    {
+      "id": "60001",
+      "titulo": "cgv",
+      "shareLink": "UOpU-aiafK",
+      "status": "publicada"
+    },
+    {
+      "id": "60002",
+      "titulo": "cgjhv",
+      "shareLink": "M3p6aykXXU",
+      "status": "publicada"
+    },
+    {
+      "id": "60003",
+      "titulo": "fcef",
+      "shareLink": "mXEbceL8pd",
+      "status": "publicada"
+    },
+    {
+      "id": "60004",
+      "titulo": "efcrv",
+      "shareLink": "wrc0U9Otjp",
+      "status": "rascunho"
+    },
+    {
+      "id": "60005",
+      "titulo": "trbvwrbw",
+      "shareLink": "F8HAvMabjR",
+      "status": "rascunho"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitulo\tshareLink\tstatus\n1\tRevista Teste\tteste-123\trascunho\n30001\tfxfgchf\t5F5EC9CxeV\tpublicada\n60001\tcgv\tUOpU-aiafK\tpublicada\n60002\tcgjhv\tM3p6aykXXU\tpublicada\n60003\tfcef\tmXEbceL8pd\tpublicada\n60004\tefcrv\twrc0U9Otjp\trascunho\n60005\ttrbvwrbw\tF8HAvMabjR\trascunho\n",
+  "stderr": "",
+  "execution_time_ms": 106
+}

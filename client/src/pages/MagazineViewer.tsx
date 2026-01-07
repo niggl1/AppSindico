@@ -44,323 +44,25 @@ import {
   Layers,
   ScrollText,
   Printer,
+  AlertCircle,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import ImageGallery from "@/components/ImageGallery";
 
-// Demo magazine data
-const demoMagazine = {
-  titulo: "Residencial Jardins",
-  subtitulo: "Informativo Mensal",
-  edicao: "Dezembro 2024",
-  pages: [
-    {
-      id: 1,
-      type: "cover",
-      content: {
-        titulo: "Residencial Jardins",
-        subtitulo: "Informativo Mensal",
-        edicao: "Dezembro 2024",
-        imagem: null,
-        logoUrl: null, // URL do logo do condomínio
-        capaUrl: null, // URL da imagem de capa/fundo
-      },
-    },
-    {
-      id: 2,
-      type: "mensagem_sindico",
-      content: {
-        nome: "João Silva",
-        cargo: "Síndico",
-        foto: null,
-        titulo: "Mensagem do Síndico",
-        mensagem:
-          "Prezados moradores, é com grande satisfação que apresentamos mais uma edição da nossa revista digital. Neste mês, temos muitas novidades e melhorias para compartilhar com vocês. Agradeço a todos pela colaboração e desejo um excelente final de ano!",
-      },
-    },
-    {
-      id: 3,
-      type: "avisos",
-      content: {
-        titulo: "Avisos Importantes",
-        avisos: [
-          {
-            titulo: "Manutenção da Piscina",
-            descricao: "A piscina estará fechada para manutenção nos dias 26 e 27 de dezembro.",
-            tipo: "importante",
-          },
-          {
-            titulo: "Horário de Funcionamento",
-            descricao: "Durante o feriado, a portaria funcionará em horário reduzido.",
-            tipo: "informativo",
-          },
-          {
-            titulo: "Coleta de Lixo",
-            descricao: "Não haverá coleta de lixo no dia 25 de dezembro.",
-            tipo: "urgente",
-          },
-        ],
-      },
-    },
-    {
-      id: 4,
-      type: "eventos",
-      content: {
-        titulo: "Agenda de Eventos",
-        eventos: [
-          {
-            titulo: "Festa de Natal",
-            data: "24/12/2024",
-            horario: "20:00",
-            local: "Salão de Festas",
-          },
-          {
-            titulo: "Réveillon",
-            data: "31/12/2024",
-            horario: "22:00",
-            local: "Área de Lazer",
-          },
-          {
-            titulo: "Assembleia Geral",
-            data: "15/01/2025",
-            horario: "19:00",
-            local: "Salão de Festas",
-          },
-        ],
-      },
-    },
-    {
-      id: 5,
-      type: "funcionarios",
-      content: {
-        titulo: "Nossa Equipe",
-        funcionarios: [
-          { nome: "Carlos Santos", cargo: "Porteiro", turno: "Diurno" },
-          { nome: "Maria Oliveira", cargo: "Zeladora", turno: "Integral" },
-          { nome: "Pedro Lima", cargo: "Porteiro", turno: "Noturno" },
-        ],
-      },
-    },
-    {
-      id: 6,
-      type: "votacao",
-      content: {
-        titulo: "Funcionário do Mês",
-        descricao: "Vote no funcionário que mais se destacou este mês!",
-        opcoes: [
-          { nome: "Carlos Santos", votos: 45 },
-          { nome: "Maria Oliveira", votos: 38 },
-          { nome: "Pedro Lima", votos: 22 },
-        ],
-      },
-    },
-    {
-      id: 7,
-      type: "telefones",
-      content: {
-        titulo: "Telefones Úteis",
-        telefones: [
-          { nome: "Portaria", numero: "(11) 1234-5678" },
-          { nome: "Síndico", numero: "(11) 98765-4321" },
-          { nome: "Administradora", numero: "(11) 2345-6789" },
-          { nome: "Emergência", numero: "190" },
-          { nome: "Bombeiros", numero: "193" },
-        ],
-      },
-    },
-    {
-      id: 8,
-      type: "realizacoes",
-      content: {
-        titulo: "Realizações da Gestão",
-        realizacoes: [
-          {
-            titulo: "Reforma da Portaria",
-            descricao: "Modernização completa da portaria com novo sistema de segurança.",
-            data: "Novembro 2024",
-            status: "concluido",
-          },
-          {
-            titulo: "Instalação de Energia Solar",
-            descricao: "Paineis solares instalados para redução de custos nas áreas comuns.",
-            data: "Outubro 2024",
-            status: "concluido",
-          },
-          {
-            titulo: "Paisagismo do Jardim",
-            descricao: "Novo projeto paisagístico com plantas nativas e sistema de irrigação.",
-            data: "Setembro 2024",
-            status: "concluido",
-          },
-        ],
-      },
-    },
-    {
-      id: 9,
-      type: "antes_depois",
-      content: {
-        titulo: "Antes e Depois",
-        itens: [
-          {
-            titulo: "Fachada do Prédio",
-            descricao: "Pintura e revitalização completa da fachada.",
-            fotoAntesUrl: null,
-            fotoDepoisUrl: null,
-          },
-          {
-            titulo: "Salão de Festas",
-            descricao: "Reforma completa com novo mobiliário e iluminação.",
-            fotoAntesUrl: null,
-            fotoDepoisUrl: null,
-          },
-        ],
-      },
-    },
-    {
-      id: 10,
-      type: "melhorias",
-      content: {
-        titulo: "Melhorias e Manutenções",
-        melhorias: [
-          {
-            titulo: "Troca dos Elevadores",
-            descricao: "Substituição dos elevadores por modelos mais modernos e eficientes.",
-            status: "em_andamento",
-            previsao: "Janeiro 2025",
-          },
-          {
-            titulo: "Impermeabilização da Laje",
-            descricao: "Serviço preventivo de impermeabilização da cobertura.",
-            status: "planejado",
-            previsao: "Fevereiro 2025",
-          },
-          {
-            titulo: "Manutenção da Bomba d'Água",
-            descricao: "Revisão e manutenção preventiva do sistema de bombeamento.",
-            status: "concluido",
-            previsao: null,
-          },
-        ],
-      },
-    },
-    {
-      id: 11,
-      type: "aquisicoes",
-      content: {
-        titulo: "Aquisições do Condomínio",
-        aquisicoes: [
-          {
-            titulo: "Equipamentos de Academia",
-            descricao: "Novos equipamentos para a academia do condomínio.",
-            valor: "R$ 15.000,00",
-            data: "Dezembro 2024",
-          },
-          {
-            titulo: "Mobiliário do Salão",
-            descricao: "Mesas e cadeiras novas para o salão de festas.",
-            valor: "R$ 8.500,00",
-            data: "Novembro 2024",
-          },
-          {
-            titulo: "Sistema de Câmeras",
-            descricao: "Ampliação do sistema de monitoramento com 8 novas câmeras.",
-            valor: "R$ 12.000,00",
-            data: "Outubro 2024",
-          },
-        ],
-      },
-    },
-    {
-      id: 12,
-      type: "galeria",
-      content: {
-        titulo: "Galeria de Fotos",
-        albuns: [
-          {
-            titulo: "Festa Junina 2024",
-            categoria: "eventos",
-            fotos: [
-              { url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400", legenda: "Decoração do salão" },
-              { url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400", legenda: "Apresentação de quadrilha" },
-              { url: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=400", legenda: "Barraca de comidas" },
-            ],
-          },
-          {
-            titulo: "Reforma da Piscina",
-            categoria: "obras",
-            fotos: [
-              { url: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=400", legenda: "Antes da reforma" },
-              { url: "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=400", legenda: "Depois da reforma" },
-            ],
-          },
-        ],
-      },
-    },
-    {
-      id: 13,
-      type: "publicidade",
-      content: {
-        titulo: "Parceiros do Condomínio",
-        anunciantes: [
-          {
-            nome: "Pizzaria Bella Napoli",
-            descricao: "A melhor pizza da região! Delivery para moradores com 10% de desconto.",
-            categoria: "alimentacao",
-            telefone: "(11) 3456-7890",
-            whatsapp: "(11) 99876-5432",
-            logoUrl: null,
-          },
-          {
-            nome: "Dr. Carlos Mendes",
-            descricao: "Clínico Geral - Atendimento domiciliar para moradores.",
-            categoria: "saude",
-            telefone: "(11) 2345-6789",
-            logoUrl: null,
-          },
-          {
-            nome: "Pet Shop Amigo Fiel",
-            descricao: "Banho, tosa e rações. Buscamos e entregamos seu pet!",
-            categoria: "servicos",
-            telefone: "(11) 3456-1234",
-            whatsapp: "(11) 98765-1234",
-            logoUrl: null,
-          },
-          {
-            nome: "Eletricista João",
-            descricao: "Serviços elétricos em geral. Morador do bloco B.",
-            categoria: "profissionais",
-            telefone: "(11) 99999-8888",
-            logoUrl: null,
-          },
-        ],
-      },
-    },
-    {
-      id: 14,
-      type: "personalizado",
-      content: {
-        titulo: "100% Personalizado",
-        subtitulo: "Conteúdo exclusivo do seu condomínio",
-        descricao: "Esta página pode ser totalmente personalizada pelo síndico com título, subtítulo, descrição, galeria de imagens, links externos, vídeos do YouTube e arquivos para download.",
-        imagens: [],
-        link: null,
-        videoUrl: null,
-        arquivoUrl: null,
-      },
-    },
-    {
-      id: 15,
-      type: "back_cover",
-      content: {
-        titulo: "Obrigado pela leitura!",
-        mensagem: "Acompanhe nossas próximas edições",
-      },
-    },
-  ],
-};
+// Tipos para os dados da revista
+interface MagazinePage {
+  id: number;
+  type: string;
+  content: any;
+}
+
+interface Magazine {
+  nome: string;
+  edicao: string;
+  pages: MagazinePage[];
+}
 
 export default function MagazineViewer() {
   const params = useParams<{ shareLink: string }>();
@@ -396,6 +98,356 @@ export default function MagazineViewer() {
   const [readingMode, setReadingMode] = useState<'page' | 'continuous'>('page');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Buscar dados reais da revista via tRPC
+  const { data: magazineData, isLoading, error } = trpc.revista.getPublicFull.useQuery(
+    { shareLink: params.shareLink || '' },
+    { enabled: !!params.shareLink }
+  );
+
+  // Construir o objeto magazine a partir dos dados reais
+  const magazine = useMemo<Magazine | null>(() => {
+    if (!magazineData?.revista || !magazineData?.condominio) return null;
+
+    const { revista, condominio, mensagemSindico, avisos, eventos, funcionarios, telefones, anunciantes, realizacoes, melhorias, aquisicoes, albuns, fotos, votacoes, classificados, achadosPerdidos, caronas, dicasSeguranca, regras, paginasCustom, seccoesOcultas } = magazineData;
+
+    const pages: MagazinePage[] = [];
+    let pageId = 1;
+
+    // Capa
+    pages.push({
+      id: pageId++,
+      type: "cover",
+      content: {
+        titulo: condominio.nome,
+        subtitulo: `Edição ${revista.edicao}`,
+        edicao: `Edição ${revista.edicao}`,
+        logoUrl: condominio.logoUrl,
+        capaUrl: revista.capaUrl,
+      },
+    });
+
+    // Mensagem do Síndico
+    if (mensagemSindico && !seccoesOcultas.includes('mensagem_sindico')) {
+      pages.push({
+        id: pageId++,
+        type: "mensagem_sindico",
+        content: {
+          titulo: mensagemSindico.titulo || "Mensagem do Síndico",
+          nome: mensagemSindico.nomeSindico || "Síndico",
+          cargo: mensagemSindico.assinatura || "Síndico",
+          foto: mensagemSindico.fotoSindicoUrl,
+          mensagem: mensagemSindico.mensagem,
+        },
+      });
+    }
+
+    // Avisos
+    if (avisos && avisos.length > 0 && !seccoesOcultas.includes('avisos')) {
+      pages.push({
+        id: pageId++,
+        type: "avisos",
+        content: {
+          titulo: "Avisos Importantes",
+          avisos: avisos.map((a: any) => ({
+            titulo: a.titulo,
+            descricao: a.descricao,
+            data: a.data,
+            prioridade: a.prioridade,
+          })),
+        },
+      });
+    }
+
+    // Eventos
+    if (eventos && eventos.length > 0 && !seccoesOcultas.includes('eventos')) {
+      pages.push({
+        id: pageId++,
+        type: "eventos",
+        content: {
+          titulo: "Eventos",
+          eventos: eventos.map((e: any) => ({
+            titulo: e.titulo,
+            descricao: e.descricao,
+            data: e.data,
+            horario: e.horario,
+            local: e.local,
+          })),
+        },
+      });
+    }
+
+    // Funcionários
+    if (funcionarios && funcionarios.length > 0 && !seccoesOcultas.includes('funcionarios')) {
+      pages.push({
+        id: pageId++,
+        type: "funcionarios",
+        content: {
+          titulo: "Nossa Equipe",
+          funcionarios: funcionarios.map((f: any) => ({
+            nome: f.nome,
+            cargo: f.cargo,
+            foto: f.fotoUrl,
+            telefone: f.telefone,
+            horario: f.horario,
+          })),
+        },
+      });
+    }
+
+    // Votações
+    if (votacoes && votacoes.length > 0 && !seccoesOcultas.includes('votacao')) {
+      pages.push({
+        id: pageId++,
+        type: "votacao",
+        content: {
+          titulo: "Votações Ativas",
+          votacoes: votacoes.map((v: any) => ({
+            titulo: v.titulo,
+            descricao: v.descricao,
+            dataFim: v.dataFim,
+            opcoes: v.opcoes,
+          })),
+        },
+      });
+    }
+
+    // Telefones Úteis
+    if (telefones && telefones.length > 0 && !seccoesOcultas.includes('telefones')) {
+      pages.push({
+        id: pageId++,
+        type: "telefones",
+        content: {
+          titulo: "Telefones Úteis",
+          telefones: telefones.map((t: any) => ({
+            nome: t.nome,
+            telefone: t.telefone,
+            categoria: t.categoria,
+          })),
+        },
+      });
+    }
+
+    // Realizações
+    if (realizacoes && realizacoes.length > 0 && !seccoesOcultas.includes('realizacoes')) {
+      pages.push({
+        id: pageId++,
+        type: "realizacoes",
+        content: {
+          titulo: "Realizações",
+          realizacoes: realizacoes.map((r: any) => ({
+            titulo: r.titulo,
+            descricao: r.descricao,
+            data: r.data,
+            status: r.status,
+            imagemUrl: r.imagemUrl,
+          })),
+        },
+      });
+    }
+
+    // Melhorias
+    if (melhorias && melhorias.length > 0 && !seccoesOcultas.includes('melhorias')) {
+      pages.push({
+        id: pageId++,
+        type: "melhorias",
+        content: {
+          titulo: "Melhorias e Manutenções",
+          melhorias: melhorias.map((m: any) => ({
+            titulo: m.titulo,
+            descricao: m.descricao,
+            status: m.status,
+            previsao: m.previsao,
+            imagemUrl: m.imagemUrl,
+          })),
+        },
+      });
+    }
+
+    // Aquisições
+    if (aquisicoes && aquisicoes.length > 0 && !seccoesOcultas.includes('aquisicoes')) {
+      pages.push({
+        id: pageId++,
+        type: "aquisicoes",
+        content: {
+          titulo: "Aquisições do Condomínio",
+          aquisicoes: aquisicoes.map((a: any) => ({
+            titulo: a.titulo,
+            descricao: a.descricao,
+            valor: a.valor,
+            data: a.data,
+            imagemUrl: a.imagemUrl,
+          })),
+        },
+      });
+    }
+
+    // Galeria de Fotos
+    if (albuns && albuns.length > 0 && !seccoesOcultas.includes('galeria')) {
+      pages.push({
+        id: pageId++,
+        type: "galeria",
+        content: {
+          titulo: "Galeria de Fotos",
+          albuns: albuns.map((album: any) => ({
+            titulo: album.titulo,
+            categoria: album.categoria,
+            fotos: fotos
+              .filter((f: any) => f.albumId === album.id)
+              .map((f: any) => ({
+                url: f.url,
+                legenda: f.legenda,
+              })),
+          })),
+        },
+      });
+    }
+
+    // Publicidade / Anunciantes
+    if (anunciantes && anunciantes.length > 0 && !seccoesOcultas.includes('publicidade')) {
+      pages.push({
+        id: pageId++,
+        type: "publicidade",
+        content: {
+          titulo: "Parceiros do Condomínio",
+          anunciantes: anunciantes.map((a: any) => ({
+            nome: a.nome,
+            descricao: a.descricao,
+            categoria: a.categoria,
+            telefone: a.telefone,
+            whatsapp: a.whatsapp,
+            logoUrl: a.logoUrl,
+          })),
+        },
+      });
+    }
+
+    // Classificados
+    if (classificados && classificados.length > 0 && !seccoesOcultas.includes('classificados')) {
+      pages.push({
+        id: pageId++,
+        type: "classificados",
+        content: {
+          titulo: "Classificados",
+          classificados: classificados.map((c: any) => ({
+            titulo: c.titulo,
+            descricao: c.descricao,
+            preco: c.preco,
+            contato: c.contato,
+            categoria: c.categoria,
+            imagemUrl: c.imagemUrl,
+          })),
+        },
+      });
+    }
+
+    // Achados e Perdidos
+    if (achadosPerdidos && achadosPerdidos.length > 0 && !seccoesOcultas.includes('achados_perdidos')) {
+      pages.push({
+        id: pageId++,
+        type: "achados_perdidos",
+        content: {
+          titulo: "Achados e Perdidos",
+          itens: achadosPerdidos.map((item: any) => ({
+            titulo: item.titulo,
+            descricao: item.descricao,
+            tipo: item.tipo,
+            data: item.data,
+            local: item.local,
+            imagemUrl: item.imagemUrl,
+          })),
+        },
+      });
+    }
+
+    // Caronas
+    if (caronas && caronas.length > 0 && !seccoesOcultas.includes('caronas')) {
+      pages.push({
+        id: pageId++,
+        type: "caronas",
+        content: {
+          titulo: "Caronas",
+          caronas: caronas.map((c: any) => ({
+            origem: c.origem,
+            destino: c.destino,
+            data: c.data,
+            horario: c.horario,
+            vagas: c.vagas,
+            contato: c.contato,
+          })),
+        },
+      });
+    }
+
+    // Dicas de Segurança
+    if (dicasSeguranca && dicasSeguranca.length > 0 && !seccoesOcultas.includes('dicas_seguranca')) {
+      pages.push({
+        id: pageId++,
+        type: "dicas_seguranca",
+        content: {
+          titulo: "Dicas de Segurança",
+          dicas: dicasSeguranca.map((d: any) => ({
+            titulo: d.titulo,
+            descricao: d.descricao,
+            icone: d.icone,
+          })),
+        },
+      });
+    }
+
+    // Regras do Condomínio
+    if (regras && regras.length > 0 && !seccoesOcultas.includes('regras')) {
+      pages.push({
+        id: pageId++,
+        type: "regras",
+        content: {
+          titulo: "Regras do Condomínio",
+          regras: regras.map((r: any) => ({
+            titulo: r.titulo,
+            descricao: r.descricao,
+            categoria: r.categoria,
+          })),
+        },
+      });
+    }
+
+    // Páginas Personalizadas
+    if (paginasCustom && paginasCustom.length > 0) {
+      paginasCustom.forEach((p: any) => {
+        pages.push({
+          id: pageId++,
+          type: "personalizado",
+          content: {
+            titulo: p.titulo,
+            subtitulo: p.subtitulo,
+            descricao: p.descricao,
+            imagens: p.imagens ? JSON.parse(p.imagens) : [],
+            link: p.link,
+            videoUrl: p.videoUrl,
+            arquivoUrl: p.arquivoUrl,
+          },
+        });
+      });
+    }
+
+    // Contracapa
+    pages.push({
+      id: pageId++,
+      type: "back_cover",
+      content: {
+        titulo: "Obrigado pela leitura!",
+        mensagem: "Acompanhe nossas próximas edições",
+      },
+    });
+
+    return {
+      nome: condominio.nome,
+      edicao: `Edição ${revista.edicao}`,
+      pages,
+    };
+  }, [magazineData]);
+
+  const totalPages = magazine?.pages.length || 0;
 
   const generatePDF = trpc.revista.generatePDF.useMutation({
     onSuccess: (data) => {
@@ -438,9 +490,6 @@ export default function MagazineViewer() {
     generatePDF.mutate({ shareLink });
   };
 
-  const magazine = demoMagazine;
-  const totalPages = magazine.pages.length;
-
   const goToPage = (pageIndex: number) => {
     if (pageIndex >= 0 && pageIndex < totalPages && !isFlipping) {
       setDirection(pageIndex > currentPage ? "next" : "prev");
@@ -454,6 +503,20 @@ export default function MagazineViewer() {
 
   const nextPage = () => goToPage(currentPage + 1);
   const prevPage = () => goToPage(currentPage - 1);
+
+  // Zoom functions
+  const zoomIn = () => setZoomLevel(prev => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
+  const zoomOut = () => setZoomLevel(prev => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
+  const resetZoom = () => setZoomLevel(100);
+
+  // Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -474,7 +537,7 @@ export default function MagazineViewer() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentPage, isFlipping, isFullscreen, showThumbnails, zoomLevel, readingMode]);
+  }, [currentPage, isFlipping, isFullscreen, showThumbnails, zoomLevel, readingMode, totalPages]);
 
   // Show swipe hint on first visit
   useEffect(() => {
@@ -498,50 +561,19 @@ export default function MagazineViewer() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // Toggle fullscreen
-  const toggleFullscreen = async () => {
-    if (!containerRef.current) return;
-    try {
-      if (!document.fullscreenElement) {
-        await containerRef.current.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (err) {
-      toast.error('Não foi possível ativar o modo ecrã inteiro');
-    }
-  };
-
-  // Zoom functions
-  const zoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
-  };
-
-  const zoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
-  };
-
-  const resetZoom = () => {
-    setZoomLevel(100);
-  };
-
-  // Pinch-to-zoom handlers
-  const getDistance = (touches: React.TouchList) => {
-    if (touches.length < 2) return 0;
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  };
-
-  // Swipe handlers for mobile
+  // Touch handlers for swipe
   const minSwipeDistance = 50;
-  
+
   const onTouchStart = (e: React.TouchEvent) => {
-    // Check for pinch gesture
+    if (zoomLevel > 100) return;
     if (e.touches.length === 2) {
-      setIsPinching(true);
-      setInitialPinchDistance(getDistance(e.touches));
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      setInitialPinchDistance(distance);
       setInitialZoom(zoomLevel);
+      setIsPinching(true);
       return;
     }
     setTouchEnd(null);
@@ -549,14 +581,17 @@ export default function MagazineViewer() {
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    // Handle pinch-to-zoom
-    if (isPinching && e.touches.length === 2 && initialPinchDistance) {
-      const currentDistance = getDistance(e.touches);
-      const scale = currentDistance / initialPinchDistance;
-      const newZoom = Math.min(Math.max(initialZoom * scale, MIN_ZOOM), MAX_ZOOM);
-      setZoomLevel(Math.round(newZoom));
+    if (e.touches.length === 2 && isPinching && initialPinchDistance) {
+      const distance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const scale = distance / initialPinchDistance;
+      const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, initialZoom * scale));
+      setZoomLevel(Math.round(newZoom / 5) * 5);
       return;
     }
+    if (zoomLevel > 100) return;
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
@@ -566,32 +601,35 @@ export default function MagazineViewer() {
       setInitialPinchDistance(null);
       return;
     }
+    if (zoomLevel > 100) return;
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe && zoomLevel === 100) nextPage();
-    if (isRightSwipe && zoomLevel === 100) prevPage();
+    if (isLeftSwipe) nextPage();
+    if (isRightSwipe) prevPage();
   };
 
-  // Mouse drag handlers for desktop
+  // Mouse drag handlers
   const onMouseDown = (e: React.MouseEvent) => {
+    if (zoomLevel > 100) return;
     setIsDragging(true);
     setDragStart(e.clientX);
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    e.preventDefault();
+    if (!isDragging || zoomLevel > 100) return;
   };
 
   const onMouseUp = (e: React.MouseEvent) => {
-    if (!isDragging || dragStart === null) return;
+    if (!isDragging || dragStart === null || zoomLevel > 100) {
+      setIsDragging(false);
+      setDragStart(null);
+      return;
+    }
     const distance = dragStart - e.clientX;
-    const isLeftDrag = distance > minSwipeDistance;
-    const isRightDrag = distance < -minSwipeDistance;
-    if (isLeftDrag) nextPage();
-    if (isRightDrag) prevPage();
+    if (distance > minSwipeDistance) nextPage();
+    if (distance < -minSwipeDistance) prevPage();
     setIsDragging(false);
     setDragStart(null);
   };
@@ -600,6 +638,39 @@ export default function MagazineViewer() {
     setIsDragging(false);
     setDragStart(null);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-white/70">A carregar revista...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !magazine) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Revista não encontrada</h2>
+          <p className="text-white/70 mb-6">
+            {error?.message || "O link da revista pode estar incorreto ou a revista pode ter sido removida."}
+          </p>
+          <Link href="/">
+            <Button className="bg-primary hover:bg-primary/90">
+              <Home className="w-4 h-4 mr-2" />
+              Voltar ao início
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const currentPageData = magazine.pages[currentPage];
 
@@ -898,90 +969,35 @@ export default function MagazineViewer() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30"
+                  className="absolute bottom-32 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm flex items-center gap-2"
                 >
-                  <div className="flex items-center gap-3 px-5 py-3 rounded-full bg-black/70 backdrop-blur-sm border border-white/20">
-                    <Hand className="w-5 h-5 text-white animate-bounce" />
-                    <span className="text-white text-sm font-medium">
-                      Arraste para navegar entre páginas
-                    </span>
-                  </div>
+                  <Hand className="w-4 h-4" />
+                  Arraste para navegar entre páginas
                 </motion.div>
               )}
             </AnimatePresence>
           </>
         )}
 
-        {/* Continuous mode - vertical scroll */}
+        {/* Continuous mode - scrollable pages */}
         {readingMode === 'continuous' && (
           <div 
             ref={scrollContainerRef}
-            className="w-full h-full overflow-y-auto scroll-smooth px-4"
-            onScroll={(e) => {
-              const container = e.currentTarget;
-              const scrollTop = container.scrollTop;
-              const pageHeight = container.scrollHeight / totalPages;
-              const newPage = Math.round(scrollTop / pageHeight);
-              if (newPage !== currentPage && newPage >= 0 && newPage < totalPages) {
-                setCurrentPage(newPage);
-              }
-            }}
+            className="w-full max-w-2xl mx-auto h-[calc(100vh-180px)] overflow-y-auto space-y-8 pr-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
           >
-            <div className="max-w-2xl mx-auto py-8 space-y-8">
-              {magazine.pages.map((page, index) => (
-                <motion.div
-                  key={index}
-                  ref={(el) => { pageRefs.current[index] = el; }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={cn(
-                    "magazine-page aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden scroll-mt-8",
-                    currentPage === index && "ring-4 ring-primary/50"
-                  )}
-                  style={{ 
-                    transform: `scale(${zoomLevel / 100})`,
-                    transformOrigin: 'top center',
-                  }}
-                  onClick={() => setCurrentPage(index)}
-                >
-                  <PageContent page={page} />
-                </motion.div>
-              ))}
-            </div>
-            
-            {/* Floating page indicator */}
-            <div className="fixed bottom-24 right-8 z-30">
-              <div className="bg-black/70 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-                <span className="text-white text-sm font-medium">
-                  {currentPage + 1} / {totalPages}
-                </span>
+            {magazine.pages.map((page, index) => (
+              <div
+                key={page.id}
+                ref={(el) => { pageRefs.current[index] = el; }}
+                className="magazine-page aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden"
+                style={{ 
+                  transform: `scale(${zoomLevel / 100})`,
+                  transformOrigin: 'top center',
+                }}
+              >
+                <PageContent page={page} />
               </div>
-            </div>
-            
-            {/* Quick navigation buttons */}
-            <div className="fixed bottom-24 left-8 z-30 flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  pageRefs.current[0]?.scrollIntoView({ behavior: 'smooth' });
-                  setCurrentPage(0);
-                }}
-                className="bg-black/70 backdrop-blur-sm rounded-full p-2 border border-white/20 text-white/70 hover:text-white hover:bg-black/90 transition-colors"
-                title="Ir para o início"
-              >
-                <ChevronLeft className="w-5 h-5 rotate-90" />
-              </button>
-              <button
-                onClick={() => {
-                  pageRefs.current[totalPages - 1]?.scrollIntoView({ behavior: 'smooth' });
-                  setCurrentPage(totalPages - 1);
-                }}
-                className="bg-black/70 backdrop-blur-sm rounded-full p-2 border border-white/20 text-white/70 hover:text-white hover:bg-black/90 transition-colors"
-                title="Ir para o fim"
-              >
-                <ChevronRight className="w-5 h-5 rotate-90" />
-              </button>
-            </div>
+            ))}
           </div>
         )}
       </div>
@@ -993,12 +1009,7 @@ export default function MagazineViewer() {
             {magazine.pages.map((_, index) => (
               <button
                 key={index}
-                onClick={() => {
-                  if (readingMode === 'continuous') {
-                    pageRefs.current[index]?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                  goToPage(index);
-                }}
+                onClick={() => goToPage(index)}
                 className={cn(
                   "w-2 h-2 rounded-full transition-all",
                   currentPage === index
@@ -1051,7 +1062,17 @@ function getPageTitle(page: any): string {
     case "publicidade":
       return "Parceiros";
     case "personalizado":
-      return "100% Personalizado";
+      return page.content?.titulo || "100% Personalizado";
+    case "classificados":
+      return "Classificados";
+    case "achados_perdidos":
+      return "Achados e Perdidos";
+    case "caronas":
+      return "Caronas";
+    case "dicas_seguranca":
+      return "Dicas de Segurança";
+    case "regras":
+      return "Regras";
     case "back_cover":
       return "Contracapa";
     default:
@@ -1089,6 +1110,16 @@ function PageContent({ page }: { page: any }) {
       return <PublicidadePage content={page.content} />;
     case "personalizado":
       return <PersonalizadoPage content={page.content} />;
+    case "classificados":
+      return <ClassificadosPage content={page.content} />;
+    case "achados_perdidos":
+      return <AchadosPerdidosPage content={page.content} />;
+    case "caronas":
+      return <CaronasPage content={page.content} />;
+    case "dicas_seguranca":
+      return <DicasSegurancaPage content={page.content} />;
+    case "regras":
+      return <RegrasPage content={page.content} />;
     case "back_cover":
       return <BackCoverPage content={page.content} />;
     default:
@@ -1199,15 +1230,13 @@ function MensagemSindicoPage({ content }: { content: any }) {
         </h3>
         <p className="text-sm text-muted-foreground mb-6">{content.cargo || "Síndico"}</p>
 
-        <blockquote className="text-center italic text-muted-foreground leading-relaxed max-w-md px-4">
-          "{content.mensagem}"
-        </blockquote>
-        
-        {content.assinatura && (
-          <p className="mt-4 text-sm font-medium text-primary">
-            — {content.assinatura}
+        <div className="relative max-w-md">
+          <div className="absolute -top-4 -left-4 text-6xl text-primary/20 font-serif">"</div>
+          <p className="text-foreground leading-relaxed text-center italic px-6">
+            {content.mensagem || "Bem-vindos à nossa revista digital!"}
           </p>
-        )}
+          <div className="absolute -bottom-4 -right-4 text-6xl text-primary/20 font-serif rotate-180">"</div>
+        </div>
       </div>
 
       <div className="text-center text-xs text-muted-foreground">— 2 —</div>
@@ -1216,44 +1245,41 @@ function MensagemSindicoPage({ content }: { content: any }) {
 }
 
 function AvisosPage({ content }: { content: any }) {
+  const prioridadeColors: Record<string, string> = {
+    alta: "bg-red-100 text-red-800 border-red-200",
+    media: "bg-amber-100 text-amber-800 border-amber-200",
+    baixa: "bg-blue-100 text-blue-800 border-blue-200",
+  };
+
   return (
     <div className="h-full flex flex-col p-8">
       <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-medium mb-3">
+          <Megaphone className="w-4 h-4" />
+          Fique por dentro
+        </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
         </h2>
         <div className="section-divider mt-3" />
       </div>
 
-      <div className="flex-1 space-y-4">
-        {content.avisos.map((aviso: any, index: number) => (
+      <div className="flex-1 space-y-4 overflow-auto">
+        {content.avisos?.map((aviso: any, index: number) => (
           <div
             key={index}
             className={cn(
               "p-4 rounded-xl border-l-4",
-              aviso.tipo === "urgente"
-                ? "bg-red-50 border-red-500"
-                : aviso.tipo === "importante"
-                ? "bg-amber-50 border-amber-500"
-                : "bg-blue-50 border-blue-500"
+              prioridadeColors[aviso.prioridade] || "bg-secondary border-border"
             )}
           >
-            <div className="flex items-start gap-3">
-              <Megaphone
-                className={cn(
-                  "w-5 h-5 mt-0.5",
-                  aviso.tipo === "urgente"
-                    ? "text-red-500"
-                    : aviso.tipo === "importante"
-                    ? "text-amber-500"
-                    : "text-blue-500"
-                )}
-              />
-              <div>
-                <h3 className="font-semibold text-foreground">{aviso.titulo}</h3>
-                <p className="text-sm text-muted-foreground">{aviso.descricao}</p>
-              </div>
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="font-semibold text-foreground">{aviso.titulo}</h3>
+              {aviso.data && (
+                <span className="text-xs text-muted-foreground">{aviso.data}</span>
+              )}
             </div>
+            <p className="text-sm text-muted-foreground">{aviso.descricao}</p>
           </div>
         ))}
       </div>
@@ -1267,28 +1293,32 @@ function EventosPage({ content }: { content: any }) {
   return (
     <div className="h-full flex flex-col p-8">
       <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-sm font-medium mb-3">
+          <Calendar className="w-4 h-4" />
+          Agenda
+        </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
         </h2>
         <div className="section-divider mt-3" />
       </div>
 
-      <div className="flex-1 space-y-4">
-        {content.eventos.map((evento: any, index: number) => (
+      <div className="flex-1 space-y-4 overflow-auto">
+        {content.eventos?.map((evento: any, index: number) => (
           <div
             key={index}
-            className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20"
+            className="p-4 rounded-xl bg-secondary/50 border border-border flex gap-4"
           >
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground">{evento.titulo}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {evento.data} às {evento.horario}
-                </p>
-                <p className="text-sm text-primary">{evento.local}</p>
+            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex flex-col items-center justify-center text-white flex-shrink-0">
+              <span className="text-xs uppercase">{evento.data?.split(' ')[0] || 'TBD'}</span>
+              <span className="text-xl font-bold">{evento.data?.split(' ')[1] || '--'}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-foreground mb-1">{evento.titulo}</h3>
+              <p className="text-sm text-muted-foreground line-clamp-2">{evento.descricao}</p>
+              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                {evento.horario && <span>🕐 {evento.horario}</span>}
+                {evento.local && <span>📍 {evento.local}</span>}
               </div>
             </div>
           </div>
@@ -1304,26 +1334,38 @@ function FuncionariosPage({ content }: { content: any }) {
   return (
     <div className="h-full flex flex-col p-8">
       <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 text-sm font-medium mb-3">
+          <Users className="w-4 h-4" />
+          Equipe
+        </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
         </h2>
         <div className="section-divider mt-3" />
       </div>
 
-      <div className="flex-1 grid grid-cols-1 gap-4">
-        {content.funcionarios.map((func: any, index: number) => (
+      <div className="flex-1 grid grid-cols-2 gap-4 overflow-auto">
+        {content.funcionarios?.map((func: any, index: number) => (
           <div
             key={index}
-            className="p-4 rounded-xl bg-secondary/50 flex items-center gap-4"
+            className="p-4 rounded-xl bg-secondary/50 border border-border text-center"
           >
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">{func.nome}</h3>
-              <p className="text-sm text-muted-foreground">{func.cargo}</p>
-              <p className="text-xs text-primary">{func.turno}</p>
-            </div>
+            {func.foto ? (
+              <img
+                src={func.foto}
+                alt={func.nome}
+                className="w-16 h-16 rounded-full mx-auto mb-3 object-cover ring-2 ring-primary/20"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full mx-auto mb-3 bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+                <Users className="w-8 h-8 text-primary" />
+              </div>
+            )}
+            <h3 className="font-semibold text-foreground text-sm">{func.nome}</h3>
+            <p className="text-xs text-muted-foreground">{func.cargo}</p>
+            {func.horario && (
+              <p className="text-xs text-primary mt-1">{func.horario}</p>
+            )}
           </div>
         ))}
       </div>
@@ -1334,80 +1376,78 @@ function FuncionariosPage({ content }: { content: any }) {
 }
 
 function VotacaoPage({ content }: { content: any }) {
-  const totalVotos = content.opcoes.reduce((acc: number, opt: any) => acc + opt.votos, 0);
-
   return (
     <div className="h-full flex flex-col p-8">
       <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-100 to-violet-100 text-indigo-800 text-sm font-medium mb-3">
+          <Vote className="w-4 h-4" />
+          Participe
+        </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
         </h2>
-        <p className="text-sm text-muted-foreground mt-2">{content.descricao}</p>
         <div className="section-divider mt-3" />
       </div>
 
-      <div className="flex-1 space-y-4">
-        {content.opcoes.map((opcao: any, index: number) => {
-          const percentage = Math.round((opcao.votos / totalVotos) * 100);
-          return (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Star className="w-5 h-5 text-primary" />
-                  </div>
-                  <span className="font-medium text-foreground">{opcao.nome}</span>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {opcao.votos} votos ({percentage}%)
-                </span>
-              </div>
-              <div className="h-3 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className="h-full gradient-magazine rounded-full transition-all duration-500"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
+      <div className="flex-1 space-y-4 overflow-auto">
+        {content.votacoes?.map((votacao: any, index: number) => (
+          <div
+            key={index}
+            className="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-100"
+          >
+            <h3 className="font-semibold text-foreground mb-2">{votacao.titulo}</h3>
+            <p className="text-sm text-muted-foreground mb-3">{votacao.descricao}</p>
+            {votacao.dataFim && (
+              <p className="text-xs text-indigo-600">Votação até: {votacao.dataFim}</p>
+            )}
+          </div>
+        ))}
       </div>
 
-      <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-4">
-          Total de votos: {totalVotos}
-        </p>
-        <div className="text-xs text-muted-foreground">— 6 —</div>
-      </div>
+      <div className="text-center text-xs text-muted-foreground">— 6 —</div>
     </div>
   );
 }
 
 function TelefonesPage({ content }: { content: any }) {
+  const categoriaIcons: Record<string, any> = {
+    emergencia: Shield,
+    servicos: Wrench,
+    administracao: Building2,
+    outros: Phone,
+  };
+
   return (
     <div className="h-full flex flex-col p-8">
       <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-sm font-medium mb-3">
+          <Phone className="w-4 h-4" />
+          Contatos
+        </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
         </h2>
         <div className="section-divider mt-3" />
       </div>
 
-      <div className="flex-1 space-y-3">
-        {content.telefones.map((tel: any, index: number) => (
-          <div
-            key={index}
-            className="p-4 rounded-xl bg-secondary/50 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Phone className="w-5 h-5 text-primary" />
+      <div className="flex-1 space-y-3 overflow-auto">
+        {content.telefones?.map((tel: any, index: number) => {
+          const Icon = categoriaIcons[tel.categoria] || Phone;
+          return (
+            <div
+              key={index}
+              className="p-3 rounded-lg bg-secondary/50 border border-border flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                <Icon className="w-5 h-5 text-green-700" />
               </div>
-              <span className="font-medium text-foreground">{tel.nome}</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-foreground text-sm">{tel.nome}</h3>
+                <p className="text-sm text-primary font-mono">{tel.telefone}</p>
+              </div>
             </div>
-            <span className="text-primary font-semibold">{tel.numero}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="text-center text-xs text-muted-foreground">— 7 —</div>
@@ -1415,186 +1455,11 @@ function TelefonesPage({ content }: { content: any }) {
   );
 }
 
-function PublicidadePage({ content }: { content: any }) {
-  const categoriaColors: Record<string, string> = {
-    comercio: "bg-blue-100 text-blue-800 border-blue-200",
-    servicos: "bg-green-100 text-green-800 border-green-200",
-    profissionais: "bg-purple-100 text-purple-800 border-purple-200",
-    alimentacao: "bg-orange-100 text-orange-800 border-orange-200",
-    saude: "bg-red-100 text-red-800 border-red-200",
-    educacao: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    outros: "bg-gray-100 text-gray-800 border-gray-200",
-  };
-
-  const categoriaLabels: Record<string, string> = {
-    comercio: "Comércio",
-    servicos: "Serviços",
-    profissionais: "Profissionais",
-    alimentacao: "Alimentação",
-    saude: "Saúde",
-    educacao: "Educação",
-    outros: "Outros",
-  };
-
-  return (
-    <div className="h-full flex flex-col p-6 overflow-auto">
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-medium mb-3">
-          <Star className="w-4 h-4" />
-          Parceiros Recomendados
-        </div>
-        <h2 className="font-serif text-2xl font-bold text-foreground">
-          {content.titulo}
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Apoie os comércios e profissionais da nossa comunidade
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 flex-1">
-        {content.anunciantes?.map((anunciante: any, index: number) => (
-          <div
-            key={index}
-            className={cn(
-              "rounded-xl border-2 p-4 transition-all hover:shadow-lg hover:scale-[1.02]",
-              categoriaColors[anunciante.categoria] || categoriaColors.outros
-            )}
-          >
-            <div className="flex items-start gap-3">
-              {anunciante.logoUrl ? (
-                <img
-                  src={anunciante.logoUrl}
-                  alt={anunciante.nome}
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-lg bg-white/50 flex items-center justify-center">
-                  <span className="text-xl font-bold">
-                    {anunciante.nome.charAt(0)}
-                  </span>
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm truncate">
-                  {anunciante.nome}
-                </h3>
-                <span className="text-xs opacity-75">
-                  {categoriaLabels[anunciante.categoria] || "Outros"}
-                </span>
-              </div>
-            </div>
-            <p className="text-xs mt-2 line-clamp-2 opacity-90">
-              {anunciante.descricao}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {anunciante.telefone && (
-                <a
-                  href={`tel:${anunciante.telefone}`}
-                  className="inline-flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded-full hover:bg-white/80 transition-colors"
-                >
-                  <Phone className="w-3 h-3" />
-                  {anunciante.telefone}
-                </a>
-              )}
-              {anunciante.whatsapp && (
-                <a
-                  href={`https://wa.me/${anunciante.whatsapp.replace(/\D/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs bg-green-500/20 text-green-800 px-2 py-1 rounded-full hover:bg-green-500/30 transition-colors"
-                >
-                  <MessageSquare className="w-3 h-3" />
-                  WhatsApp
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="text-center mt-4 pt-4 border-t border-dashed">
-        <p className="text-xs text-muted-foreground">
-          Quer anunciar aqui? Entre em contato com a administração
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function RealizacaoItem({ item, statusColors, statusLabels }: { item: any; statusColors: Record<string, string>; statusLabels: Record<string, string> }) {
-  const [showGallery, setShowGallery] = useState(false);
-  
-  // Combinar imagem principal com imagens adicionais
-  const todasImagens = [
-    ...(item.imagemUrl ? [{ url: item.imagemUrl, id: 0 }] : []),
-    ...(item.imagens?.map((img: any, idx: number) => ({ url: img.imagemUrl || img.url, id: idx + 1 })) || []),
-  ];
-
-  return (
-    <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200">
-      <div className="flex items-start gap-4">
-        {todasImagens.length > 0 ? (
-          <div 
-            className="w-16 h-16 rounded-lg overflow-hidden cursor-pointer relative flex-shrink-0"
-            onClick={() => setShowGallery(true)}
-          >
-            <img src={todasImagens[0].url} alt={item.titulo} className="w-full h-full object-cover" />
-            {todasImagens.length > 1 && (
-              <div className="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
-                +{todasImagens.length - 1}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-            <CheckCircle className="w-6 h-6 text-emerald-600" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1 gap-2">
-            <h3 className="font-semibold text-foreground truncate">{item.titulo}</h3>
-            <span className={cn(
-              "text-xs px-2 py-1 rounded-full border flex-shrink-0",
-              statusColors[item.status] || statusColors.concluido
-            )}>
-              {statusLabels[item.status] || "Concluído"}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{item.descricao}</p>
-          {item.data && <p className="text-xs text-emerald-600 mt-1">{item.data}</p>}
-          {todasImagens.length > 1 && (
-            <button 
-              onClick={() => setShowGallery(true)}
-              className="text-xs text-emerald-600 hover:underline mt-1"
-            >
-              Ver {todasImagens.length} fotos
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {showGallery && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setShowGallery(false)}>
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-auto p-4" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold">{item.titulo}</h3>
-              <button onClick={() => setShowGallery(false)} className="p-1 hover:bg-gray-100 rounded">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <ImageGallery images={todasImagens} columns={2} aspectRatio="video" />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function RealizacoesPage({ content }: { content: any }) {
   const statusColors: Record<string, string> = {
-    concluido: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    em_andamento: "bg-blue-100 text-blue-800 border-blue-200",
-    planejado: "bg-amber-100 text-amber-800 border-amber-200",
+    concluido: "bg-emerald-100 text-emerald-800",
+    em_andamento: "bg-blue-100 text-blue-800",
+    planejado: "bg-amber-100 text-amber-800",
   };
 
   const statusLabels: Record<string, string> = {
@@ -1618,7 +1483,27 @@ function RealizacoesPage({ content }: { content: any }) {
 
       <div className="flex-1 space-y-4 overflow-auto">
         {content.realizacoes?.map((item: any, index: number) => (
-          <RealizacaoItem key={index} item={item} statusColors={statusColors} statusLabels={statusLabels} />
+          <div key={index} className="p-4 rounded-xl bg-secondary/50 border border-border">
+            <div className="flex items-start gap-4">
+              {item.imagemUrl ? (
+                <img src={item.imagemUrl} alt={item.titulo} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+              ) : (
+                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", statusColors[item.status] || "bg-gray-100")}>
+                  <Trophy className="w-5 h-5" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <h3 className="font-semibold text-foreground truncate">{item.titulo}</h3>
+                  <span className={cn("text-xs px-2 py-1 rounded-full flex-shrink-0", statusColors[item.status] || "bg-gray-100 text-gray-800")}>
+                    {statusLabels[item.status] || item.status}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.descricao}</p>
+                {item.data && <p className="text-xs text-primary mt-1">{item.data}</p>}
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -1685,69 +1570,6 @@ function AntesDepoisPage({ content }: { content: any }) {
   );
 }
 
-function MelhoriaItem({ item, statusColors, statusLabels, statusIcons }: { item: any; statusColors: Record<string, string>; statusLabels: Record<string, string>; statusIcons: Record<string, any> }) {
-  const [showGallery, setShowGallery] = useState(false);
-  const StatusIcon = statusIcons[item.status] || Wrench;
-  
-  const todasImagens = [
-    ...(item.imagemUrl ? [{ url: item.imagemUrl, id: 0 }] : []),
-    ...(item.imagens?.map((img: any, idx: number) => ({ url: img.imagemUrl || img.url, id: idx + 1 })) || []),
-  ];
-
-  return (
-    <div className="p-4 rounded-xl bg-secondary/50 border border-border">
-      <div className="flex items-start gap-4">
-        {todasImagens.length > 0 ? (
-          <div 
-            className="w-14 h-14 rounded-lg overflow-hidden cursor-pointer relative flex-shrink-0"
-            onClick={() => setShowGallery(true)}
-          >
-            <img src={todasImagens[0].url} alt={item.titulo} className="w-full h-full object-cover" />
-            {todasImagens.length > 1 && (
-              <div className="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
-                +{todasImagens.length - 1}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", statusColors[item.status] || "bg-gray-100")}>
-            <StatusIcon className="w-5 h-5" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1 gap-2">
-            <h3 className="font-semibold text-foreground truncate">{item.titulo}</h3>
-            <span className={cn("text-xs px-2 py-1 rounded-full flex-shrink-0", statusColors[item.status] || "bg-gray-100 text-gray-800")}>
-              {statusLabels[item.status] || item.status}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{item.descricao}</p>
-          {item.previsao && <p className="text-xs text-primary mt-1">Previsão: {item.previsao}</p>}
-          {todasImagens.length > 1 && (
-            <button onClick={() => setShowGallery(true)} className="text-xs text-blue-600 hover:underline mt-1">
-              Ver {todasImagens.length} fotos
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {showGallery && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setShowGallery(false)}>
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-auto p-4" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold">{item.titulo}</h3>
-              <button onClick={() => setShowGallery(false)} className="p-1 hover:bg-gray-100 rounded">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <ImageGallery images={todasImagens} columns={2} aspectRatio="video" />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function MelhoriasPage({ content }: { content: any }) {
   const statusColors: Record<string, string> = {
     concluido: "bg-emerald-100 text-emerald-800",
@@ -1759,12 +1581,6 @@ function MelhoriasPage({ content }: { content: any }) {
     concluido: "Concluído",
     em_andamento: "Em Andamento",
     planejado: "Planejado",
-  };
-
-  const statusIcons: Record<string, any> = {
-    concluido: CheckCircle,
-    em_andamento: Wrench,
-    planejado: Calendar,
   };
 
   return (
@@ -1782,71 +1598,31 @@ function MelhoriasPage({ content }: { content: any }) {
 
       <div className="flex-1 space-y-4 overflow-auto">
         {content.melhorias?.map((item: any, index: number) => (
-          <MelhoriaItem key={index} item={item} statusColors={statusColors} statusLabels={statusLabels} statusIcons={statusIcons} />
+          <div key={index} className="p-4 rounded-xl bg-secondary/50 border border-border">
+            <div className="flex items-start gap-4">
+              {item.imagemUrl ? (
+                <img src={item.imagemUrl} alt={item.titulo} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+              ) : (
+                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", statusColors[item.status] || "bg-gray-100")}>
+                  <Wrench className="w-5 h-5" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <h3 className="font-semibold text-foreground truncate">{item.titulo}</h3>
+                  <span className={cn("text-xs px-2 py-1 rounded-full flex-shrink-0", statusColors[item.status] || "bg-gray-100 text-gray-800")}>
+                    {statusLabels[item.status] || item.status}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.descricao}</p>
+                {item.previsao && <p className="text-xs text-primary mt-1">Previsão: {item.previsao}</p>}
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
       <div className="text-center text-xs text-muted-foreground">— 10 —</div>
-    </div>
-  );
-}
-
-function AquisicaoItem({ item }: { item: any }) {
-  const [showGallery, setShowGallery] = useState(false);
-  
-  const todasImagens = [
-    ...(item.imagemUrl ? [{ url: item.imagemUrl, id: 0 }] : []),
-    ...(item.imagens?.map((img: any, idx: number) => ({ url: img.imagemUrl || img.url, id: idx + 1 })) || []),
-  ];
-
-  return (
-    <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200">
-      <div className="flex items-start gap-4">
-        {todasImagens.length > 0 ? (
-          <div 
-            className="w-14 h-14 rounded-lg overflow-hidden cursor-pointer relative flex-shrink-0"
-            onClick={() => setShowGallery(true)}
-          >
-            <img src={todasImagens[0].url} alt={item.titulo} className="w-full h-full object-cover" />
-            {todasImagens.length > 1 && (
-              <div className="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-1 rounded-tl">
-                +{todasImagens.length - 1}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-            <Package className="w-6 h-6 text-amber-600" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1 gap-2">
-            <h3 className="font-semibold text-foreground truncate">{item.titulo}</h3>
-            <span className="text-sm font-bold text-amber-700 flex-shrink-0">{item.valor}</span>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{item.descricao}</p>
-          {item.data && <p className="text-xs text-amber-600 mt-1">{item.data}</p>}
-          {todasImagens.length > 1 && (
-            <button onClick={() => setShowGallery(true)} className="text-xs text-amber-600 hover:underline mt-1">
-              Ver {todasImagens.length} fotos
-            </button>
-          )}
-        </div>
-      </div>
-      
-      {showGallery && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setShowGallery(false)}>
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-auto p-4" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold">{item.titulo}</h3>
-              <button onClick={() => setShowGallery(false)} className="p-1 hover:bg-gray-100 rounded">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <ImageGallery images={todasImagens} columns={2} aspectRatio="video" />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -1857,7 +1633,7 @@ function AquisicoesPage({ content }: { content: any }) {
       <div className="text-center mb-6">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 text-sm font-medium mb-3">
           <ShoppingBag className="w-4 h-4" />
-          Novos Equipamentos
+          Investimentos
         </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
@@ -1867,7 +1643,25 @@ function AquisicoesPage({ content }: { content: any }) {
 
       <div className="flex-1 space-y-4 overflow-auto">
         {content.aquisicoes?.map((item: any, index: number) => (
-          <AquisicaoItem key={index} item={item} />
+          <div key={index} className="p-4 rounded-xl bg-secondary/50 border border-border">
+            <div className="flex items-start gap-4">
+              {item.imagemUrl ? (
+                <img src={item.imagemUrl} alt={item.titulo} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Package className="w-5 h-5 text-amber-700" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-foreground">{item.titulo}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.descricao}</p>
+                <div className="flex items-center gap-4 mt-2 text-xs">
+                  {item.valor && <span className="text-emerald-600 font-medium">{item.valor}</span>}
+                  {item.data && <span className="text-muted-foreground">{item.data}</span>}
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -1876,223 +1670,305 @@ function AquisicoesPage({ content }: { content: any }) {
   );
 }
 
-function BackCoverPage({ content }: { content: any }) {
-  return (
-    <div className="h-full flex flex-col items-center justify-center p-8 bg-gradient-to-br from-primary/20 via-white to-accent/20 text-center">
-      <div className="w-16 h-16 rounded-2xl gradient-magazine flex items-center justify-center mb-6">
-        <BookOpen className="w-8 h-8 text-white" />
-      </div>
-      <h2 className="font-serif text-2xl font-bold text-foreground mb-2">
-        {content.titulo}
-      </h2>
-      <p className="text-muted-foreground mb-8">{content.mensagem}</p>
-      <div className="section-divider" />
-      <p className="text-sm text-muted-foreground mt-8">
-        Criado com App Síndico
-      </p>
-    </div>
-  );
-}
-
-
 function GaleriaPage({ content }: { content: any }) {
-  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; legenda: string } | null>(null);
-  const [selectedAlbum, setSelectedAlbum] = useState<number>(0);
-  
-  const categoriaColors: Record<string, string> = {
-    eventos: "bg-purple-100 text-purple-800",
-    obras: "bg-orange-100 text-orange-800",
-    areas_comuns: "bg-blue-100 text-blue-800",
-    melhorias: "bg-emerald-100 text-emerald-800",
-    outros: "bg-gray-100 text-gray-800",
-  };
-  
-  const categoriaLabels: Record<string, string> = {
-    eventos: "Eventos",
-    obras: "Obras",
-    areas_comuns: "Áreas Comuns",
-    melhorias: "Melhorias",
-    outros: "Outros",
-  };
-
-  const currentAlbum = content.albuns?.[selectedAlbum];
-
   return (
-    <div className="h-full flex flex-col p-6 overflow-hidden">
-      {/* Header */}
-      <div className="text-center mb-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-100 to-purple-100 text-violet-800 text-sm font-medium mb-2">
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 text-sm font-medium mb-3">
           <Image className="w-4 h-4" />
-          Memórias do Condomínio
+          Momentos
         </div>
-        <h2 className="font-serif text-xl font-bold text-foreground">
+        <h2 className="font-serif text-2xl font-bold text-foreground">
           {content.titulo}
         </h2>
+        <div className="section-divider mt-3" />
       </div>
 
-      {/* Album selector */}
-      {content.albuns && content.albuns.length > 1 && (
-        <div className="flex gap-2 justify-center mb-4 flex-wrap">
-          {content.albuns.map((album: any, index: number) => (
-            <button
-              key={index}
-              onClick={() => setSelectedAlbum(index)}
-              className={cn(
-                "px-3 py-1 rounded-full text-xs font-medium transition-all",
-                selectedAlbum === index
-                  ? "bg-primary text-white"
-                  : "bg-muted hover:bg-muted/80"
-              )}
-            >
-              {album.titulo}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Current album */}
-      {currentAlbum && (
-        <div className="flex-1 overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">{currentAlbum.titulo}</h3>
-            <span className={cn(
-              "px-2 py-0.5 rounded-full text-xs font-medium",
-              categoriaColors[currentAlbum.categoria] || categoriaColors.outros
-            )}>
-              {categoriaLabels[currentAlbum.categoria] || "Outros"}
-            </span>
-          </div>
-
-          {/* Photo grid */}
-          <div className="grid grid-cols-3 gap-2 overflow-y-auto max-h-[calc(100%-80px)]">
-            {currentAlbum.fotos?.map((foto: any, index: number) => (
-              <div
-                key={index}
-                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group"
-                onClick={() => setSelectedPhoto(foto)}
-              >
-                <img
-                  src={foto.url}
-                  alt={foto.legenda || `Foto ${index + 1}`}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="flex-1 space-y-6 overflow-auto">
+        {content.albuns?.map((album: any, index: number) => (
+          <div key={index}>
+            <h3 className="font-semibold text-foreground mb-3">{album.titulo}</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {album.fotos?.slice(0, 6).map((foto: any, fotoIndex: number) => (
+                <div key={fotoIndex} className="aspect-square rounded-lg overflow-hidden">
+                  <img
+                    src={foto.url}
+                    alt={foto.legenda || `Foto ${fotoIndex + 1}`}
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                  />
                 </div>
-                {foto.legenda && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                    <p className="text-white text-xs truncate">{foto.legenda}</p>
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {selectedPhoto && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-            onClick={() => setSelectedPhoto(null)}
-          >
-            <button
-              className="absolute top-4 right-4 text-white hover:text-white/80"
-              onClick={() => setSelectedPhoto(null)}
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="max-w-4xl max-h-[90vh] relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={selectedPhoto.url}
-                alt={selectedPhoto.legenda}
-                className="max-w-full max-h-[80vh] object-contain rounded-lg"
-              />
-              {selectedPhoto.legenda && (
-                <p className="text-white text-center mt-4 text-lg">
-                  {selectedPhoto.legenda}
-                </p>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Empty state */}
-      {(!content.albuns || content.albuns.length === 0) && (
-        <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
-          <Image className="w-12 h-12 mb-4 opacity-50" />
-          <p>Nenhum álbum disponível</p>
-        </div>
-      )}
+      <div className="text-center text-xs text-muted-foreground">— 12 —</div>
     </div>
   );
 }
 
+function PublicidadePage({ content }: { content: any }) {
+  const categoriaColors: Record<string, string> = {
+    alimentacao: "bg-orange-100 text-orange-800",
+    saude: "bg-red-100 text-red-800",
+    servicos: "bg-blue-100 text-blue-800",
+    profissionais: "bg-purple-100 text-purple-800",
+  };
+
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-100 to-purple-100 text-violet-800 text-sm font-medium mb-3">
+          <Star className="w-4 h-4" />
+          Parceiros
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-foreground">
+          {content.titulo}
+        </h2>
+        <div className="section-divider mt-3" />
+      </div>
+
+      <div className="flex-1 grid grid-cols-2 gap-3 overflow-auto">
+        {content.anunciantes?.map((anunciante: any, index: number) => (
+          <div
+            key={index}
+            className="p-3 rounded-xl bg-secondary/50 border border-border"
+          >
+            {anunciante.logoUrl ? (
+              <img
+                src={anunciante.logoUrl}
+                alt={anunciante.nome}
+                className="w-12 h-12 rounded-lg mx-auto mb-2 object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-lg mx-auto mb-2 bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
+                <Star className="w-6 h-6 text-violet-600" />
+              </div>
+            )}
+            <h3 className="font-semibold text-foreground text-sm text-center">{anunciante.nome}</h3>
+            <p className="text-xs text-muted-foreground text-center line-clamp-2 mt-1">{anunciante.descricao}</p>
+            {anunciante.telefone && (
+              <p className="text-xs text-primary text-center mt-2">{anunciante.telefone}</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground">— 13 —</div>
+    </div>
+  );
+}
+
+function ClassificadosPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 text-sm font-medium mb-3">
+          <ShoppingBag className="w-4 h-4" />
+          Compra e Venda
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-foreground">
+          {content.titulo}
+        </h2>
+        <div className="section-divider mt-3" />
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-auto">
+        {content.classificados?.map((item: any, index: number) => (
+          <div key={index} className="p-3 rounded-xl bg-secondary/50 border border-border flex gap-3">
+            {item.imagemUrl ? (
+              <img src={item.imagemUrl} alt={item.titulo} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-16 h-16 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+                <Package className="w-8 h-8 text-teal-600" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-foreground text-sm">{item.titulo}</h3>
+              <p className="text-xs text-muted-foreground line-clamp-1">{item.descricao}</p>
+              {item.preco && <p className="text-sm text-emerald-600 font-medium mt-1">{item.preco}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground">— 14 —</div>
+    </div>
+  );
+}
+
+function AchadosPerdidosPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-medium mb-3">
+          <Package className="w-4 h-4" />
+          Achados e Perdidos
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-foreground">
+          {content.titulo}
+        </h2>
+        <div className="section-divider mt-3" />
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-auto">
+        {content.itens?.map((item: any, index: number) => (
+          <div key={index} className="p-3 rounded-xl bg-secondary/50 border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={cn(
+                "text-xs px-2 py-1 rounded-full",
+                item.tipo === 'achado' ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+              )}>
+                {item.tipo === 'achado' ? 'Achado' : 'Perdido'}
+              </span>
+              {item.data && <span className="text-xs text-muted-foreground">{item.data}</span>}
+            </div>
+            <h3 className="font-semibold text-foreground text-sm">{item.titulo}</h3>
+            <p className="text-xs text-muted-foreground">{item.descricao}</p>
+            {item.local && <p className="text-xs text-primary mt-1">📍 {item.local}</p>}
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground">— 15 —</div>
+    </div>
+  );
+}
+
+function CaronasPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-sky-100 to-blue-100 text-sky-800 text-sm font-medium mb-3">
+          <Car className="w-4 h-4" />
+          Caronas
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-foreground">
+          {content.titulo}
+        </h2>
+        <div className="section-divider mt-3" />
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-auto">
+        {content.caronas?.map((carona: any, index: number) => (
+          <div key={index} className="p-3 rounded-xl bg-secondary/50 border border-border">
+            <div className="flex items-center gap-2 text-sm mb-2">
+              <span className="text-muted-foreground">{carona.origem}</span>
+              <span className="text-primary">→</span>
+              <span className="text-foreground font-medium">{carona.destino}</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              {carona.data && <span>📅 {carona.data}</span>}
+              {carona.horario && <span>🕐 {carona.horario}</span>}
+              {carona.vagas && <span>👥 {carona.vagas} vagas</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground">— 16 —</div>
+    </div>
+  );
+}
+
+function DicasSegurancaPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-100 to-rose-100 text-red-800 text-sm font-medium mb-3">
+          <Shield className="w-4 h-4" />
+          Segurança
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-foreground">
+          {content.titulo}
+        </h2>
+        <div className="section-divider mt-3" />
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-auto">
+        {content.dicas?.map((dica: any, index: number) => (
+          <div key={index} className="p-4 rounded-xl bg-red-50 border border-red-100">
+            <h3 className="font-semibold text-foreground text-sm mb-1">{dica.titulo}</h3>
+            <p className="text-xs text-muted-foreground">{dica.descricao}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground">— 17 —</div>
+    </div>
+  );
+}
+
+function RegrasPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 text-sm font-medium mb-3">
+          <FileText className="w-4 h-4" />
+          Regulamento
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-foreground">
+          {content.titulo}
+        </h2>
+        <div className="section-divider mt-3" />
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-auto">
+        {content.regras?.map((regra: any, index: number) => (
+          <div key={index} className="p-3 rounded-xl bg-secondary/50 border border-border">
+            <h3 className="font-semibold text-foreground text-sm">{regra.titulo}</h3>
+            <p className="text-xs text-muted-foreground mt-1">{regra.descricao}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground">— 18 —</div>
+    </div>
+  );
+}
 
 function PersonalizadoPage({ content }: { content: any }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
-  const nextImage = () => {
-    if (content.imagens && content.imagens.length > 0) {
-      setCurrentImageIndex((prev) => (prev + 1) % content.imagens.length);
-    }
-  };
-  
-  const prevImage = () => {
-    if (content.imagens && content.imagens.length > 0) {
-      setCurrentImageIndex((prev) => (prev - 1 + content.imagens.length) % content.imagens.length);
-    }
-  };
 
   return (
-    <div className="h-full flex flex-col p-8 overflow-y-auto">
-      {/* Header */}
+    <div className="h-full flex flex-col p-8">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 text-sm font-medium mb-3">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-fuchsia-100 to-pink-100 text-fuchsia-800 text-sm font-medium mb-3">
           <Sparkles className="w-4 h-4" />
-          100% Personalizado
+          Exclusivo
         </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">
-          {content.titulo || "Página Personalizada"}
+          {content.titulo}
         </h2>
         {content.subtitulo && (
           <p className="text-muted-foreground mt-1">{content.subtitulo}</p>
         )}
+        <div className="section-divider mt-3" />
       </div>
 
       {/* Galeria de Imagens */}
       {content.imagens && content.imagens.length > 0 && (
-        <div className="relative mb-6 rounded-xl overflow-hidden bg-muted/30">
-          <div className="aspect-video relative">
+        <div className="mb-6">
+          <div className="relative aspect-video rounded-xl overflow-hidden bg-secondary">
             <img
-              src={content.imagens[currentImageIndex]?.url}
-              alt={content.imagens[currentImageIndex]?.legenda || "Imagem"}
+              src={content.imagens[currentImageIndex]?.url || content.imagens[currentImageIndex]}
+              alt={content.imagens[currentImageIndex]?.legenda || `Imagem ${currentImageIndex + 1}`}
               className="w-full h-full object-cover"
             />
             {content.imagens.length > 1 && (
               <>
                 <button
-                  onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  onClick={() => setCurrentImageIndex(prev => prev === 0 ? content.imagens.length - 1 : prev - 1)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
                 >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  onClick={() => setCurrentImageIndex(prev => prev === content.imagens.length - 1 ? 0 : prev + 1)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
                 >
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                   {content.imagens.map((_: any, index: number) => (
@@ -2171,6 +2047,30 @@ function PersonalizadoPage({ content }: { content: any }) {
           <p className="text-sm">Adicione título, descrição, imagens, links e muito mais!</p>
         </div>
       )}
+    </div>
+  );
+}
+
+function BackCoverPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-primary/10 via-white to-accent/10">
+      <div className="w-16 h-16 rounded-2xl gradient-magazine flex items-center justify-center mb-6">
+        <Heart className="w-8 h-8 text-white" />
+      </div>
+      
+      <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
+        {content.titulo}
+      </h2>
+      
+      <p className="text-muted-foreground mb-8">
+        {content.mensagem}
+      </p>
+      
+      <div className="section-divider" />
+      
+      <p className="text-sm text-muted-foreground mt-8">
+        Desenvolvido com ❤️ pelo App Síndico
+      </p>
     </div>
   );
 }
