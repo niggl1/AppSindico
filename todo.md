@@ -38,3 +38,4 @@
 - [x] Ajustar LandingApp.tsx: tablet ao lado do texto, cards maiores, ícones coloridos, badge Online
 - [x] Remover secção Prazos e Fidelidade e itens relacionados, substituir por quadro premium
 - [x] Ajustar planos: Síndicos remover suporte por e-mail, Condomínios remover suporte prioritário e reservas de áreas comuns, Administradoras remover gerente dedicado e API de integração, adicionar condomínios ilimitados
+- [x] Adicionar "Integração com moradores" ao plano Condomínios
