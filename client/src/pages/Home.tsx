@@ -942,10 +942,6 @@ export default function Home() {
                       <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                       <span className="text-sm">Relatórios básicos</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-sm">Suporte por e-mail</span>
-                    </li>
                   </ul>
                   <a href="https://wa.me/5581999618516?text=Olá! Tenho interesse no plano Síndicos." target="_blank" rel="noopener noreferrer" className="w-full">
                     <Button className="w-full">
@@ -999,15 +995,7 @@ export default function Home() {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-sm">Reserva de áreas comuns</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                       <span className="text-sm">Classificados e caronas</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-sm">Suporte prioritário</span>
                     </li>
                   </ul>
                   <a href="https://wa.me/5581999618516?text=Olá! Tenho interesse no plano Condomínios." target="_blank" rel="noopener noreferrer" className="w-full">
@@ -1062,11 +1050,7 @@ export default function Home() {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-sm">API de integração</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-sm">Gerente de conta dedicado</span>
+                      <span className="text-sm">Condomínios ilimitados</span>
                     </li>
                   </ul>
                   <a href="https://wa.me/5581999618516?text=Olá! Tenho interesse no plano Administradoras." target="_blank" rel="noopener noreferrer" className="w-full">
