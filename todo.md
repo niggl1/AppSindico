@@ -33,3 +33,4 @@
 - [ ] Colocar todos os cards de Secções Disponíveis numa única linha horizontal
 - [x] Colocar as secções Como Funciona e Prazos e Fidelidade lado a lado numa única linha
 - [x] Mover números 01, 02, 03 para a frente dos tópicos na secção Como Funciona
+- [x] Colocar os planos de preços lado a lado (horizontalmente)

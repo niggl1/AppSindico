@@ -924,13 +924,14 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="flex flex-row gap-6 max-w-6xl mx-auto">
             {/* Plano Síndicos */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              className="flex-1"
             >
               <Card className="relative h-full border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">
@@ -990,6 +991,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
+              className="flex-1"
             >
               <Card className="relative h-full border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">
@@ -1053,6 +1055,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
+              className="flex-1"
             >
               <Card className="relative h-full border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="p-6">
