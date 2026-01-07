@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { generateRevistaPDF } from "./pdfGenerator";
 import { generateFuncaoRapidaPDF } from "./pdfFuncoesRapidas";
 import webpush from "web-push";
+import { sendEmail, sendBulkEmail, isEmailConfigured, emailTemplates } from "./_core/email";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
@@ -9622,6 +9623,177 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
         });
         
         return { success: true, id: Number(result[0].insertId) };
+      }),
+    
+    // Verificar se o serviço de email está configurado
+    isConfigured: protectedProcedure
+      .query(async () => {
+        return { configured: isEmailConfigured() };
+      }),
+    
+    // Enviar email de teste
+    sendTest: protectedProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        destinatario: z.string().email(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        if (!isEmailConfigured()) {
+          return { success: false, message: "Serviço de email não configurado. Configure as variáveis SES_SMTP_* no ambiente." };
+        }
+        
+        // Buscar nome do condomínio
+        const [condominio] = await db.select().from(condominios)
+          .where(eq(condominios.id, input.condominioId))
+          .limit(1);
+        
+        const template = emailTemplates.notificacao({
+          condominioNome: condominio?.nome || "App Síndico",
+          titulo: "Teste de Email",
+          mensagem: "Este é um email de teste enviado pelo sistema App Síndico.\n\nSe você recebeu este email, a configuração está funcionando corretamente!",
+        });
+        
+        const result = await sendEmail({
+          to: input.destinatario,
+          subject: template.subject,
+          html: template.html,
+          text: template.text,
+        });
+        
+        return result;
+      }),
+    
+    // Enviar notificação por email
+    sendNotification: protectedProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        titulo: z.string().min(1),
+        mensagem: z.string().min(1),
+        destinatarios: z.array(z.string().email()),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        if (!isEmailConfigured()) {
+          return { success: false, message: "Serviço de email não configurado.", stats: { sent: 0, failed: input.destinatarios.length, errors: [] } };
+        }
+        
+        // Buscar nome do condomínio
+        const [condominio] = await db.select().from(condominios)
+          .where(eq(condominios.id, input.condominioId))
+          .limit(1);
+        
+        const template = emailTemplates.notificacao({
+          condominioNome: condominio?.nome || "App Síndico",
+          titulo: input.titulo,
+          mensagem: input.mensagem,
+        });
+        
+        const result = await sendBulkEmail(
+          input.destinatarios,
+          template.subject,
+          { html: template.html, text: template.text }
+        );
+        
+        // Registar no histórico
+        await db.insert(historicoNotificacoes).values({
+          condominioId: input.condominioId,
+          tipo: 'email',
+          titulo: input.titulo,
+          mensagem: input.mensagem,
+          destinatarios: input.destinatarios.length,
+          sucessos: result.sent,
+          falhas: result.failed,
+          enviadoPor: ctx.user.id,
+        });
+        
+        return { 
+          success: result.sent > 0, 
+          message: `Email enviado para ${result.sent} de ${input.destinatarios.length} destinatários.`,
+          stats: result 
+        };
+      }),
+    
+    // Enviar email para todos os moradores do condomínio
+    sendBroadcast: protectedProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        titulo: z.string().min(1),
+        mensagem: z.string().min(1),
+        // Filtros opcionais
+        blocos: z.array(z.string()).optional(),
+        apartamentos: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        if (!isEmailConfigured()) {
+          return { success: false, message: "Serviço de email não configurado.", stats: { sent: 0, failed: 0, errors: [] } };
+        }
+        
+        // Buscar moradores com email
+        let moradoresQuery = await db.select().from(moradores)
+          .where(and(
+            eq(moradores.condominioId, input.condominioId),
+            eq(moradores.ativo, true)
+          ));
+        
+        // Aplicar filtros
+        if (input.blocos && input.blocos.length > 0) {
+          moradoresQuery = moradoresQuery.filter(m => m.bloco && input.blocos!.includes(m.bloco));
+        }
+        if (input.apartamentos && input.apartamentos.length > 0) {
+          moradoresQuery = moradoresQuery.filter(m => input.apartamentos!.includes(m.apartamento));
+        }
+        
+        // Filtrar apenas moradores com email válido
+        const destinatarios = moradoresQuery
+          .filter(m => m.email && m.email.includes('@'))
+          .map(m => m.email!);
+        
+        if (destinatarios.length === 0) {
+          return { success: false, message: "Nenhum morador com email válido encontrado.", stats: { sent: 0, failed: 0, errors: [] } };
+        }
+        
+        // Buscar nome do condomínio
+        const [condominio] = await db.select().from(condominios)
+          .where(eq(condominios.id, input.condominioId))
+          .limit(1);
+        
+        const template = emailTemplates.notificacao({
+          condominioNome: condominio?.nome || "App Síndico",
+          titulo: input.titulo,
+          mensagem: input.mensagem,
+        });
+        
+        const result = await sendBulkEmail(
+          destinatarios,
+          template.subject,
+          { html: template.html, text: template.text }
+        );
+        
+        // Registar no histórico
+        await db.insert(historicoNotificacoes).values({
+          condominioId: input.condominioId,
+          tipo: 'email',
+          titulo: input.titulo,
+          mensagem: input.mensagem,
+          destinatarios: destinatarios.length,
+          sucessos: result.sent,
+          falhas: result.failed,
+          enviadoPor: ctx.user.id,
+        });
+        
+        return { 
+          success: result.sent > 0, 
+          message: `Email enviado para ${result.sent} de ${destinatarios.length} moradores.`,
+          stats: result 
+        };
       }),
   }),
   

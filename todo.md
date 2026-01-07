@@ -53,3 +53,8 @@
 - [x] Ajustar tamanho do local de upload para textos aparecerem integralmente
 - [x] Corrigir campo de upload no modal Novo Membro da Equipe para usar estilo atualizado
 - [x] Aplicar estilo premium ao modal de Enviar Notificação e configurações de notificações
+- [x] Configurar Amazon SES SMTP para envio de emails
+- [x] Criar serviço de email com nodemailer e Amazon SES
+- [x] Integrar envio de emails no sistema de notificações
+- [x] Criar templates de email (notificação, vencimento, recuperação de senha, link mágico)
+- [x] Testar envio de email com sucesso
