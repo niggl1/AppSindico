@@ -35,5 +35,3 @@
 - [x] Mover números 01, 02, 03 para a frente dos tópicos na secção Como Funciona
 - [x] Colocar os planos de preços lado a lado (horizontalmente)
 - [x] Ajustar Hero Section: aumentar revista, trazer para esquerda, aumentar textos e botões
-- [x] Reformular Hero Section no estilo moderno (badge, título com destaque, mockup de app com grid de ícones)
-- [x] Reformular Features Section com cards brancos, ícones azuis e grid 3x2

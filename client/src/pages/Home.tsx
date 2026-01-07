@@ -217,122 +217,167 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-br from-blue-50/50 to-white">
+      <section className="relative pt-32 pb-20 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-100/50 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-50/50 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
         </div>
 
         <div className="container">
-          <div className="flex flex-row gap-12 items-center">
-            {/* Left side - Text content */}
+          <div className="flex flex-row gap-6 items-start">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="flex-1"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-medium mb-8">
-                <LayoutGrid className="w-4 h-4" />
-                Layout Grid
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Sparkles className="w-4 h-4" />
+                Nova forma de comunicar no condomínio
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground leading-tight mb-6">
-                Seu Condomínio na{" "}
-                <span className="text-amber-500">Palma da Mão</span>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight mb-8">
+                Plataforma Digital
+                <span className="text-gradient block">para Condomínios</span>
               </h1>
 
-              <p className="text-lg text-muted-foreground mb-10 max-w-xl leading-relaxed">
-                Um aplicativo completo para gestão condominial com interface moderna em grade, acesso rápido a todas as funcionalidades e notificações em tempo real.
+              <p className="text-xl text-muted-foreground mb-10 max-w-xl">
+                Aplicativos, revistas digitais interativas e relatórios personalizados
               </p>
 
-              <div className="flex gap-4">
-                <Link href="/app">
-                  <Button size="lg" className="text-base px-8 py-6 bg-blue-600 hover:bg-blue-700 text-white">
-                    <LayoutGrid className="w-5 h-5 mr-2" />
-                    Criar Meu App Agora
-                  </Button>
-                </Link>
-                <Link href="/demo-layouts">
-                  <Button size="lg" variant="outline" className="text-base px-8 py-6 border-gray-300 hover:bg-gray-50">
-                    Ver Demonstração
-                  </Button>
-                </Link>
-              </div>
+              <TooltipProvider>
+                <div className="grid grid-cols-2 gap-4 max-w-lg">
+                  {/* Botão Criar Meu App - Azul */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/app">
+                        <Button size="lg" className="text-lg py-6 w-full bg-blue-600 hover:bg-blue-700 text-white">
+                          <LayoutGrid className="w-5 h-5 mr-2" />
+                          Criar Meu App
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Layout em Grade</p>
+                      <p className="text-xs text-muted-foreground">Ideal para dashboards, painéis e aplicativos com cards organizados</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Botão Criar Minha Revista - Verde */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/revista">
+                        <Button size="lg" className="text-lg py-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                          <BookOpenIcon className="w-5 h-5 mr-2" />
+                          Criar Minha Revista
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Formato de Páginas</p>
+                      <p className="text-xs text-muted-foreground">Navegação como uma revista real, com efeito de virar páginas</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Botão Criar Relatórios - Roxo */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/relatorio">
+                        <Button size="lg" className="text-lg py-6 w-full bg-purple-600 hover:bg-purple-700 text-white">
+                          <ScrollText className="w-5 h-5 mr-2" />
+                          Criar Relatórios
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Documento Contínuo</p>
+                      <p className="text-xs text-muted-foreground">Rolagem vertical para relatórios longos e documentos detalhados</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Botão Ver Demonstração - Laranja */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/demo-layouts">
+                        <Button size="lg" className="text-lg py-6 w-full bg-orange-500 hover:bg-orange-600 text-white">
+                          <Play className="w-5 h-5 mr-2" />
+                          Ver Demonstração
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="font-medium">Veja na Prática</p>
+                      <p className="text-xs text-muted-foreground">Explore um exemplo completo da plataforma em ação</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+
+
             </motion.div>
 
-            {/* Right side - App Mockup */}
+            {/* Magazine Preview */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative flex-shrink-0 w-[480px]"
+              className="relative flex-shrink-0 w-[380px]"
             >
-              <div className="relative">
-                {/* Notification bell */}
-                <div className="absolute -top-2 -right-2 z-10">
-                  <div className="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-gray-400" />
-                  </div>
-                </div>
+              <div className="relative mx-auto">
+                {/* Magazine mockup */}
+                <div className="magazine-page aspect-[3/4] p-8 bg-gradient-to-br from-white to-gray-50">
+                  <div className="h-full flex flex-col">
+                    {/* Magazine header */}
+                    <div className="text-center mb-4">
+                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                        Edição Dezembro 2024
+                      </div>
+                      <h2 className="font-serif text-3xl font-bold text-foreground">
+                        Residencial Jardins
+                      </h2>
+                      <div className="section-divider mt-3" />
+                    </div>
 
-                {/* App mockup card */}
-                <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                  {/* App grid */}
-                  <div className="grid grid-cols-3 gap-6">
-                    {/* Avisos */}
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
-                        <Megaphone className="w-7 h-7 text-amber-600" />
+                    {/* Magazine content preview */}
+                    <div className="flex-1 grid grid-cols-2 gap-3">
+                      <div className="col-span-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-primary/30" />
+                          <div>
+                            <div className="text-base font-semibold">Mensagem do Síndico</div>
+                            <div className="text-xs text-muted-foreground">João Silva</div>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Avisos</span>
+                      <div className="rounded-lg bg-amber-50 p-3">
+                        <Megaphone className="w-6 h-6 text-amber-600 mb-2" />
+                        <div className="text-sm font-medium">Avisos</div>
+                      </div>
+                      <div className="rounded-lg bg-emerald-50 p-3">
+                        <Calendar className="w-6 h-6 text-emerald-600 mb-2" />
+                        <div className="text-sm font-medium">Eventos</div>
+                      </div>
+                      <div className="rounded-lg bg-blue-50 p-3">
+                        <Vote className="w-6 h-6 text-blue-600 mb-2" />
+                        <div className="text-sm font-medium">Votações</div>
+                      </div>
+                      <div className="rounded-lg bg-purple-50 p-3">
+                        <Package className="w-6 h-6 text-purple-600 mb-2" />
+                        <div className="text-sm font-medium">Classificados</div>
+                      </div>
                     </div>
-                    {/* Eventos */}
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
-                        <Calendar className="w-7 h-7 text-amber-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Eventos</span>
-                    </div>
-                    {/* Votações */}
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                        <Vote className="w-7 h-7 text-emerald-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Votações</span>
-                    </div>
-                    {/* Classificados */}
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center">
-                        <Package className="w-7 h-7 text-purple-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Classificados</span>
-                    </div>
-                    {/* Funcionários */}
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center">
-                        <Users className="w-7 h-7 text-pink-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Funcionários</span>
-                    </div>
-                    {/* Manutenções */}
-                    <div className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                      <div className="w-14 h-14 rounded-2xl bg-gray-200 flex items-center justify-center">
-                        <Wrench className="w-7 h-7 text-gray-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Manutenções</span>
+
+                    {/* Page number */}
+                    <div className="text-center mt-4 text-xs text-muted-foreground">
+                      — 1 —
                     </div>
                   </div>
                 </div>
 
-                {/* Online badge */}
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2">
-                  <div className="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-100 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500" />
-                    <span className="text-sm font-medium text-emerald-600">Online</span>
-                  </div>
-                </div>
+                {/* Decorative elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl" />
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
               </div>
             </motion.div>
           </div>
@@ -340,7 +385,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="recursos" className="py-24 bg-white">
+      <section id="recursos" className="py-20 bg-secondary/30">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -349,145 +394,38 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-              Tudo que seu Condomínio Precisa
+              Sistema com foco total para gestores de condomínios
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Funcionalidades completas para uma gestão moderna e eficiente
+              Faça tudo do seu jeito, precisa de ajustes, criar algo específico é só solicitar e fazemos sem nenhum custo adicional.
             </p>
+            <div className="section-divider mt-6" />
           </motion.div>
 
-          <div className="grid grid-cols-3 gap-6">
-            {/* Layout em Grade */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="h-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                    <LayoutGrid className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Layout em Grade
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Interface organizada em cards que facilita a navegação e visualização rápida de todas as informações do condomínio.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Notificações Push */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="h-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                    <Bell className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Notificações Push
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Alertas instantâneos para moradores sobre avisos importantes, eventos e votações ativas.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Dashboard Intuitivo */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="h-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                    <Monitor className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Dashboard Intuitivo
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Painel de controle com visão geral de manutenções, vistorias e ocorrências do condomínio.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Gestão de Moradores */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-            >
-              <Card className="h-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                    <Users className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Gestão de Moradores
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Cadastro completo de moradores com informações de contato, unidade e histórico.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Segurança Integrada */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-            >
-              <Card className="h-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                    <Shield className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Segurança Integrada
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Controle de acesso, registro de visitantes e comunicação direta com a portaria.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Acesso Rápido */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
-            >
-              <Card className="h-full border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
-                    <Sparkles className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Acesso Rápido
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Funções rápidas para criar checklists, manutenções, ocorrências e vistorias em segundos.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="card-hover h-full border-0 shadow-lg">
+                  <CardContent className="p-6">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                      <feature.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="font-serif text-xl font-semibold text-foreground mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
