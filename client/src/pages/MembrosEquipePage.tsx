@@ -120,7 +120,9 @@ export function MembrosEquipePage({ condominioId }: MembrosEquipePageProps) {
                 <ImageUpload
                   value={formData.fotoUrl}
                   onChange={(url: string | undefined) => setFormData({ ...formData, fotoUrl: url || "" })}
-                  className="w-24 h-24 rounded-full"
+                  className="w-28 h-28 rounded-full"
+                  placeholder="Foto"
+                  compact
                 />
               </div>
               <div className="space-y-2">

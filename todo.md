@@ -51,3 +51,4 @@
 - [x] Aplicar estilo premium ao modal de Novo Morador
 - [x] Aplicar estilo premium ao modal de Novo Membro da Equipe
 - [x] Ajustar tamanho do local de upload para textos aparecerem integralmente
+- [x] Corrigir campo de upload no modal Novo Membro da Equipe para usar estilo atualizado
