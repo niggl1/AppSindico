@@ -170,3 +170,14 @@
 - [x] Testar a funcionalidade
 
 - [ ] BUG: Secções não ficam na posição correta após arrastar - corrigir
+
+
+## Novos Cards na Landing Page (08/01/2026)
+
+- [x] Adicionar card Ordens de Serviço
+- [x] Adicionar card Galeria de Fotos
+- [x] Adicionar card Telefones Úteis
+- [x] Adicionar card Links Úteis
+- [x] Adicionar card Melhorias
+- [x] Adicionar card Moradores/Unidades
+- [x] Adicionar card Reserva de Áreas Comuns

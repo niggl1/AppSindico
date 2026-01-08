@@ -42,7 +42,7 @@ import { trpc } from "@/lib/trpc";
 import FavoriteButton from "@/components/FavoriteButton";
 import DestaqueCard from "@/components/DestaqueCard";
 import FuncoesRapidas from "@/components/FuncoesRapidas";
-import { ExternalLink, FileDown, Play, Check, Building, Crown, Gift, ShieldCheck, Video, Bell, LayoutGrid, BookOpen as BookOpenIcon, ScrollText, Code, DollarSign, FilePen, Languages, Timer, Smartphone, Monitor, MessageCircle, MapPin } from "lucide-react";
+import { ExternalLink, FileDown, Play, Check, Building, Crown, Gift, ShieldCheck, Video, Bell, LayoutGrid, BookOpen as BookOpenIcon, ScrollText, Code, DollarSign, FilePen, Languages, Timer, Smartphone, Monitor, MessageCircle, MapPin, ClipboardList, Image, Phone, Link as LinkIcon, TrendingUp, CalendarCheck } from "lucide-react";
 
 const features = [
   {
@@ -133,6 +133,13 @@ const sections = [
   { icon: ParkingCircle, label: "Vagas", description: "Gestão de estacionamento", link: "/dashboard/vagas" },
   { icon: Search, label: "Vistorias", description: "Inspeções e verificações", link: "/dashboard/vistorias" },
   { icon: Vote, label: "Votações", description: "Enquetes e decisões coletivas", link: "/dashboard/votacoes" },
+  { icon: ClipboardList, label: "Ordens de Serviço", description: "Gestão de OS", link: "/dashboard/ordens-servico" },
+  { icon: Image, label: "Galeria de Fotos", description: "Álbuns e eventos", link: "/dashboard/galeria" },
+  { icon: Phone, label: "Telefones Úteis", description: "Contactos importantes", link: "/dashboard/telefones" },
+  { icon: LinkIcon, label: "Links Úteis", description: "Links do condomínio", link: "/dashboard/links" },
+  { icon: TrendingUp, label: "Melhorias", description: "Projetos em andamento", link: "/dashboard/melhorias" },
+  { icon: Building2, label: "Moradores", description: "Gestão de unidades", link: "/dashboard/moradores" },
+  { icon: CalendarCheck, label: "Reserva de Áreas", description: "Salão, churrasqueira", link: "/dashboard/reservas" },
 ];
 
 export default function Home() {
