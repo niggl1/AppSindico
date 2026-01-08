@@ -133,3 +133,14 @@
 - [x] Índice automático das secções
 - [x] Cabeçalho e rodapé em todas as páginas
 - [x] Tipografia e espaçamento profissional
+
+
+## Redesign Premium do PDF (08/01/2026)
+
+- [x] Redesenhar capa com visual sofisticado (gradientes elegantes, tipografia refinada)
+- [x] Remover elementos visuais básicos (círculos escuros)
+- [x] Adicionar padrões geométricos elegantes ou imagem de fundo
+- [x] Melhorar tipografia com fontes premium
+- [x] Adicionar bordas e sombras sutis para profundidade
+- [x] Redesenhar páginas internas com layout limpo e profissional
+- [x] Testar e validar o novo design
