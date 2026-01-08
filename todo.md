@@ -152,3 +152,9 @@
 - [x] Adicionar interface de seleção de estilo no editor da revista
 - [x] Integrar seleção de estilo com a geração do PDF
 - [x] Testar os diferentes estilos
+
+
+## Modo de Impressão (08/01/2026)
+
+- [x] Mudar automaticamente para modo contínuo ao imprimir
+- [x] Voltar ao modo página após fechar a janela de impressão

@@ -527,6 +527,26 @@ export default function MagazineViewer() {
   const openStyleSelector = () => {
     setShowStyleSelector(true);
   };
+  
+  const handlePrint = () => {
+    // Guardar o modo atual
+    const previousMode = readingMode;
+    
+    // Mudar para modo contínuo para impressão
+    if (readingMode !== 'continuous') {
+      setReadingMode('continuous');
+    }
+    
+    // Aguardar a renderização do modo contínuo e depois imprimir
+    setTimeout(() => {
+      window.print();
+      
+      // Voltar ao modo anterior após a impressão
+      setTimeout(() => {
+        setReadingMode(previousMode);
+      }, 500);
+    }, 300);
+  };
 
   const goToPage = (pageIndex: number) => {
     if (pageIndex >= 0 && pageIndex < totalPages && !isFlipping) {
@@ -761,7 +781,7 @@ export default function MagazineViewer() {
               variant="ghost"
               size="sm"
               className="text-white/70 hover:text-white hover:bg-white/10"
-              onClick={() => window.print()}
+              onClick={handlePrint}
             >
               <Printer className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Imprimir</span>
