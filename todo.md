@@ -184,3 +184,12 @@
 
 - [x] Remover card Reserva de Áreas da landing page
 - [x] Ordenar todos os cards da landing page em ordem alfabética
+
+
+## Melhorias na Secção de Relatórios (08/01/2026)
+
+- [x] Adicionar filtro por condomínio
+- [x] Adicionar exportação Excel/CSV
+- [x] Adicionar relatório de Ordens de Serviço
+- [x] Implementar melhorias visuais (tooltips, indicadores, cores)
+- [x] Ajustar PDF para não quebrar páginas

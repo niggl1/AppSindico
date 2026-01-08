@@ -92,9 +92,11 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
   const [activeCategory, setActiveCategory] = useState("consolidado");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [filterStatus, setFilterStatus] = useState("todos");
+  const [selectedCondominioFilter, setSelectedCondominioFilter] = useState<number | null>(null);
   
   const { data: condominios } = trpc.condominio.list.useQuery();
-  const selectedCondominioId = condominioId || condominios?.[0]?.id;
+  // Usar o filtro selecionado, ou o condominioId passado, ou o primeiro da lista
+  const selectedCondominioId = selectedCondominioFilter || condominioId || condominios?.[0]?.id;
   const selectedCondominio = condominios?.find(c => c.id === selectedCondominioId);
 
   // Queries para cada tipo de relatório
@@ -163,11 +165,17 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
     { enabled: !!selectedCondominioId }
   );
 
+  const { data: ordensServico, isLoading: loadingOrdensServico } = trpc.ordensServico.list.useQuery(
+    { condominioId: selectedCondominioId || 0 },
+    { enabled: !!selectedCondominioId }
+  );
+
   // Categorias de relatórios
   const categories = [
     { id: "consolidado", label: "Consolidado", icon: BarChart3, color: "text-indigo-600" },
     { id: "moradores", label: "Moradores", icon: Users, color: "text-blue-600" },
     { id: "operacional", label: "Operacional", icon: Wrench, color: "text-orange-600" },
+    { id: "ordens", label: "Ordens de Serviço", icon: ClipboardCheck, color: "text-amber-600" },
     { id: "comunicacao", label: "Comunicação", icon: Megaphone, color: "text-green-600" },
     { id: "comunidade", label: "Comunidade", icon: Users, color: "text-purple-600" },
     { id: "agenda", label: "Agenda/Eventos", icon: Calendar, color: "text-pink-600" },
@@ -333,6 +341,33 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
     },
   };
 
+  // Estatísticas de Ordens de Serviço (usando dados completos da query)
+  const ordensServicoStats = {
+    total: ordensServico?.length || 0,
+    abertas: ordensServico?.filter((os: any) => os.status?.nome?.toLowerCase().includes("aberta") || os.status?.nome?.toLowerCase().includes("nova") || !os.status).length || 0,
+    emAndamento: ordensServico?.filter((os: any) => os.status?.nome?.toLowerCase().includes("andamento") || os.status?.nome?.toLowerCase().includes("execução")).length || 0,
+    concluidas: ordensServico?.filter((os: any) => os.status?.nome?.toLowerCase().includes("concluída") || os.status?.nome?.toLowerCase().includes("finalizada")).length || 0,
+    urgentes: ordensServico?.filter((os: any) => os.prioridade === "alta" || os.prioridade === "urgente").length || 0,
+    porCategoria: (() => {
+      const cats: Record<string, number> = {};
+      ordensServico?.forEach((os: any) => {
+        const cat = os.categoria?.nome || os.categoria || "Sem categoria";
+        cats[cat] = (cats[cat] || 0) + 1;
+      });
+      return cats;
+    })(),
+    tempoMedioResolucao: (() => {
+      const concluidas = ordensServico?.filter((os: any) => os.dataFim && os.dataInicio) || [];
+      if (concluidas.length === 0) return 0;
+      const totalHoras = concluidas.reduce((acc: number, os: any) => {
+        const inicio = new Date(os.dataInicio).getTime();
+        const fim = new Date(os.dataFim).getTime();
+        return acc + (fim - inicio) / (1000 * 60 * 60);
+      }, 0);
+      return Math.round(totalHoras / concluidas.length);
+    })(),
+  };
+
   // Função para obter os últimos 6 meses
   const getUltimos6Meses = () => {
     const meses = [];
@@ -436,6 +471,48 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
             <Printer className="w-4 h-4 mr-2" />
             Imprimir
           </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              const allData = {
+                moradores: moradores || [],
+                manutencoes: filteredManutencoes,
+                ocorrencias: filteredOcorrencias,
+                vistorias: filteredVistorias,
+                avisos: filteredAvisos,
+                eventos: filteredEventos,
+                votacoes: filteredVotacoes,
+              };
+              
+              // Exportar dados consolidados para CSV
+              const headers = ["Categoria", "Total", "Pendentes", "Finalizados", "Taxa"];
+              const csvData = [
+                { Categoria: "Moradores", Total: moradoresStats.total, Pendentes: moradoresStats.ativos + " ativos", Finalizados: moradoresStats.inativos + " inativos", Taxa: moradoresStats.total > 0 ? Math.round((moradoresStats.ativos / moradoresStats.total) * 100) + "%" : "0%" },
+                { Categoria: "Manutenções", Total: operacionalStats.manutencoes.total, Pendentes: operacionalStats.manutencoes.pendentes, Finalizados: operacionalStats.manutencoes.finalizadas, Taxa: operacionalStats.manutencoes.total > 0 ? Math.round((operacionalStats.manutencoes.finalizadas / operacionalStats.manutencoes.total) * 100) + "%" : "0%" },
+                { Categoria: "Ocorrências", Total: operacionalStats.ocorrencias.total, Pendentes: operacionalStats.ocorrencias.pendentes, Finalizados: operacionalStats.ocorrencias.finalizadas, Taxa: operacionalStats.ocorrencias.total > 0 ? Math.round((operacionalStats.ocorrencias.finalizadas / operacionalStats.ocorrencias.total) * 100) + "%" : "0%" },
+                { Categoria: "Vistorias", Total: operacionalStats.vistorias.total, Pendentes: operacionalStats.vistorias.pendentes, Finalizados: operacionalStats.vistorias.realizadas, Taxa: operacionalStats.vistorias.total > 0 ? Math.round((operacionalStats.vistorias.realizadas / operacionalStats.vistorias.total) * 100) + "%" : "0%" },
+                { Categoria: "Avisos", Total: comunicacaoStats.avisos.total, Pendentes: comunicacaoStats.avisos.urgentes + " urgentes", Finalizados: comunicacaoStats.avisos.informativos + " informativos", Taxa: "-" },
+                { Categoria: "Eventos", Total: agendaStats.eventos.total, Pendentes: agendaStats.eventos.proximos + " próximos", Finalizados: agendaStats.eventos.realizados + " realizados", Taxa: "-" },
+                { Categoria: "Votações", Total: comunidadeStats.votacoes.total, Pendentes: comunidadeStats.votacoes.ativas + " ativas", Finalizados: comunidadeStats.votacoes.encerradas + " encerradas", Taxa: "-" },
+              ];
+              
+              const csvContent = [
+                headers.join(","),
+                ...csvData.map(row => `"${row.Categoria}",${row.Total},"${row.Pendentes}","${row.Finalizados}","${row.Taxa}"`)
+              ].join("\n");
+              
+              const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(blob);
+              link.download = `relatorio_${selectedCondominio?.nome || "condominio"}_${new Date().toISOString().split("T")[0]}.csv`;
+              link.click();
+              toast.success("Relatório exportado para Excel/CSV!");
+            }}
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Excel/CSV
+          </Button>
         </div>
       </div>
 
@@ -466,6 +543,27 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
       <Card className="print:hidden">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row md:items-end gap-4">
+            {/* Filtro por Condomínio */}
+            {condominios && condominios.length > 1 && (
+              <div className="flex-1">
+                <Label className="text-sm font-medium">Condomínio</Label>
+                <Select
+                  value={selectedCondominioId?.toString() || ""}
+                  onValueChange={(value) => setSelectedCondominioFilter(parseInt(value))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Selecionar condomínio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {condominios.map((cond) => (
+                      <SelectItem key={cond.id} value={cond.id.toString()}>
+                        {cond.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex-1">
               <Label htmlFor="startDate" className="text-sm font-medium">Data Inicial</Label>
               <Input
@@ -598,49 +696,78 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
 
             {/* Cards de Resumo Geral */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Moradores</p>
                       <p className="text-2xl font-bold text-blue-600">{moradoresStats.total}</p>
-                      <p className="text-xs text-green-600">{moradoresStats.ativos} ativos</p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-green-600">{moradoresStats.ativos} ativos</span>
+                        {moradoresStats.ativos > 0 && (
+                          <TrendingUp className="w-3 h-3 text-green-500" />
+                        )}
+                      </div>
                     </div>
                     <Users className="w-8 h-8 text-blue-600/20" />
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Manutenções</p>
                       <p className="text-2xl font-bold text-orange-600">{operacionalStats.manutencoes.total}</p>
-                      <p className="text-xs text-amber-600">{operacionalStats.manutencoes.pendentes} pendentes</p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-amber-600">{operacionalStats.manutencoes.pendentes} pendentes</span>
+                        {variacoes.manutencoes !== 0 && (
+                          <span className={`flex items-center text-xs ${variacoes.manutencoes > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                            {variacoes.manutencoes > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3 rotate-180" />}
+                            {Math.abs(variacoes.manutencoes)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <Wrench className="w-8 h-8 text-orange-600/20" />
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Ocorrências</p>
                       <p className="text-2xl font-bold text-red-600">{operacionalStats.ocorrencias.total}</p>
-                      <p className="text-xs text-red-500">{operacionalStats.ocorrencias.pendentes} pendentes</p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-red-500">{operacionalStats.ocorrencias.pendentes} pendentes</span>
+                        {variacoes.ocorrencias !== 0 && (
+                          <span className={`flex items-center text-xs ${variacoes.ocorrencias > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                            {variacoes.ocorrencias > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3 rotate-180" />}
+                            {Math.abs(variacoes.ocorrencias)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <AlertTriangle className="w-8 h-8 text-red-600/20" />
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Eventos</p>
                       <p className="text-2xl font-bold text-pink-600">{agendaStats.eventos.total}</p>
-                      <p className="text-xs text-pink-500">{agendaStats.eventos.proximos} próximos</p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-pink-500">{agendaStats.eventos.proximos} próximos</span>
+                        {variacoes.eventos !== 0 && (
+                          <span className={`flex items-center text-xs ${variacoes.eventos > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                            {variacoes.eventos > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3 rotate-180" />}
+                            {Math.abs(variacoes.eventos)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <Calendar className="w-8 h-8 text-pink-600/20" />
                   </div>
@@ -1437,6 +1564,223 @@ export default function RelatoriosPage({ condominioId }: RelatoriosPageProps) {
                 )}
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* RELATÓRIOS DE ORDENS DE SERVIÇO */}
+        {activeCategory === "ordens" && (
+          <div className="space-y-6">
+            {/* Cards de Estatísticas */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <ClipboardCheck className="w-5 h-5 text-amber-600" />
+                    <span className="text-sm text-muted-foreground">Total</span>
+                  </div>
+                  <p className="text-2xl font-bold text-amber-700 mt-2">{ordensServicoStats.total}</p>
+                  <p className="text-xs text-muted-foreground">ordens de serviço</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm text-muted-foreground">Abertas</span>
+                  </div>
+                  <p className="text-2xl font-bold text-blue-700 mt-2">{ordensServicoStats.abertas}</p>
+                  <p className="text-xs text-muted-foreground">aguardando início</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 text-orange-600" />
+                    <span className="text-sm text-muted-foreground">Em Andamento</span>
+                  </div>
+                  <p className="text-2xl font-bold text-orange-700 mt-2">{ordensServicoStats.emAndamento}</p>
+                  <p className="text-xs text-muted-foreground">em execução</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span className="text-sm text-muted-foreground">Concluídas</span>
+                  </div>
+                  <p className="text-2xl font-bold text-green-700 mt-2">{ordensServicoStats.concluidas}</p>
+                  <p className="text-xs text-muted-foreground">finalizadas</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Cards Secundários */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                    <span className="text-sm font-medium">Ordens Urgentes</span>
+                  </div>
+                  <p className="text-3xl font-bold text-red-600 mt-2">{ordensServicoStats.urgentes}</p>
+                  <p className="text-xs text-muted-foreground">prioridade alta/urgente</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-indigo-600" />
+                    <span className="text-sm font-medium">Tempo Médio de Resolução</span>
+                  </div>
+                  <p className="text-3xl font-bold text-indigo-600 mt-2">
+                    {ordensServicoStats.tempoMedioResolucao > 0 
+                      ? `${Math.floor(ordensServicoStats.tempoMedioResolucao / 24)}d ${ordensServicoStats.tempoMedioResolucao % 24}h`
+                      : "N/A"
+                    }
+                  </p>
+                  <p className="text-xs text-muted-foreground">para ordens concluídas</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+                    <span className="text-sm font-medium">Taxa de Conclusão</span>
+                  </div>
+                  <p className="text-3xl font-bold text-emerald-600 mt-2">
+                    {ordensServicoStats.total > 0 
+                      ? `${Math.round((ordensServicoStats.concluidas / ordensServicoStats.total) * 100)}%`
+                      : "0%"
+                    }
+                  </p>
+                  <p className="text-xs text-muted-foreground">ordens finalizadas</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Gráfico de Categorias */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">Ordens por Categoria</CardTitle>
+                <CardDescription>Distribuição das ordens de serviço por tipo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <Doughnut
+                    data={{
+                      labels: Object.keys(ordensServicoStats.porCategoria).length > 0 
+                        ? Object.keys(ordensServicoStats.porCategoria)
+                        : ["Sem dados"],
+                      datasets: [{
+                        data: Object.keys(ordensServicoStats.porCategoria).length > 0
+                          ? Object.values(ordensServicoStats.porCategoria)
+                          : [1],
+                        backgroundColor: [
+                          "rgba(245, 158, 11, 0.8)",
+                          "rgba(59, 130, 246, 0.8)",
+                          "rgba(16, 185, 129, 0.8)",
+                          "rgba(239, 68, 68, 0.8)",
+                          "rgba(139, 92, 246, 0.8)",
+                          "rgba(236, 72, 153, 0.8)",
+                          "rgba(6, 182, 212, 0.8)",
+                        ],
+                        borderWidth: 0,
+                      }],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { position: "right" },
+                        tooltip: {
+                          callbacks: {
+                            label: (context) => {
+                              const value = context.raw as number;
+                              const total = ordensServicoStats.total || 1;
+                              const percentage = Math.round((value / total) * 100);
+                              return `${context.label}: ${value} (${percentage}%)`;
+                            }
+                          }
+                        }
+                      },
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lista de Ordens Recentes */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">Ordens de Serviço Recentes</CardTitle>
+                <CardDescription>Últimas ordens registadas no sistema</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {ordensServico && ordensServico.length > 0 ? (
+                    ordensServico.slice(0, 10).map((os: any, index: number) => (
+                      <div key={os.id || index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${
+                            os.status?.nome?.toLowerCase().includes("concluída") ? "bg-green-500" :
+                            os.status?.nome?.toLowerCase().includes("andamento") ? "bg-orange-500" :
+                            "bg-blue-500"
+                          }`} />
+                          <div>
+                            <p className="font-medium text-sm">{os.titulo || os.descricao || "Ordem de Serviço"}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {os.categoria?.nome || os.categoria || "Sem categoria"} • {os.status?.nome || "Aberta"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant={os.prioridade === "urgente" || os.prioridade === "alta" ? "destructive" : "secondary"} className="text-xs">
+                            {os.prioridade || "normal"}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {os.createdAt ? new Date(os.createdAt).toLocaleDateString("pt-BR") : "-"}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">Nenhuma ordem de serviço registada</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Botão de Exportar */}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const headers = ["Título", "Categoria", "Status", "Prioridade", "Data Criação"];
+                  const csvData = ordensServico?.map((os: any) => ({
+                    Titulo: os.titulo || os.descricao || "Ordem de Serviço",
+                    Categoria: os.categoria?.nome || os.categoria || "Sem categoria",
+                    Status: os.status?.nome || "Aberta",
+                    Prioridade: os.prioridade || "normal",
+                    DataCriacao: os.createdAt ? new Date(os.createdAt).toLocaleDateString("pt-BR") : "-",
+                  })) || [];
+                  
+                  const csvContent = [
+                    headers.join(","),
+                    ...csvData.map((row: any) => `"${row.Titulo}","${row.Categoria}","${row.Status}","${row.Prioridade}","${row.DataCriacao}"`)
+                  ].join("\n");
+                  
+                  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                  const link = document.createElement("a");
+                  link.href = URL.createObjectURL(blob);
+                  link.download = `ordens_servico_${new Date().toISOString().split("T")[0]}.csv`;
+                  link.click();
+                  toast.success("Relatório de Ordens de Serviço exportado!");
+                }}
+              >
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                Exportar Excel/CSV
+              </Button>
+            </div>
           </div>
         )}
 

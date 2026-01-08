@@ -131,7 +131,7 @@ export async function exportToPDF(options: PDFExportOptions): Promise<void> {
     startY: yPosition,
     head: [colunas],
     body: dados,
-    margin: { left: margin, right: margin },
+    margin: { left: margin, right: margin, top: margin, bottom: 20 },
     styles: {
       fontSize: 9,
       cellPadding: 3,
@@ -150,6 +150,10 @@ export async function exportToPDF(options: PDFExportOptions): Promise<void> {
     columnStyles: {
       0: { cellWidth: "auto" },
     },
+    // Evitar quebra de linha no meio de células
+    rowPageBreak: "avoid",
+    // Manter cabeçalho em todas as páginas
+    showHead: "everyPage",
     didDrawPage: (data) => {
       // Rodapé em cada página
       const pageNumber = doc.internal.pages.length - 1;
@@ -638,7 +642,7 @@ export async function exportRelatorioConsolidadoComGraficos(
     startY: yPosition,
     head: [historicoHeaders],
     body: historicoData,
-    margin: { left: margin, right: margin },
+    margin: { left: margin, right: margin, top: margin, bottom: 20 },
     styles: {
       fontSize: 8,
       cellPadding: 2,
@@ -656,6 +660,9 @@ export async function exportRelatorioConsolidadoComGraficos(
     alternateRowStyles: {
       fillColor: [248, 250, 252],
     },
+    // Evitar quebra de linha no meio de células
+    rowPageBreak: "avoid",
+    showHead: "everyPage",
   });
 
   // @ts-ignore - autoTable adiciona finalY ao doc
@@ -701,7 +708,7 @@ export async function exportRelatorioConsolidadoComGraficos(
     startY: yPosition,
     head: [tabelaResumo.colunas],
     body: tabelaResumo.dados,
-    margin: { left: margin, right: margin },
+    margin: { left: margin, right: margin, top: margin, bottom: 20 },
     styles: {
       fontSize: 8,
       cellPadding: 3,
@@ -720,6 +727,9 @@ export async function exportRelatorioConsolidadoComGraficos(
     alternateRowStyles: {
       fillColor: [248, 250, 252],
     },
+    // Evitar quebra de linha no meio de células
+    rowPageBreak: "avoid",
+    showHead: "everyPage",
   });
 
   // Adicionar rodapé na última página
