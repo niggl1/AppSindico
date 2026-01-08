@@ -183,3 +183,4 @@
 - [x] Adicionar card Reserva de Áreas Comuns
 
 - [x] Remover card Reserva de Áreas da landing page
+- [x] Ordenar todos os cards da landing page em ordem alfabética
