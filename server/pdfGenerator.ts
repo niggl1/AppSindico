@@ -8,6 +8,7 @@ interface RevistaData {
   condominioNome: string;
   condominioLogo?: string;
   capaUrl?: string;
+  estilo?: 'classico' | 'moderno' | 'minimalista' | 'elegante' | 'corporativo';
   mensagemSindico?: {
     titulo: string;
     mensagem: string;
@@ -111,38 +112,154 @@ interface RevistaData {
   }>;
 }
 
-// Paleta de cores premium - tons sofisticados
-const colors = {
-  // Cores principais
-  primary: [30, 58, 95] as [number, number, number],        // Azul escuro elegante
-  primaryLight: [59, 130, 246] as [number, number, number], // Azul claro
-  secondary: [16, 185, 129] as [number, number, number],    // Verde esmeralda
-  accent: [212, 175, 55] as [number, number, number],       // Dourado elegante
-  
-  // Cores de destaque
-  rose: [244, 63, 94] as [number, number, number],
-  amber: [245, 158, 11] as [number, number, number],
-  emerald: [16, 185, 129] as [number, number, number],
-  violet: [139, 92, 246] as [number, number, number],
-  cyan: [6, 182, 212] as [number, number, number],
-  
-  // Neutros
-  white: [255, 255, 255] as [number, number, number],
-  cream: [254, 252, 243] as [number, number, number],
-  lightGray: [248, 250, 252] as [number, number, number],
-  gray: [148, 163, 184] as [number, number, number],
-  darkGray: [71, 85, 105] as [number, number, number],
-  dark: [15, 23, 42] as [number, number, number],
+// Definição dos estilos/temas disponíveis
+interface ThemeColors {
+  primary: [number, number, number];
+  primaryLight: [number, number, number];
+  secondary: [number, number, number];
+  accent: [number, number, number];
+  rose: [number, number, number];
+  amber: [number, number, number];
+  emerald: [number, number, number];
+  violet: [number, number, number];
+  cyan: [number, number, number];
+  white: [number, number, number];
+  cream: [number, number, number];
+  lightGray: [number, number, number];
+  gray: [number, number, number];
+  darkGray: [number, number, number];
+  dark: [number, number, number];
+  coverBg: [number, number, number];
+  coverAccent: [number, number, number];
+}
+
+// Estilo Clássico - Azul escuro e dourado (atual)
+const classicoTheme: ThemeColors = {
+  primary: [30, 58, 95],
+  primaryLight: [59, 130, 246],
+  secondary: [16, 185, 129],
+  accent: [212, 175, 55],
+  rose: [244, 63, 94],
+  amber: [245, 158, 11],
+  emerald: [16, 185, 129],
+  violet: [139, 92, 246],
+  cyan: [6, 182, 212],
+  white: [255, 255, 255],
+  cream: [254, 252, 243],
+  lightGray: [248, 250, 252],
+  gray: [148, 163, 184],
+  darkGray: [71, 85, 105],
+  dark: [15, 23, 42],
+  coverBg: [30, 58, 95],
+  coverAccent: [212, 175, 55],
+};
+
+// Estilo Moderno - Gradiente azul vibrante
+const modernoTheme: ThemeColors = {
+  primary: [37, 99, 235],
+  primaryLight: [96, 165, 250],
+  secondary: [34, 197, 94],
+  accent: [251, 146, 60],
+  rose: [251, 113, 133],
+  amber: [251, 191, 36],
+  emerald: [52, 211, 153],
+  violet: [167, 139, 250],
+  cyan: [34, 211, 238],
+  white: [255, 255, 255],
+  cream: [240, 249, 255],
+  lightGray: [241, 245, 249],
+  gray: [156, 163, 175],
+  darkGray: [75, 85, 99],
+  dark: [17, 24, 39],
+  coverBg: [37, 99, 235],
+  coverAccent: [251, 146, 60],
+};
+
+// Estilo Minimalista - Preto e branco com toques de cinza
+const minimalistaTheme: ThemeColors = {
+  primary: [23, 23, 23],
+  primaryLight: [64, 64, 64],
+  secondary: [115, 115, 115],
+  accent: [163, 163, 163],
+  rose: [244, 63, 94],
+  amber: [245, 158, 11],
+  emerald: [16, 185, 129],
+  violet: [139, 92, 246],
+  cyan: [6, 182, 212],
+  white: [255, 255, 255],
+  cream: [250, 250, 250],
+  lightGray: [245, 245, 245],
+  gray: [163, 163, 163],
+  darkGray: [82, 82, 82],
+  dark: [23, 23, 23],
+  coverBg: [23, 23, 23],
+  coverAccent: [255, 255, 255],
+};
+
+// Estilo Elegante - Bordeaux e ouro rosé
+const eleganteTheme: ThemeColors = {
+  primary: [109, 40, 60],
+  primaryLight: [157, 78, 98],
+  secondary: [183, 110, 121],
+  accent: [212, 175, 130],
+  rose: [183, 110, 121],
+  amber: [212, 175, 130],
+  emerald: [16, 185, 129],
+  violet: [139, 92, 246],
+  cyan: [6, 182, 212],
+  white: [255, 255, 255],
+  cream: [255, 250, 245],
+  lightGray: [250, 245, 240],
+  gray: [180, 160, 150],
+  darkGray: [100, 80, 70],
+  dark: [45, 25, 30],
+  coverBg: [109, 40, 60],
+  coverAccent: [212, 175, 130],
+};
+
+// Estilo Corporativo - Verde escuro e prata
+const corporativoTheme: ThemeColors = {
+  primary: [20, 83, 45],
+  primaryLight: [34, 139, 76],
+  secondary: [107, 114, 128],
+  accent: [192, 192, 192],
+  rose: [244, 63, 94],
+  amber: [245, 158, 11],
+  emerald: [34, 139, 76],
+  violet: [139, 92, 246],
+  cyan: [6, 182, 212],
+  white: [255, 255, 255],
+  cream: [245, 250, 245],
+  lightGray: [243, 244, 246],
+  gray: [156, 163, 175],
+  darkGray: [75, 85, 99],
+  dark: [17, 24, 39],
+  coverBg: [20, 83, 45],
+  coverAccent: [192, 192, 192],
+};
+
+const themes: Record<string, ThemeColors> = {
+  classico: classicoTheme,
+  moderno: modernoTheme,
+  minimalista: minimalistaTheme,
+  elegante: eleganteTheme,
+  corporativo: corporativoTheme,
 };
 
 // Cores por tipo de aviso
-const tipoColors: Record<string, [number, number, number]> = {
-  informativo: colors.primaryLight,
-  importante: colors.amber,
-  urgente: colors.rose,
-};
+const getTipoColors = (theme: ThemeColors): Record<string, [number, number, number]> => ({
+  informativo: theme.primaryLight,
+  importante: theme.amber,
+  urgente: theme.rose,
+});
+
+export type { RevistaData };
 
 export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> {
+  const estilo = revista.estilo || 'classico';
+  const colors = themes[estilo] || classicoTheme;
+  const tipoColors = getTipoColors(colors);
+  
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -168,7 +285,7 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
     doc.setLineWidth(0.8);
     doc.line(margin, 10, pageWidth - margin, 10);
     
-    // Linha decorativa dourada
+    // Linha decorativa accent
     doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     doc.setLineWidth(0.3);
     doc.line(margin, 11.5, pageWidth - margin, 11.5);
@@ -260,38 +377,56 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
   
-  // Borda elegante dourada
+  // Borda elegante accent
   doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setLineWidth(1);
   doc.rect(8, 8, pageWidth - 16, pageHeight - 16, 'S');
   
-  // Borda interna azul escuro
+  // Borda interna primary
   doc.setDrawColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setLineWidth(0.5);
   doc.rect(12, 12, pageWidth - 24, pageHeight - 24, 'S');
   
-  // Padrão geométrico sutil no topo
-  doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  // Padrão geométrico no topo
+  doc.setFillColor(colors.coverBg[0], colors.coverBg[1], colors.coverBg[2]);
   doc.rect(12, 12, pageWidth - 24, 60, 'F');
   
-  // Linhas decorativas no padrão
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setLineWidth(0.3);
-  for (let i = 0; i < 5; i++) {
-    doc.line(20 + i * 8, 20, 20 + i * 8, 65);
-  }
-  for (let i = 0; i < 5; i++) {
-    doc.line(pageWidth - 60 + i * 8, 20, pageWidth - 60 + i * 8, 65);
+  // Linhas decorativas no padrão (estilo específico)
+  if (estilo === 'minimalista') {
+    // Minimalista: linhas finas horizontais
+    doc.setDrawColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
+    doc.setLineWidth(0.2);
+    for (let i = 0; i < 4; i++) {
+      doc.line(20, 25 + i * 12, pageWidth - 20, 25 + i * 12);
+    }
+  } else if (estilo === 'moderno') {
+    // Moderno: círculos decorativos
+    doc.setDrawColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
+    doc.setLineWidth(0.5);
+    doc.circle(30, 42, 15, 'S');
+    doc.circle(pageWidth - 30, 42, 15, 'S');
+    doc.circle(30, 42, 8, 'S');
+    doc.circle(pageWidth - 30, 42, 8, 'S');
+  } else {
+    // Clássico, Elegante, Corporativo: linhas verticais
+    doc.setDrawColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
+    doc.setLineWidth(0.3);
+    for (let i = 0; i < 5; i++) {
+      doc.line(20 + i * 8, 20, 20 + i * 8, 65);
+    }
+    for (let i = 0; i < 5; i++) {
+      doc.line(pageWidth - 60 + i * 8, 20, pageWidth - 60 + i * 8, 65);
+    }
   }
   
   // Edição no topo
-  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setTextColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.text(`EDIÇÃO ${revista.edicao.toUpperCase()}`, pageWidth / 2, 30, { align: 'center' });
   
-  // Linha decorativa dourada
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  // Linha decorativa
+  doc.setDrawColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
   doc.setLineWidth(0.8);
   doc.line(pageWidth / 2 - 35, 35, pageWidth / 2 + 35, 35);
   
@@ -302,7 +437,7 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   doc.text('INFORMATIVO DIGITAL', pageWidth / 2, 50, { align: 'center' });
   
   // Ornamento central
-  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setFillColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
   doc.rect(pageWidth / 2 - 20, 55, 40, 1, 'F');
   
   // Área central - Nome do condomínio em destaque
@@ -325,7 +460,7 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFontSize(28);
   doc.setFont('helvetica', 'bold');
-  const condominioLines = doc.splitTextToSize(revista.condominioNome.toUpperCase(), contentWidth - 40);
+  const condominioLines = doc.splitTextToSize(revista.condominioNome.toUpperCase(), contentWidth - 30);
   let condY = condominioY;
   for (const line of condominioLines) {
     doc.text(line, pageWidth / 2, condY, { align: 'center' });
@@ -333,119 +468,97 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   }
   
   // Título da revista
-  doc.setTextColor(colors.darkGray[0], colors.darkGray[1], colors.darkGray[2]);
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'normal');
-  const tituloLines = doc.splitTextToSize(revista.titulo, contentWidth - 30);
-  let tituloY = 160;
-  for (const line of tituloLines) {
-    doc.text(line, pageWidth / 2, tituloY, { align: 'center' });
-    tituloY += 10;
+  if (revista.titulo) {
+    doc.setTextColor(colors.darkGray[0], colors.darkGray[1], colors.darkGray[2]);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'normal');
+    doc.text(revista.titulo, pageWidth / 2, condominioY + 45, { align: 'center' });
   }
   
   // Subtítulo
   if (revista.subtitulo) {
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'italic');
     doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
-    doc.text(revista.subtitulo, pageWidth / 2, tituloY + 5, { align: 'center' });
+    doc.setFontSize(11);
+    doc.text(revista.subtitulo, pageWidth / 2, condominioY + 55, { align: 'center' });
   }
   
-  // Área inferior - Badge elegante
-  const badgeY = pageHeight - 55;
-  
-  // Linha decorativa
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setLineWidth(0.5);
-  doc.line(pageWidth / 2 - 50, badgeY - 10, pageWidth / 2 + 50, badgeY - 10);
-  
-  // Badge "Revista Digital"
+  // Badge "Revista Digital" elegante
+  const badgeY = pageHeight - 80;
   doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.roundedRect(pageWidth / 2 - 35, badgeY, 70, 12, 2, 2, 'F');
+  doc.roundedRect(pageWidth / 2 - 35, badgeY, 70, 18, 3, 3, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('REVISTA DIGITAL', pageWidth / 2, badgeY + 8, { align: 'center' });
+  doc.text('REVISTA DIGITAL', pageWidth / 2, badgeY + 11, { align: 'center' });
   
   // Rodapé da capa
+  doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
-  doc.text('Produzido com App Síndico', pageWidth / 2, pageHeight - 20, { align: 'center' });
+  doc.text('Produzido com App Síndico', pageWidth / 2, pageHeight - 25, { align: 'center' });
 
-  // ==================== ÍNDICE ====================
+  // ==================== PÁGINA DE ÍNDICE ====================
   doc.addPage();
   currentPage++;
   addHeaderFooter(currentPage);
-  yPos = margin + 20;
   
   // Título do índice
-  doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.rect(margin, yPos, 4, 14, 'F');
-  doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
-  doc.setFontSize(20);
+  doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('ÍNDICE', margin + 10, yPos + 10);
+  doc.text('ÍNDICE', pageWidth / 2, margin + 20, { align: 'center' });
   
   // Linha decorativa
   doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setLineWidth(0.5);
-  doc.line(margin, yPos + 20, pageWidth - margin, yPos + 20);
+  doc.setLineWidth(1);
+  doc.line(pageWidth / 2 - 25, margin + 26, pageWidth / 2 + 25, margin + 26);
   
-  yPos += 35;
-  
-  // Placeholder para índice (será preenchido depois)
-  const tocStartY = yPos;
+  // Guardar posição para preencher depois
   const tocPageNum = currentPage;
+  const tocStartY = margin + 45;
+  
+  yPos = margin + 18;
 
   // ==================== MENSAGEM DO SÍNDICO ====================
   if (revista.mensagemSindico) {
-    doc.addPage();
-    currentPage++;
-    addHeaderFooter(currentPage);
-    yPos = margin + 20;
-    
-    drawSectionHeader('Mensagem do Síndico', colors.primary);
+    checkNewPage(80, true);
+    drawSectionHeader('Palavra do Síndico', colors.primary);
     
     // Card elegante
-    drawCard(margin, yPos, contentWidth, 80, colors.primary);
+    drawCard(margin, yPos, contentWidth, 65, colors.primary);
     
-    // Título da mensagem
+    // Nome do síndico
     doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text(revista.mensagemSindico.titulo, margin + 8, yPos + 15);
+    doc.text(revista.mensagemSindico.nomeSindico, margin + 10, yPos + 15);
     
-    // Linha decorativa
-    doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.setLineWidth(0.5);
-    doc.line(margin + 8, yPos + 20, margin + 60, yPos + 20);
-    
-    // Mensagem
+    // Título
     doc.setTextColor(colors.darkGray[0], colors.darkGray[1], colors.darkGray[2]);
     doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.text(revista.mensagemSindico.titulo, margin + 10, yPos + 23);
+    
+    // Mensagem
+    doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    const msgLines = doc.splitTextToSize(revista.mensagemSindico.mensagem, contentWidth - 20);
-    let msgY = yPos + 30;
-    for (const line of msgLines.slice(0, 8)) {
-      doc.text(line, margin + 8, msgY);
+    const mensagemLines = doc.splitTextToSize(revista.mensagemSindico.mensagem, contentWidth - 20);
+    let msgY = yPos + 32;
+    for (const line of mensagemLines.slice(0, 4)) {
+      doc.text(line, margin + 10, msgY);
       msgY += 5;
     }
     
     // Assinatura
-    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text(revista.mensagemSindico.nomeSindico, margin + 8, yPos + 70);
-    
     if (revista.mensagemSindico.assinatura) {
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'italic');
       doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
-      doc.text(revista.mensagemSindico.assinatura, margin + 8, yPos + 76);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text(revista.mensagemSindico.assinatura, margin + 10, yPos + 58);
     }
     
-    yPos += 90;
+    yPos += 75;
   }
 
   // ==================== AVISOS ====================
@@ -454,49 +567,47 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
     drawSectionHeader('Avisos Importantes', colors.amber);
     
     for (const aviso of revista.avisos) {
-      checkNewPage(45);
+      checkNewPage(40);
       
-      const avisoColor = tipoColors[aviso.tipo.toLowerCase()] || colors.primaryLight;
-      drawCard(margin, yPos, contentWidth, 35, avisoColor);
+      const avisoColor = tipoColors[aviso.tipo] || colors.primaryLight;
+      drawCard(margin, yPos, contentWidth, 32, avisoColor);
       
-      // Tipo do aviso
+      // Badge do tipo
       doc.setFillColor(avisoColor[0], avisoColor[1], avisoColor[2]);
-      doc.roundedRect(margin + 5, yPos + 5, 25, 6, 1, 1, 'F');
+      doc.roundedRect(margin + 5, yPos + 5, 22, 5, 1, 1, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
-      doc.text(aviso.tipo.toUpperCase(), margin + 17.5, yPos + 9, { align: 'center' });
+      doc.text(aviso.tipo.toUpperCase(), margin + 16, yPos + 8.5, { align: 'center' });
       
       // Título
       doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text(aviso.titulo, margin + 35, yPos + 10);
+      doc.text(aviso.titulo, margin + 32, yPos + 10);
       
       // Conteúdo
       doc.setTextColor(colors.darkGray[0], colors.darkGray[1], colors.darkGray[2]);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      const avisoLines = doc.splitTextToSize(aviso.conteudo, contentWidth - 15);
+      const avisoLines = doc.splitTextToSize(aviso.conteudo, contentWidth - 40);
       let avisoY = yPos + 18;
-      for (const line of avisoLines.slice(0, 3)) {
+      for (const line of avisoLines.slice(0, 2)) {
         doc.text(line, margin + 8, avisoY);
         avisoY += 5;
       }
       
-      yPos += 42;
+      yPos += 38;
     }
   }
 
   // ==================== EVENTOS ====================
   if (revista.eventos && revista.eventos.length > 0) {
     checkNewPage(60, true);
-    drawSectionHeader('Agenda de Eventos', colors.emerald);
+    drawSectionHeader('Próximos Eventos', colors.emerald);
     
     for (const evento of revista.eventos) {
       checkNewPage(40);
-      
-      drawCard(margin, yPos, contentWidth, 32, colors.emerald);
       
       // Data em destaque
       const dataEvento = new Date(evento.dataEvento);
@@ -781,6 +892,7 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
       if (aquisicao.valor) {
         doc.setTextColor(colors.emerald[0], colors.emerald[1], colors.emerald[2]);
         doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
         doc.text(`R$ ${aquisicao.valor.toLocaleString('pt-BR')}`, pageWidth - margin - 8, yPos + 12, { align: 'right' });
       }
       
@@ -795,107 +907,215 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
     }
   }
 
+  // ==================== TELEFONES ÚTEIS ====================
+  if (revista.telefones && revista.telefones.length > 0) {
+    checkNewPage(60, true);
+    drawSectionHeader('Telefones Úteis', colors.primaryLight);
+    
+    const cardWidth = (contentWidth - 10) / 2;
+    let col = 0;
+    
+    for (const tel of revista.telefones) {
+      if (col === 0) checkNewPage(25);
+      
+      const x = margin + col * (cardWidth + 10);
+      drawCard(x, yPos, cardWidth, 20, colors.primaryLight);
+      
+      // Nome
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(tel.nome, x + 8, yPos + 10);
+      
+      // Número
+      doc.setTextColor(colors.primaryLight[0], colors.primaryLight[1], colors.primaryLight[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(tel.numero, x + 8, yPos + 16);
+      
+      col++;
+      if (col >= 2) {
+        col = 0;
+        yPos += 26;
+      }
+    }
+    if (col !== 0) yPos += 26;
+  }
+
   // ==================== CLASSIFICADOS ====================
   if (revista.classificados && revista.classificados.length > 0) {
     checkNewPage(60, true);
     drawSectionHeader('Classificados', colors.amber);
     
-    const cardWidth = (contentWidth - 10) / 2;
-    let col = 0;
-    
     for (const classificado of revista.classificados) {
-      if (col === 0) checkNewPage(45);
+      checkNewPage(40);
       
-      const x = margin + col * (cardWidth + 10);
-      drawCard(x, yPos, cardWidth, 38, colors.amber);
-      
-      // Categoria
-      if (classificado.categoria) {
-        doc.setFillColor(colors.amber[0], colors.amber[1], colors.amber[2]);
-        doc.roundedRect(x + 5, yPos + 5, 20, 5, 1, 1, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(6);
-        doc.text(classificado.categoria.toUpperCase().slice(0, 10), x + 15, yPos + 8.5, { align: 'center' });
-      }
+      drawCard(margin, yPos, contentWidth, 32, colors.amber);
       
       // Título
       doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
-      doc.setFontSize(9);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text(classificado.titulo.slice(0, 25), x + 5, yPos + 18);
+      doc.text(classificado.titulo, margin + 8, yPos + 12);
       
       // Preço
       if (classificado.preco) {
         doc.setTextColor(colors.emerald[0], colors.emerald[1], colors.emerald[2]);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text(`R$ ${classificado.preco.toLocaleString('pt-BR')}`, x + 5, yPos + 28);
+        doc.text(`R$ ${classificado.preco.toLocaleString('pt-BR')}`, pageWidth - margin - 8, yPos + 12, { align: 'right' });
       }
+      
+      // Descrição
+      doc.setTextColor(colors.darkGray[0], colors.darkGray[1], colors.darkGray[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const classLines = doc.splitTextToSize(classificado.descricao, contentWidth - 20);
+      doc.text(classLines[0] || '', margin + 8, yPos + 20);
       
       // Contato
       if (classificado.contato) {
         doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.text(classificado.contato.slice(0, 20), x + 5, yPos + 35);
+        doc.setFontSize(8);
+        doc.text(`Contato: ${classificado.contato}`, margin + 8, yPos + 28);
       }
       
-      col++;
-      if (col >= 2) {
-        col = 0;
-        yPos += 44;
-      }
+      yPos += 38;
     }
-    if (col !== 0) yPos += 44;
   }
 
-  // ==================== TELEFONES ÚTEIS ====================
-  if (revista.telefones && revista.telefones.length > 0) {
+  // ==================== CARONAS ====================
+  if (revista.caronas && revista.caronas.length > 0) {
     checkNewPage(60, true);
-    drawSectionHeader('Telefones Úteis', colors.primaryLight);
+    drawSectionHeader('Caronas Solidárias', colors.cyan);
     
-    // Tabela elegante
-    const tableData = revista.telefones.map(tel => [tel.nome, tel.numero]);
+    for (const carona of revista.caronas) {
+      checkNewPage(35);
+      
+      drawCard(margin, yPos, contentWidth, 28, colors.cyan);
+      
+      // Origem -> Destino
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${carona.origem} → ${carona.destino}`, margin + 8, yPos + 12);
+      
+      // Detalhes
+      doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      let caronaInfo = '';
+      if (carona.horario) caronaInfo += carona.horario;
+      if (carona.diasSemana) caronaInfo += ` • ${carona.diasSemana}`;
+      doc.text(caronaInfo, margin + 8, yPos + 20);
+      
+      // Contato
+      if (carona.contato) {
+        doc.setTextColor(colors.primaryLight[0], colors.primaryLight[1], colors.primaryLight[2]);
+        doc.setFontSize(8);
+        doc.text(`Contato: ${carona.contato}`, margin + 8, yPos + 26);
+      }
+      
+      yPos += 34;
+    }
+  }
+
+  // ==================== ACHADOS E PERDIDOS ====================
+  if (revista.achadosPerdidos && revista.achadosPerdidos.length > 0) {
+    checkNewPage(60, true);
+    drawSectionHeader('Achados e Perdidos', colors.rose);
     
-    (doc as any).autoTable({
-      startY: yPos,
-      head: [['Serviço', 'Telefone']],
-      body: tableData,
-      margin: { left: margin, right: margin },
-      styles: {
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      headStyles: {
-        fillColor: [colors.primary[0], colors.primary[1], colors.primary[2]],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]],
-      },
-      columnStyles: {
-        0: { cellWidth: contentWidth * 0.6 },
-        1: { cellWidth: contentWidth * 0.4, halign: 'center' },
-      },
-    });
+    for (const item of revista.achadosPerdidos) {
+      checkNewPage(35);
+      
+      const itemColor = item.tipo === 'achado' ? colors.emerald : colors.rose;
+      drawCard(margin, yPos, contentWidth, 28, itemColor);
+      
+      // Badge tipo
+      doc.setFillColor(itemColor[0], itemColor[1], itemColor[2]);
+      doc.roundedRect(margin + 5, yPos + 5, 18, 5, 1, 1, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+      doc.text(item.tipo.toUpperCase(), margin + 14, yPos + 8.5, { align: 'center' });
+      
+      // Título
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(item.titulo, margin + 28, yPos + 10);
+      
+      // Local e descrição
+      doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      if (item.local) {
+        doc.text(`Local: ${item.local}`, margin + 8, yPos + 20);
+      }
+      if (item.descricao) {
+        const descLines = doc.splitTextToSize(item.descricao, contentWidth - 20);
+        doc.text(descLines[0] || '', margin + 8, yPos + 26);
+      }
+      
+      yPos += 34;
+    }
+  }
+
+  // ==================== ANUNCIANTES ====================
+  if (revista.anunciantes && revista.anunciantes.length > 0) {
+    checkNewPage(60, true);
+    drawSectionHeader('Parceiros e Anunciantes', colors.secondary);
     
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    for (const anunciante of revista.anunciantes) {
+      checkNewPage(40);
+      
+      drawCard(margin, yPos, contentWidth, 32, colors.secondary);
+      
+      // Nome
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(anunciante.nome, margin + 8, yPos + 12);
+      
+      // Categoria
+      doc.setTextColor(colors.secondary[0], colors.secondary[1], colors.secondary[2]);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(anunciante.categoria.toUpperCase(), pageWidth - margin - 8, yPos + 12, { align: 'right' });
+      
+      // Descrição
+      if (anunciante.descricao) {
+        doc.setTextColor(colors.darkGray[0], colors.darkGray[1], colors.darkGray[2]);
+        doc.setFontSize(9);
+        const anLines = doc.splitTextToSize(anunciante.descricao, contentWidth - 20);
+        doc.text(anLines[0] || '', margin + 8, yPos + 20);
+      }
+      
+      // Contatos
+      doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
+      doc.setFontSize(8);
+      let contatos = '';
+      if (anunciante.telefone) contatos += `Tel: ${anunciante.telefone}`;
+      if (anunciante.whatsapp) contatos += ` | WhatsApp: ${anunciante.whatsapp}`;
+      doc.text(contatos, margin + 8, yPos + 28);
+      
+      yPos += 38;
+    }
   }
 
   // ==================== PUBLICIDADE ====================
   if (revista.publicidade && revista.publicidade.length > 0) {
     checkNewPage(60, true);
-    drawSectionHeader('Parceiros e Anunciantes', colors.rose);
+    drawSectionHeader('Publicidade', colors.amber);
     
     for (const pub of revista.publicidade) {
       checkNewPage(40);
       
-      drawCard(margin, yPos, contentWidth, 32, colors.rose);
+      drawCard(margin, yPos, contentWidth, 32, colors.amber);
       
       // Título
       doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
-      doc.setFontSize(12);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
       doc.text(pub.titulo, margin + 8, yPos + 14);
       
@@ -917,17 +1137,31 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   currentPage++;
   
   // Fundo elegante
-  doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  doc.setFillColor(colors.coverBg[0], colors.coverBg[1], colors.coverBg[2]);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
   
-  // Padrão decorativo
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  // Padrão decorativo (estilo específico)
+  doc.setDrawColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
   doc.setLineWidth(0.3);
-  for (let i = 0; i < 8; i++) {
-    doc.line(20 + i * 6, pageHeight - 80, 20 + i * 6, pageHeight - 30);
-  }
-  for (let i = 0; i < 8; i++) {
-    doc.line(pageWidth - 68 + i * 6, pageHeight - 80, pageWidth - 68 + i * 6, pageHeight - 30);
+  
+  if (estilo === 'minimalista') {
+    // Minimalista: retângulo simples
+    doc.setLineWidth(1);
+    doc.rect(20, 20, pageWidth - 40, pageHeight - 40, 'S');
+  } else if (estilo === 'moderno') {
+    // Moderno: círculos
+    doc.circle(30, pageHeight - 50, 20, 'S');
+    doc.circle(pageWidth - 30, pageHeight - 50, 20, 'S');
+    doc.circle(30, pageHeight - 50, 12, 'S');
+    doc.circle(pageWidth - 30, pageHeight - 50, 12, 'S');
+  } else {
+    // Clássico, Elegante, Corporativo: linhas verticais
+    for (let i = 0; i < 8; i++) {
+      doc.line(20 + i * 6, pageHeight - 80, 20 + i * 6, pageHeight - 30);
+    }
+    for (let i = 0; i < 8; i++) {
+      doc.line(pageWidth - 68 + i * 6, pageHeight - 80, pageWidth - 68 + i * 6, pageHeight - 30);
+    }
   }
   
   // Texto central
@@ -937,7 +1171,7 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   doc.text(revista.condominioNome.toUpperCase(), pageWidth / 2, pageHeight / 2 - 20, { align: 'center' });
   
   // Linha decorativa
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setDrawColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
   doc.setLineWidth(1);
   doc.line(pageWidth / 2 - 40, pageHeight / 2 - 5, pageWidth / 2 + 40, pageHeight / 2 - 5);
   
@@ -948,7 +1182,7 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   
   // Rodapé
   doc.setFontSize(10);
-  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setTextColor(colors.coverAccent[0], colors.coverAccent[1], colors.coverAccent[2]);
   doc.text('Produzido com', pageWidth / 2, pageHeight - 35, { align: 'center' });
   
   doc.setFontSize(14);
@@ -990,3 +1224,12 @@ export async function generateRevistaPDF(revista: RevistaData): Promise<Buffer> 
   const pdfOutput = doc.output('arraybuffer');
   return Buffer.from(pdfOutput);
 }
+
+// Exportar lista de estilos disponíveis
+export const estilosDisponiveis = [
+  { id: 'classico', nome: 'Clássico', descricao: 'Azul escuro e dourado - elegante e tradicional' },
+  { id: 'moderno', nome: 'Moderno', descricao: 'Azul vibrante e laranja - contemporâneo e dinâmico' },
+  { id: 'minimalista', nome: 'Minimalista', descricao: 'Preto e branco - limpo e sofisticado' },
+  { id: 'elegante', nome: 'Elegante', descricao: 'Bordeaux e ouro rosé - luxuoso e refinado' },
+  { id: 'corporativo', nome: 'Corporativo', descricao: 'Verde escuro e prata - profissional e sério' },
+];

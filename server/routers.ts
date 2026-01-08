@@ -887,7 +887,11 @@ export const appRouter = router({
 
     // Gerar PDF da revista
     generatePDF: publicProcedure
-      .input(z.object({ id: z.number().optional(), shareLink: z.string().optional() }))
+      .input(z.object({ 
+        id: z.number().optional(), 
+        shareLink: z.string().optional(),
+        estilo: z.enum(['classico', 'moderno', 'minimalista', 'elegante', 'corporativo']).optional()
+      }))
       .mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new Error("Database not available");
@@ -988,6 +992,7 @@ export const appRouter = router({
           edicao: revista.edicao || "Edição Especial",
           condominioNome: condominio.nome,
           condominioLogo: condominio.logoUrl || undefined,
+          estilo: input.estilo || 'classico',
           mensagemSindico: mensagem ? {
             titulo: mensagem.titulo || "Mensagem do Síndico",
             mensagem: mensagem.mensagem || "",

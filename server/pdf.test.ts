@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { generateRevistaPDF, type RevistaData } from "./pdfGenerator";
+import { generateRevistaPDF, estilosDisponiveis, type RevistaData } from "./pdfGenerator";
 
 describe("PDF Generator", () => {
   it("should export generateRevistaPDF function", () => {
@@ -166,5 +166,39 @@ describe("PDF Generator", () => {
 
     expect(mockData.anunciantes.length).toBe(1);
     expect(mockData.anunciantes[0].categoria).toBe("alimentacao");
+  });
+
+  it("should export estilosDisponiveis array with 5 styles", () => {
+    expect(Array.isArray(estilosDisponiveis)).toBe(true);
+    expect(estilosDisponiveis.length).toBe(5);
+  });
+
+  it("should have all required style IDs", () => {
+    const styleIds = estilosDisponiveis.map(e => e.id);
+    expect(styleIds).toContain('classico');
+    expect(styleIds).toContain('moderno');
+    expect(styleIds).toContain('minimalista');
+    expect(styleIds).toContain('elegante');
+    expect(styleIds).toContain('corporativo');
+  });
+
+  it("should accept estilo parameter in RevistaData", () => {
+    const mockData: RevistaData = {
+      titulo: "Residencial Teste",
+      edicao: "Dezembro 2024",
+      condominioNome: "Condomínio Teste",
+      estilo: 'moderno',
+    };
+
+    expect(mockData.estilo).toBe('moderno');
+  });
+
+  it("should have nome and descricao for each style", () => {
+    estilosDisponiveis.forEach(estilo => {
+      expect(estilo.nome).toBeDefined();
+      expect(estilo.descricao).toBeDefined();
+      expect(typeof estilo.nome).toBe('string');
+      expect(typeof estilo.descricao).toBe('string');
+    });
   });
 });

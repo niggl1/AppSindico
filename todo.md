@@ -144,3 +144,11 @@
 - [x] Adicionar bordas e sombras sutis para profundidade
 - [x] Redesenhar páginas internas com layout limpo e profissional
 - [x] Testar e validar o novo design
+
+
+## Sistema de Estilos para PDF (08/01/2026)
+
+- [x] Criar múltiplos estilos/temas para o PDF (Clássico, Moderno, Minimalista, Elegante, Corporativo)
+- [x] Adicionar interface de seleção de estilo no editor da revista
+- [x] Integrar seleção de estilo com a geração do PDF
+- [x] Testar os diferentes estilos

@@ -71,6 +71,17 @@ export default function MagazineViewer() {
   const [direction, setDirection] = useState<"next" | "prev">("next");
   const [showToc, setShowToc] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [showStyleSelector, setShowStyleSelector] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<'classico' | 'moderno' | 'minimalista' | 'elegante' | 'corporativo'>('classico');
+  
+  // Estilos disponíveis para o PDF
+  const estilosDisponiveis = [
+    { id: 'classico' as const, nome: 'Clássico', descricao: 'Azul escuro e dourado - elegante e tradicional', cor: 'bg-blue-900' },
+    { id: 'moderno' as const, nome: 'Moderno', descricao: 'Azul vibrante e laranja - contemporâneo e dinâmico', cor: 'bg-blue-500' },
+    { id: 'minimalista' as const, nome: 'Minimalista', descricao: 'Preto e branco - limpo e sofisticado', cor: 'bg-neutral-900' },
+    { id: 'elegante' as const, nome: 'Elegante', descricao: 'Bordeaux e ouro rosé - luxuoso e refinado', cor: 'bg-rose-900' },
+    { id: 'corporativo' as const, nome: 'Corporativo', descricao: 'Verde escuro e prata - profissional e sério', cor: 'bg-green-900' },
+  ];
   
   // Swipe/drag state
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -501,7 +512,7 @@ export default function MagazineViewer() {
     },
   });
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = (estilo?: 'classico' | 'moderno' | 'minimalista' | 'elegante' | 'corporativo') => {
     // Usar o shareLink da URL para gerar o PDF da revista correta
     const shareLink = params.shareLink;
     if (!shareLink) {
@@ -509,7 +520,12 @@ export default function MagazineViewer() {
       return;
     }
     setIsGeneratingPDF(true);
-    generatePDF.mutate({ shareLink });
+    setShowStyleSelector(false);
+    generatePDF.mutate({ shareLink, estilo: estilo || selectedStyle });
+  };
+  
+  const openStyleSelector = () => {
+    setShowStyleSelector(true);
   };
 
   const goToPage = (pageIndex: number) => {
@@ -731,7 +747,7 @@ export default function MagazineViewer() {
               variant="ghost"
               size="sm"
               className="text-white/70 hover:text-white hover:bg-white/10"
-              onClick={handleDownloadPDF}
+              onClick={openStyleSelector}
               disabled={isGeneratingPDF}
             >
               {isGeneratingPDF ? (
@@ -1051,6 +1067,107 @@ export default function MagazineViewer() {
           )}
         </div>
       </footer>
+      
+      {/* Modal de Seleção de Estilo do PDF */}
+      <AnimatePresence>
+        {showStyleSelector && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowStyleSelector(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                      <FileDown className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">Exportar PDF</h2>
+                      <p className="text-white/70 text-sm">Escolha o estilo da sua revista</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white/70 hover:text-white hover:bg-white/10"
+                    onClick={() => setShowStyleSelector(false)}
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Estilos */}
+              <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+                {estilosDisponiveis.map((estilo) => (
+                  <button
+                    key={estilo.id}
+                    onClick={() => setSelectedStyle(estilo.id)}
+                    className={cn(
+                      "w-full p-4 rounded-xl border-2 transition-all duration-200 text-left flex items-center gap-4",
+                      selectedStyle === estilo.id
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    )}
+                  >
+                    {/* Preview de cor */}
+                    <div className={cn("w-12 h-12 rounded-lg flex-shrink-0", estilo.cor)} />
+                    
+                    {/* Info */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900">{estilo.nome}</span>
+                        {selectedStyle === estilo.id && (
+                          <CheckCircle className="w-4 h-4 text-blue-500" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500">{estilo.descricao}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Footer */}
+              <div className="bg-gray-50 p-4 flex justify-end gap-3 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowStyleSelector(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => handleDownloadPDF(selectedStyle)}
+                  disabled={isGeneratingPDF}
+                >
+                  {isGeneratingPDF ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      A gerar...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Gerar PDF
+                    </>
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
