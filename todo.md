@@ -181,3 +181,5 @@
 - [x] Adicionar card Melhorias
 - [x] Adicionar card Moradores/Unidades
 - [x] Adicionar card Reserva de Áreas Comuns
+
+- [x] Remover card Reserva de Áreas da landing page
