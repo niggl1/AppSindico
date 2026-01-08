@@ -160,3 +160,11 @@
 - [x] Voltar ao modo página após fechar a janela de impressão
 
 - [x] BUG: Impressão em modo scroll não está funcionando - corrigido
+
+
+## Reordenação de Secções com Drag and Drop (08/01/2026)
+
+- [x] Instalar biblioteca de drag and drop (@dnd-kit)
+- [x] Implementar drag and drop na lista de páginas do editor
+- [x] Adicionar persistência da nova ordem no backend (ordem local apenas por agora)
+- [x] Testar a funcionalidade

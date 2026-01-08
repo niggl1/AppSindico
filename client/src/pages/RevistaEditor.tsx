@@ -11,6 +11,23 @@ import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   AlertTriangle,
   ArrowLeft,
   BookOpen,
@@ -38,6 +55,7 @@ import {
   Image,
   Building2,
   Send,
+  GripVertical,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
@@ -58,6 +76,7 @@ import {
   PublicidadeSection,
   CadastroSection,
 } from "@/components/revista/NovasSecoesPremium";
+import { SortableSectionItem } from "@/components/revista/SortableSectionItem";
 
 const sectionTypes = [
   { id: "mensagem_sindico", name: "Mensagem do Síndico", icon: MessageSquare, color: "text-blue-500" },
@@ -107,6 +126,56 @@ export default function RevistaEditor() {
   
   // Estado para secções ocultas
   const [hiddenSections, setHiddenSections] = useState<Set<string>>(new Set());
+  
+  // Estado para ordem das secções (drag and drop)
+  const [sectionOrder, setSectionOrder] = useState<string[]>([
+    "mensagem_sindico",
+    "avisos",
+    "votacoes",
+    "eventos",
+    "funcionarios",
+    "classificados",
+    "caronas",
+    "achados",
+    "galeria",
+    "comunicados",
+    "regras",
+    "dicas_seguranca",
+    "realizacoes",
+    "melhorias",
+    "aquisicoes",
+    "publicidade",
+    "telefones",
+    "links",
+    "cadastro",
+  ]);
+  
+  // Sensores para drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  
+  // Handler para reordenar secções
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      setSectionOrder((items) => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        toast.success("Ordem das secções atualizada");
+        return newOrder;
+      });
+    }
+  };
   
   // Função para alternar visibilidade de uma secção
   const toggleSectionVisibility = (sectionId: string) => {
@@ -340,6 +409,17 @@ export default function RevistaEditor() {
 
           {/* Conteúdo Tab */}
           <TabsContent value="conteudo" className="space-y-6">
+            {/* Instrução de arrastar */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <GripVertical className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-800">Arraste para reordenar</p>
+                <p className="text-xs text-blue-600">Passe o rato sobre uma secção e arraste o ícone à esquerda para mudar a ordem</p>
+              </div>
+            </div>
+            
             {/* Secções Ocultas - Painel para reativar */}
             {hiddenSections.size > 0 && (
               <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
@@ -371,8 +451,17 @@ export default function RevistaEditor() {
               </div>
             )}
             
+            {/* Container com Drag and Drop */}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+                <div className="space-y-6 pl-10">
+            
             {/* Mensagem do Síndico - Premium */}
-            {!hiddenSections.has("mensagem_sindico") && (
+            <SortableSectionItem id="mensagem_sindico" isHidden={hiddenSections.has("mensagem_sindico")}>
             <div id="mensagem-sindico-section" className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 rounded-2xl border border-blue-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-violet-500" />
@@ -489,10 +578,10 @@ export default function RevistaEditor() {
                 </div>
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Avisos - Premium */}
-            {!hiddenSections.has("avisos") && (
+            <SortableSectionItem id="avisos" isHidden={hiddenSections.has("avisos")}>
             <div id="avisos-section" className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl border border-amber-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-500" />
@@ -614,10 +703,10 @@ export default function RevistaEditor() {
                 )}
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Votações - Premium */}
-            {!hiddenSections.has("votacoes") && (
+            <SortableSectionItem id="votacoes" isHidden={hiddenSections.has("votacoes")}>
             <div id="votacoes-section" className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-rose-50 to-fuchsia-50 rounded-2xl border border-pink-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-pink-400 via-rose-500 to-fuchsia-500" />
@@ -715,10 +804,10 @@ export default function RevistaEditor() {
                 )}
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Eventos - Premium */}
-            {!hiddenSections.has("eventos") && (
+            <SortableSectionItem id="eventos" isHidden={hiddenSections.has("eventos")}>
             <div id="eventos-section" className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 via-green-500 to-teal-500" />
@@ -878,10 +967,10 @@ export default function RevistaEditor() {
                 )}
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Funcionários - Premium */}
-            {!hiddenSections.has("funcionarios") && (
+            <SortableSectionItem id="funcionarios" isHidden={hiddenSections.has("funcionarios")}>
             <div id="funcionarios-section" className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 rounded-2xl border border-purple-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-400 via-violet-500 to-indigo-500" />
@@ -996,10 +1085,10 @@ export default function RevistaEditor() {
                 )}
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Classificados - Premium */}
-            {!hiddenSections.has("classificados") && (
+            <SortableSectionItem id="classificados" isHidden={hiddenSections.has("classificados")}>
             <div id="classificados-section" className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl border border-orange-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-500" />
@@ -1070,10 +1159,10 @@ export default function RevistaEditor() {
                 </div>
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Caronas - Premium */}
-            {!hiddenSections.has("caronas") && (
+            <SortableSectionItem id="caronas" isHidden={hiddenSections.has("caronas")}>
             <div id="caronas-section" className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 rounded-2xl border border-teal-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-teal-400 via-cyan-500 to-sky-500" />
@@ -1144,10 +1233,10 @@ export default function RevistaEditor() {
                 </div>
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* Achados e Perdidos - Premium */}
-            {!hiddenSections.has("achados") && (
+            <SortableSectionItem id="achados" isHidden={hiddenSections.has("achados")}>
             <div id="achados-section" className="relative overflow-hidden bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 rounded-2xl border border-red-100 shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Barra decorativa superior */}
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-400 via-rose-500 to-pink-500" />
@@ -1214,11 +1303,12 @@ export default function RevistaEditor() {
                 </div>
               </div>
             </div>
-            )}
+            </SortableSectionItem>
 
             {/* ==================== NOVAS SECÇÕES PREMIUM ==================== */}
             
             {/* Galeria de Fotos */}
+            <SortableSectionItem id="galeria" isHidden={hiddenSections.has("galeria")}>
             <GaleriaSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1227,8 +1317,10 @@ export default function RevistaEditor() {
               showForm={showGaleriaForm}
               setShowForm={setShowGaleriaForm}
             />
+            </SortableSectionItem>
 
             {/* Comunicados */}
+            <SortableSectionItem id="comunicados" isHidden={hiddenSections.has("comunicados")}>
             <ComunicadosSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1237,8 +1329,10 @@ export default function RevistaEditor() {
               showForm={showComunicadoForm}
               setShowForm={setShowComunicadoForm}
             />
+            </SortableSectionItem>
 
             {/* Regras e Normas */}
+            <SortableSectionItem id="regras" isHidden={hiddenSections.has("regras")}>
             <RegrasSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1247,8 +1341,10 @@ export default function RevistaEditor() {
               showForm={showRegrasForm}
               setShowForm={setShowRegrasForm}
             />
+            </SortableSectionItem>
 
             {/* Dicas de Segurança */}
+            <SortableSectionItem id="dicas_seguranca" isHidden={hiddenSections.has("dicas_seguranca")}>
             <DicasSegurancaSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1257,8 +1353,10 @@ export default function RevistaEditor() {
               showForm={showDicasForm}
               setShowForm={setShowDicasForm}
             />
+            </SortableSectionItem>
 
             {/* Realizações */}
+            <SortableSectionItem id="realizacoes" isHidden={hiddenSections.has("realizacoes")}>
             <RealizacoesSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1267,8 +1365,10 @@ export default function RevistaEditor() {
               showForm={showRealizacoesForm}
               setShowForm={setShowRealizacoesForm}
             />
+            </SortableSectionItem>
 
             {/* Melhorias */}
+            <SortableSectionItem id="melhorias" isHidden={hiddenSections.has("melhorias")}>
             <MelhoriasSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1277,8 +1377,10 @@ export default function RevistaEditor() {
               showForm={showMelhoriasForm}
               setShowForm={setShowMelhoriasForm}
             />
+            </SortableSectionItem>
 
             {/* Aquisições */}
+            <SortableSectionItem id="aquisicoes" isHidden={hiddenSections.has("aquisicoes")}>
             <AquisicoesSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1287,8 +1389,10 @@ export default function RevistaEditor() {
               showForm={showAquisicoesForm}
               setShowForm={setShowAquisicoesForm}
             />
+            </SortableSectionItem>
 
             {/* Publicidade */}
+            <SortableSectionItem id="publicidade" isHidden={hiddenSections.has("publicidade")}>
             <PublicidadeSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
@@ -1297,14 +1401,21 @@ export default function RevistaEditor() {
               showForm={showPublicidadeForm}
               setShowForm={setShowPublicidadeForm}
             />
+            </SortableSectionItem>
 
             {/* Cadastre-se para Receber */}
+            <SortableSectionItem id="cadastro" isHidden={hiddenSections.has("cadastro")}>
             <CadastroSection
               revistaId={revistaId}
               condominioId={revista?.condominioId || 0}
               hiddenSections={hiddenSections}
               toggleSectionVisibility={toggleSectionVisibility}
             />
+            </SortableSectionItem>
+
+                </div>
+              </SortableContext>
+            </DndContext>
 
           </TabsContent>
 
