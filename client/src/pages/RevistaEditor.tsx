@@ -46,6 +46,18 @@ import AvisoForm from "@/components/forms/AvisoForm";
 import FuncionarioForm from "@/components/forms/FuncionarioForm";
 import VotacaoForm from "@/components/forms/VotacaoForm";
 import ImageUpload from "@/components/ImageUpload";
+import { AchadoPerdidoForm } from "@/components/forms/AchadoPerdidoForm";
+import {
+  GaleriaSection,
+  ComunicadosSection,
+  RegrasSection,
+  DicasSegurancaSection,
+  RealizacoesSection,
+  MelhoriasSection,
+  AquisicoesSection,
+  PublicidadeSection,
+  CadastroSection,
+} from "@/components/revista/NovasSecoesPremium";
 
 const sectionTypes = [
   { id: "mensagem_sindico", name: "Mensagem do Síndico", icon: MessageSquare, color: "text-blue-500" },
@@ -58,6 +70,15 @@ const sectionTypes = [
   { id: "classificados", name: "Classificados", icon: Package, color: "text-orange-500" },
   { id: "caronas", name: "Caronas", icon: Car, color: "text-teal-500" },
   { id: "achados", name: "Achados e Perdidos", icon: Heart, color: "text-red-500" },
+  { id: "galeria", name: "Galeria de Fotos", icon: Image, color: "text-violet-500" },
+  { id: "comunicados", name: "Comunicados", icon: FileText, color: "text-sky-500" },
+  { id: "regras", name: "Regras e Normas", icon: BookOpen, color: "text-slate-500" },
+  { id: "dicas_seguranca", name: "Dicas de Segurança", icon: AlertTriangle, color: "text-yellow-500" },
+  { id: "realizacoes", name: "Realizações", icon: Star, color: "text-amber-600" },
+  { id: "melhorias", name: "Melhorias", icon: Building2, color: "text-lime-500" },
+  { id: "aquisicoes", name: "Aquisições", icon: Package, color: "text-fuchsia-500" },
+  { id: "publicidade", name: "Publicidade", icon: Megaphone, color: "text-rose-500" },
+  { id: "cadastro", name: "Cadastre-se para Receber", icon: Send, color: "text-green-500" },
 ];
 
 export default function RevistaEditor() {
@@ -74,6 +95,14 @@ export default function RevistaEditor() {
   const [showClassificadoForm, setShowClassificadoForm] = useState(false);
   const [showCaronaForm, setShowCaronaForm] = useState(false);
   const [showAchadoForm, setShowAchadoForm] = useState(false);
+  const [showGaleriaForm, setShowGaleriaForm] = useState(false);
+  const [showComunicadoForm, setShowComunicadoForm] = useState(false);
+  const [showRegrasForm, setShowRegrasForm] = useState(false);
+  const [showDicasForm, setShowDicasForm] = useState(false);
+  const [showRealizacoesForm, setShowRealizacoesForm] = useState(false);
+  const [showMelhoriasForm, setShowMelhoriasForm] = useState(false);
+  const [showAquisicoesForm, setShowAquisicoesForm] = useState(false);
+  const [showPublicidadeForm, setShowPublicidadeForm] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   
   // Estado para secções ocultas
@@ -1163,17 +1192,13 @@ export default function RevistaEditor() {
                             <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                               <Heart className="w-5 h-5 text-white" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white">Achados e Perdidos</h3>
+                            <h3 className="text-lg font-semibold text-white">Registar Item Achado</h3>
                           </div>
                         </div>
-                        <div className="p-6 overflow-y-auto max-h-[70vh]">
-                          <p className="text-center text-muted-foreground py-8">
-                            Os achados e perdidos são geridos pelos moradores através do app.
-                            <br />
-                            Você pode visualizar os itens reportados.
-                          </p>
-                          <Button variant="outline" className="w-full" onClick={() => setShowAchadoForm(false)}>Fechar</Button>
-                        </div>
+                        <AchadoPerdidoForm 
+                          condominioId={revista?.condominioId || 0} 
+                          onSuccess={() => setShowAchadoForm(false)} 
+                        />
                       </DialogContent>
                     </Dialog>
                   </div>
@@ -1190,6 +1215,97 @@ export default function RevistaEditor() {
               </div>
             </div>
             )}
+
+            {/* ==================== NOVAS SECÇÕES PREMIUM ==================== */}
+            
+            {/* Galeria de Fotos */}
+            <GaleriaSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showGaleriaForm}
+              setShowForm={setShowGaleriaForm}
+            />
+
+            {/* Comunicados */}
+            <ComunicadosSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showComunicadoForm}
+              setShowForm={setShowComunicadoForm}
+            />
+
+            {/* Regras e Normas */}
+            <RegrasSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showRegrasForm}
+              setShowForm={setShowRegrasForm}
+            />
+
+            {/* Dicas de Segurança */}
+            <DicasSegurancaSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showDicasForm}
+              setShowForm={setShowDicasForm}
+            />
+
+            {/* Realizações */}
+            <RealizacoesSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showRealizacoesForm}
+              setShowForm={setShowRealizacoesForm}
+            />
+
+            {/* Melhorias */}
+            <MelhoriasSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showMelhoriasForm}
+              setShowForm={setShowMelhoriasForm}
+            />
+
+            {/* Aquisições */}
+            <AquisicoesSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showAquisicoesForm}
+              setShowForm={setShowAquisicoesForm}
+            />
+
+            {/* Publicidade */}
+            <PublicidadeSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+              showForm={showPublicidadeForm}
+              setShowForm={setShowPublicidadeForm}
+            />
+
+            {/* Cadastre-se para Receber */}
+            <CadastroSection
+              revistaId={revistaId}
+              condominioId={revista?.condominioId || 0}
+              hiddenSections={hiddenSections}
+              toggleSectionVisibility={toggleSectionVisibility}
+            />
+
           </TabsContent>
 
           {/* Secções Tab */}
@@ -1220,6 +1336,22 @@ export default function RevistaEditor() {
                         setShowCaronaForm(true);
                       } else if (section.id === "achados") {
                         setShowAchadoForm(true);
+                      } else if (section.id === "galeria") {
+                        setShowGaleriaForm(true);
+                      } else if (section.id === "comunicados") {
+                        setShowComunicadoForm(true);
+                      } else if (section.id === "regras") {
+                        setShowRegrasForm(true);
+                      } else if (section.id === "dicas_seguranca") {
+                        setShowDicasForm(true);
+                      } else if (section.id === "realizacoes") {
+                        setShowRealizacoesForm(true);
+                      } else if (section.id === "melhorias") {
+                        setShowMelhoriasForm(true);
+                      } else if (section.id === "aquisicoes") {
+                        setShowAquisicoesForm(true);
+                      } else if (section.id === "publicidade") {
+                        setShowPublicidadeForm(true);
                       }
                       // Scroll para a secção correspondente
                       setTimeout(() => {
@@ -1234,6 +1366,15 @@ export default function RevistaEditor() {
                           classificados: "classificados-section",
                           caronas: "caronas-section",
                           achados: "achados-section",
+                          galeria: "galeria-section",
+                          comunicados: "comunicados-section",
+                          regras: "regras-section",
+                          dicas_seguranca: "dicas-section",
+                          realizacoes: "realizacoes-section",
+                          melhorias: "melhorias-section",
+                          aquisicoes: "aquisicoes-section",
+                          publicidade: "publicidade-section",
+                          cadastro: "cadastro-section",
                         };
                         const elementId = sectionMap[section.id];
                         if (elementId) {

@@ -101,3 +101,35 @@
 - [x] Adicionar formulário para secção Caronas
 - [x] Adicionar formulário para secção Achados e Perdidos
 - [x] Telefones e Links já têm formulários na aba Secções
+
+## Novas Secções Premium da Revista (07/01/2026)
+
+- [x] Galeria de Fotos - Álbuns de fotos de eventos e momentos do condomínio
+- [x] Comunicados - Comunicados oficiais da administração
+- [x] Regras e Normas - Regulamento interno do condomínio
+- [x] Dicas de Segurança - Orientações de segurança para moradores
+- [x] Realizações - Conquistas e melhorias realizadas no condomínio
+- [x] Melhorias - Projetos de melhoria em andamento ou planeados
+- [x] Aquisições - Novos equipamentos e bens adquiridos
+- [x] Publicidade - Espaço para anúncios de parceiros e patrocinadores
+
+## Secção Cadastre-se para Receber (07/01/2026)
+
+- [x] Formulário com campos: Nome, Email, Unidade/Apartamento, WhatsApp, E-mail
+- [x] Mensagem: "Seu cadastro só será efetuado após a ativação por parte da administração do condomínio"
+- [x] Design premium com validação de campos
+
+## Correção Achados e Perdidos (07/01/2026)
+
+- [x] Formulário para gestores registarem itens achados
+- [x] Campos: Título, Imagens (upload múltiplo), Local onde foi achado, Descrição
+- [x] Design premium consistente
+
+## Layout Premium PDF (07/01/2026)
+
+- [x] Design profissional para exportação em PDF
+- [x] Controle de quebra de página (page-break-inside: avoid)
+- [x] Capa elegante com logo e título
+- [x] Índice automático das secções
+- [x] Cabeçalho e rodapé em todas as páginas
+- [x] Tipografia e espaçamento profissional

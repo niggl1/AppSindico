@@ -1909,3 +1909,23 @@ export const funcoesRapidas = mysqlTable("funcoes_rapidas", {
 
 export type FuncaoRapida = typeof funcoesRapidas.$inferSelect;
 export type InsertFuncaoRapida = typeof funcoesRapidas.$inferInsert;
+
+
+// ==================== INSCRIÇÕES PARA RECEBER REVISTA ====================
+export const inscricoesRevista = mysqlTable("inscricoes_revista", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").references(() => condominios.id).notNull(),
+  revistaId: int("revistaId").references(() => revistas.id),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  unidade: varchar("unidade", { length: 50 }),
+  whatsapp: varchar("whatsapp", { length: 20 }),
+  status: mysqlEnum("status", ["pendente", "ativo", "inativo"]).default("pendente").notNull(),
+  ativadoPor: int("ativadoPor").references(() => users.id),
+  dataAtivacao: timestamp("dataAtivacao"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InscricaoRevista = typeof inscricoesRevista.$inferSelect;
+export type InsertInscricaoRevista = typeof inscricoesRevista.$inferInsert;

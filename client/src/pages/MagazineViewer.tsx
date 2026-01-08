@@ -109,7 +109,7 @@ export default function MagazineViewer() {
   const magazine = useMemo<Magazine | null>(() => {
     if (!magazineData?.revista || !magazineData?.condominio) return null;
 
-    const { revista, condominio, mensagemSindico, avisos, eventos, funcionarios, telefones, anunciantes, realizacoes, melhorias, aquisicoes, albuns, fotos, votacoes, classificados, achadosPerdidos, caronas, dicasSeguranca, regras, paginasCustom, seccoesOcultas } = magazineData;
+    const { revista, condominio, mensagemSindico, avisos, eventos, funcionarios, telefones, anunciantes, realizacoes, melhorias, aquisicoes, albuns, fotos, votacoes, classificados, achadosPerdidos, caronas, dicasSeguranca, regras, comunicados, paginasCustom, seccoesOcultas } = magazineData;
 
     const pages: MagazinePage[] = [];
     let pageId = 1;
@@ -402,12 +402,33 @@ export default function MagazineViewer() {
         id: pageId++,
         type: "regras",
         content: {
-          titulo: "Regras do Condomínio",
-          regras: regras.map((r: any) => ({
-            titulo: r.titulo,
-            descricao: r.descricao,
-            categoria: r.categoria,
-          })),
+          titulo: "Regras e Normas",
+          regras: regras,
+        },
+      });
+    }
+
+    // Comunicados
+    if (comunicados && comunicados.length > 0 && !seccoesOcultas.includes('comunicados')) {
+      pages.push({
+        id: pageId++,
+        type: "comunicados",
+        content: {
+          titulo: "Comunicados",
+          comunicados: comunicados,
+        },
+      });
+    }
+
+    // Página de Cadastro para Receber
+    if (!seccoesOcultas.includes('cadastro')) {
+      pages.push({
+        id: pageId++,
+        type: "cadastro",
+        content: {
+          titulo: "Cadastre-se para Receber",
+          condominioId: revista.condominioId,
+          revistaId: revista.id,
         },
       });
     }
@@ -1074,6 +1095,10 @@ function getPageTitle(page: any): string {
       return "Dicas de Segurança";
     case "regras":
       return "Regras";
+    case "comunicados":
+      return "Comunicados";
+    case "cadastro":
+      return "Cadastre-se";
     case "back_cover":
       return "Contracapa";
     default:
@@ -1121,6 +1146,10 @@ function PageContent({ page }: { page: any }) {
       return <DicasSegurancaPage content={page.content} />;
     case "regras":
       return <RegrasPage content={page.content} />;
+    case "comunicados":
+      return <ComunicadosPage content={page.content} />;
+    case "cadastro":
+      return <CadastroPage content={page.content} />;
     case "back_cover":
       return <BackCoverPage content={page.content} />;
     default:
@@ -2081,6 +2110,231 @@ function BackCoverPage({ content }: { content: any }) {
       <p className="text-sm text-muted-foreground mt-8">
         Desenvolvido com ❤️ pelo App Síndico
       </p>
+    </div>
+  );
+}
+
+// ==================== COMUNICADOS PAGE ====================
+function ComunicadosPage({ content }: { content: any }) {
+  return (
+    <div className="h-full flex flex-col p-6 overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-blue-100">
+        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl shadow-lg shadow-blue-500/30">
+          <FileText className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h2 className="font-serif text-2xl font-bold text-slate-800">
+            {content.titulo || "Comunicados"}
+          </h2>
+          <p className="text-sm text-slate-500">Comunicados oficiais da administração</p>
+        </div>
+      </div>
+
+      {/* Lista de Comunicados */}
+      <div className="flex-1 space-y-4">
+        {content.comunicados && content.comunicados.length > 0 ? (
+          content.comunicados.map((comunicado: any, index: number) => (
+            <div
+              key={comunicado.id || index}
+              className="bg-white/80 backdrop-blur-sm rounded-xl p-5 border border-blue-100 shadow-sm hover:shadow-md transition-all"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg shrink-0">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-slate-800 mb-1">{comunicado.titulo}</h3>
+                  {comunicado.data && (
+                    <p className="text-xs text-slate-400 mb-2">
+                      {new Date(comunicado.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </p>
+                  )}
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap">{comunicado.conteudo}</p>
+                  {comunicado.arquivoUrl && (
+                    <a
+                      href={comunicado.arquivoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-3 text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      <FileDown className="w-4 h-4" />
+                      Ver anexo
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+            <div className="p-4 bg-blue-100 rounded-full mb-4">
+              <FileText className="w-8 h-8 text-blue-500" />
+            </div>
+            <p className="font-medium text-slate-700">Nenhum comunicado</p>
+            <p className="text-sm text-slate-500 mt-1">Os comunicados aparecerão aqui</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ==================== CADASTRO PAGE ====================
+function CadastroPage({ content }: { content: any }) {
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [unidade, setUnidade] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const createInscricao = trpc.inscricaoRevista.create.useMutation({
+    onSuccess: () => {
+      setIsSubmitted(true);
+      toast.success("Cadastro enviado com sucesso!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao enviar cadastro: " + error.message);
+      setIsSubmitting(false);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nome || !email) {
+      toast.error("Por favor, preencha nome e e-mail");
+      return;
+    }
+    setIsSubmitting(true);
+    createInscricao.mutate({
+      condominioId: content.condominioId,
+      nome,
+      email,
+      unidade,
+      whatsapp,
+    });
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-green-50 via-white to-emerald-50">
+        <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full mb-6 shadow-lg shadow-green-500/30">
+          <CheckCircle className="w-12 h-12 text-white" />
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-slate-800 mb-3">
+          Cadastro Enviado!
+        </h2>
+        <p className="text-slate-600 max-w-md mb-6">
+          Seu cadastro foi enviado com sucesso. Você receberá as próximas edições da revista após a ativação por parte da administração do condomínio.
+        </p>
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <p className="text-sm text-amber-700">
+            <AlertCircle className="w-4 h-4 inline mr-1" />
+            Seu cadastro só será efetuado após a ativação por parte da administração do condomínio.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col p-6 overflow-y-auto bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-green-100">
+        <div className="p-2.5 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl shadow-lg shadow-green-500/30">
+          <MessageSquare className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h2 className="font-serif text-2xl font-bold text-slate-800">
+            {content.titulo || "Cadastre-se para Receber"}
+          </h2>
+          <p className="text-sm text-slate-500">Receba as próximas edições da revista</p>
+        </div>
+      </div>
+
+      {/* Aviso */}
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">
+        <p className="text-sm text-amber-700">
+          <AlertCircle className="w-4 h-4 inline mr-1" />
+          Seu cadastro só será efetuado após a ativação por parte da administração do condomínio.
+        </p>
+      </div>
+
+      {/* Formulário */}
+      <form onSubmit={handleSubmit} className="flex-1 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Nome Completo *
+          </label>
+          <input
+            type="text"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            placeholder="Seu nome completo"
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            E-mail *
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="seu@email.com"
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Unidade/Apartamento
+          </label>
+          <input
+            type="text"
+            value={unidade}
+            onChange={(e) => setUnidade(e.target.value)}
+            placeholder="Ex: Bloco A, Apto 101"
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            WhatsApp
+          </label>
+          <input
+            type="tel"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            placeholder="(11) 99999-9999"
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting || !nome || !email}
+          className="w-full py-4 mt-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            <>
+              <MessageSquare className="w-5 h-5" />
+              Cadastrar
+            </>
+          )}
+        </button>
+      </form>
     </div>
   );
 }

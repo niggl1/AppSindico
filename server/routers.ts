@@ -107,7 +107,8 @@ import {
   osTimeline,
   osChat,
   osImagens,
-  funcoesRapidas
+  funcoesRapidas,
+  inscricoesRevista
 } from "../drizzle/schema";
 import { eq, and, desc, like, or, sql, gte, lte, inArray, asc } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -776,6 +777,10 @@ export const appRouter = router({
         const regrasData = await db.select().from(regrasNormas)
           .where(eq(regrasNormas.condominioId, revista.condominioId));
         
+        // Buscar comunicados
+        const comunicadosData = await db.select().from(comunicados)
+          .where(eq(comunicados.revistaId, revista.id));
+        
         // Buscar páginas personalizadas
         const paginasCustomData = await db.select().from(paginasCustom)
           .where(eq(paginasCustom.condominioId, revista.condominioId));
@@ -800,6 +805,7 @@ export const appRouter = router({
           caronas: caronasData,
           dicasSeguranca: dicasSegurancaData,
           regras: regrasData,
+          comunicados: comunicadosData,
           paginasCustom: paginasCustomData,
           seccoesOcultas: [] as string[], // Sem tabela de secções ocultas por enquanto
         };
@@ -926,6 +932,55 @@ export const appRouter = router({
             eq(anunciantes.status, "ativo")
           ));
         
+        // Buscar comunicados
+        const comunicadosResult = await db.select().from(comunicados)
+          .where(eq(comunicados.revistaId, revista.id));
+        
+        // Buscar regras e normas
+        const regrasResult = await db.select().from(regrasNormas)
+          .where(eq(regrasNormas.condominioId, revista.condominioId));
+        
+        // Buscar dicas de segurança
+        const dicasResult = await db.select().from(dicasSeguranca)
+          .where(eq(dicasSeguranca.condominioId, revista.condominioId));
+        
+        // Buscar realizações
+        const realizacoesResult = await db.select().from(realizacoes)
+          .where(eq(realizacoes.revistaId, revista.id));
+        
+        // Buscar melhorias
+        const melhoriasResult = await db.select().from(melhorias)
+          .where(eq(melhorias.revistaId, revista.id));
+        
+        // Buscar aquisições
+        const aquisicoesResult = await db.select().from(aquisicoes)
+          .where(eq(aquisicoes.revistaId, revista.id));
+        
+        // Buscar publicidades
+        const publicidadesResult = await db.select().from(publicidades)
+          .where(eq(publicidades.condominioId, revista.condominioId));
+        
+        // Buscar classificados aprovados
+        const classificadosResult = await db.select().from(classificados)
+          .where(and(
+            eq(classificados.condominioId, revista.condominioId),
+            eq(classificados.status, "aprovado")
+          ));
+        
+        // Buscar caronas ativas
+        const caronasResult = await db.select().from(caronas)
+          .where(and(
+            eq(caronas.condominioId, revista.condominioId),
+            eq(caronas.status, "ativa")
+          ));
+        
+        // Buscar achados e perdidos abertos
+        const achadosResult = await db.select().from(achadosPerdidos)
+          .where(and(
+            eq(achadosPerdidos.condominioId, revista.condominioId),
+            eq(achadosPerdidos.status, "aberto")
+          ));
+        
         // Gerar PDF
         const pdfBuffer = await generateRevistaPDF({
           titulo: revista.titulo,
@@ -969,6 +1024,63 @@ export const appRouter = router({
             telefone: a.telefone || undefined,
             whatsapp: a.whatsapp || undefined,
             logoUrl: a.logoUrl || undefined,
+          })),
+          comunicados: comunicadosResult.map(c => ({
+            titulo: c.titulo,
+            conteudo: c.descricao || "",
+            tipo: "geral",
+            dataPublicacao: c.createdAt?.toISOString(),
+          })),
+          regras: regrasResult.map(r => ({
+            titulo: r.titulo,
+            descricao: r.conteudo || "",
+            categoria: r.categoria || undefined,
+          })),
+          dicasSeguranca: dicasResult.map(d => ({
+            titulo: d.titulo,
+            descricao: d.conteudo || "",
+            categoria: d.categoria || undefined,
+          })),
+          realizacoes: realizacoesResult.map(r => ({
+            titulo: r.titulo,
+            descricao: r.descricao || "",
+            dataRealizacao: r.dataRealizacao?.toISOString(),
+          })),
+          melhorias: melhoriasResult.map(m => ({
+            titulo: m.titulo,
+            descricao: m.descricao || "",
+            status: m.status || undefined,
+            previsao: m.dataImplementacao?.toISOString() || undefined,
+          })),
+          aquisicoes: aquisicoesResult.map(a => ({
+            titulo: a.titulo,
+            descricao: a.descricao || "",
+            valor: a.valor ? Number(a.valor) : undefined,
+            dataAquisicao: a.dataAquisicao?.toISOString(),
+          })),
+          publicidade: publicidadesResult.map(p => ({
+            titulo: p.titulo,
+            descricao: p.descricao || undefined,
+            imagemUrl: p.imagemUrl || undefined,
+            link: p.linkUrl || undefined,
+          })),
+          classificados: classificadosResult.map(c => ({
+            titulo: c.titulo,
+            descricao: c.descricao || "",
+            preco: c.preco ? Number(c.preco) : undefined,
+            contato: c.contato || undefined,
+          })),
+          caronas: caronasResult.map(c => ({
+            origem: c.origem,
+            destino: c.destino,
+            horario: c.dataCarona?.toISOString() || undefined,
+            contato: c.contato || undefined,
+          })),
+          achadosPerdidos: achadosResult.map(a => ({
+            titulo: a.titulo,
+            descricao: a.descricao || undefined,
+            local: a.localEncontrado || undefined,
+            tipo: a.tipo,
           })),
         });
         
@@ -2641,6 +2753,30 @@ export const appRouter = router({
         await db.delete(achadosPerdidos).where(eq(achadosPerdidos.id, input.id));
         return { success: true };
       }),
+
+    addImagem: protectedProcedure
+      .input(z.object({
+        achadoPerdidoId: z.number(),
+        imagemUrl: z.string(),
+        legenda: z.string().optional(),
+        ordem: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const result = await db.insert(imagensAchadosPerdidos).values(input);
+        return { id: Number(result[0].insertId) };
+      }),
+
+    listImagens: protectedProcedure
+      .input(z.object({ achadoPerdidoId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(imagensAchadosPerdidos)
+          .where(eq(imagensAchadosPerdidos.achadoPerdidoId, input.achadoPerdidoId))
+          .orderBy(asc(imagensAchadosPerdidos.ordem));
+      }),
   }),
 
   // ==================== APPS PERSONALIZADOS ====================
@@ -3713,6 +3849,15 @@ export const appRouter = router({
         if (!db) throw new Error("Database not available");
         const result = await db.insert(publicidades).values(input);
         return { id: Number(result[0].insertId) };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.delete(publicidades).where(eq(publicidades.id, input.id));
+        return { success: true };
       }),
   }),
 
@@ -13235,6 +13380,145 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
             ));
         }
         
+        return { success: true };
+      }),
+  }),
+
+  // ==================== REGRA (ALIAS PARA REGRAS) ====================
+  regra: router({
+    list: protectedProcedure
+      .input(z.object({ condominioId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(regrasNormas)
+          .where(and(
+            eq(regrasNormas.condominioId, input.condominioId),
+            eq(regrasNormas.ativo, true)
+          ))
+          .orderBy(regrasNormas.ordem);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        titulo: z.string().min(1),
+        descricao: z.string().min(1),
+        categoria: z.enum(["geral", "convivencia", "areas_comuns", "estacionamento", "animais", "mudancas", "obras"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const result = await db.insert(regrasNormas).values({
+          condominioId: input.condominioId,
+          titulo: input.titulo,
+          conteudo: input.descricao,
+          categoria: input.categoria || "geral",
+        });
+        return { id: Number(result[0].insertId) };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.delete(regrasNormas).where(eq(regrasNormas.id, input.id));
+        return { success: true };
+      }),
+  }),
+
+  // ==================== DICA DE SEGURANÇA (ALIAS) ====================
+  dicaSeguranca: router({
+    list: protectedProcedure
+      .input(z.object({ condominioId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(dicasSeguranca)
+          .where(and(
+            eq(dicasSeguranca.condominioId, input.condominioId),
+            eq(dicasSeguranca.ativo, true)
+          ))
+          .orderBy(dicasSeguranca.ordem);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        titulo: z.string().min(1),
+        descricao: z.string().min(1),
+        categoria: z.enum(["geral", "incendio", "roubo", "criancas", "idosos", "digital", "veiculos"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const result = await db.insert(dicasSeguranca).values({
+          condominioId: input.condominioId,
+          titulo: input.titulo,
+          conteudo: input.descricao,
+          categoria: input.categoria || "geral",
+        });
+        return { id: Number(result[0].insertId) };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.delete(dicasSeguranca).where(eq(dicasSeguranca.id, input.id));
+        return { success: true };
+      }),
+  }),
+
+  // ==================== INSCRIÇÃO REVISTA ====================
+  inscricaoRevista: router({
+    list: protectedProcedure
+      .input(z.object({ condominioId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(inscricoesRevista)
+          .where(eq(inscricoesRevista.condominioId, input.condominioId))
+          .orderBy(desc(inscricoesRevista.createdAt));
+      }),
+
+    create: publicProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        nome: z.string().min(1),
+        email: z.string().email(),
+        unidade: z.string().optional(),
+        whatsapp: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const result = await db.insert(inscricoesRevista).values({
+          ...input,
+          status: "pendente",
+        });
+        return { id: Number(result[0].insertId) };
+      }),
+
+    ativar: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.update(inscricoesRevista)
+          .set({ status: "ativo" })
+          .where(eq(inscricoesRevista.id, input.id));
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.delete(inscricoesRevista).where(eq(inscricoesRevista.id, input.id));
         return { success: true };
       }),
   }),
