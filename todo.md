@@ -168,3 +168,5 @@
 - [x] Implementar drag and drop na lista de páginas do editor
 - [x] Adicionar persistência da nova ordem no backend (ordem local apenas por agora)
 - [x] Testar a funcionalidade
+
+- [ ] BUG: Secções não ficam na posição correta após arrastar - corrigir
