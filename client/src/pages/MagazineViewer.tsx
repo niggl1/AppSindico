@@ -533,19 +533,26 @@ export default function MagazineViewer() {
     const previousMode = readingMode;
     
     // Mudar para modo contínuo para impressão
-    if (readingMode !== 'continuous') {
-      setReadingMode('continuous');
-    }
+    setReadingMode('continuous');
     
-    // Aguardar a renderização do modo contínuo e depois imprimir
+    // Aguardar a renderização completa do modo contínuo e depois imprimir
+    // Usar um tempo maior para garantir que todas as páginas sejam renderizadas
     setTimeout(() => {
-      window.print();
+      // Scroll para o topo para garantir que começa do início
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = 0;
+      }
       
-      // Voltar ao modo anterior após a impressão
+      // Pequeno delay adicional para garantir renderização
       setTimeout(() => {
-        setReadingMode(previousMode);
-      }, 500);
-    }, 300);
+        window.print();
+        
+        // Voltar ao modo anterior após a impressão
+        setTimeout(() => {
+          setReadingMode(previousMode);
+        }, 1000);
+      }, 200);
+    }, 500);
   };
 
   const goToPage = (pageIndex: number) => {
@@ -1041,13 +1048,13 @@ export default function MagazineViewer() {
         {readingMode === 'continuous' && (
           <div 
             ref={scrollContainerRef}
-            className="w-full max-w-2xl mx-auto h-[calc(100vh-180px)] overflow-y-auto space-y-8 pr-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
+            className="w-full max-w-2xl mx-auto h-[calc(100vh-180px)] overflow-y-auto space-y-8 pr-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent print-continuous print:h-auto print:overflow-visible print:space-y-0"
           >
             {magazine.pages.map((page, index) => (
               <div
                 key={page.id}
                 ref={(el) => { pageRefs.current[index] = el; }}
-                className="magazine-page aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden"
+                className="magazine-page aspect-[3/4] bg-white rounded-lg shadow-2xl overflow-hidden print:rounded-none print:shadow-none print:aspect-auto print:min-h-screen"
                 style={{ 
                   transform: `scale(${zoomLevel / 100})`,
                   transformOrigin: 'top center',

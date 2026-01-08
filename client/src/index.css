@@ -879,3 +879,88 @@
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+
+/* ========================================
+   ESTILOS DE IMPRESSÃO
+   ======================================== */
+
+@media print {
+  /* Esconder elementos de navegação durante a impressão */
+  header,
+  footer,
+  nav,
+  .no-print,
+  button,
+  .magazine-nav-arrow,
+  [data-no-print] {
+    display: none !important;
+  }
+  
+  /* Garantir que o conteúdo da revista seja visível */
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Forçar modo contínuo para impressão */
+  .print-continuous {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Cada página da revista em uma página de impressão */
+  .magazine-page {
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+  
+  /* Última página não precisa de quebra */
+  .magazine-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  
+  /* Remover backgrounds escuros */
+  .bg-gradient-to-br,
+  .bg-gradient-to-b {
+    background: white !important;
+  }
+  
+  /* Container de scroll visível */
+  [class*="overflow-y-auto"],
+  [class*="overflow-auto"] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  /* Garantir cores de impressão */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Classe para forçar impressão de todas as páginas */
+.print-all-pages {
+  display: block !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}

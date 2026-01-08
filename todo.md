@@ -158,3 +158,5 @@
 
 - [x] Mudar automaticamente para modo contínuo ao imprimir
 - [x] Voltar ao modo página após fechar a janela de impressão
+
+- [x] BUG: Impressão em modo scroll não está funcionando - corrigido
