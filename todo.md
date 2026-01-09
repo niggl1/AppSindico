@@ -212,3 +212,10 @@
 
 - [x] Adicionar botão "⚡ Registro Rápido" na página de Vistorias (teste)
 - [x] Replicar para Manutenções, Ocorrências e Antes e Depois
+
+
+## Ajustes no Modal de Registro Rápido (09/01/2026)
+
+- [x] Captura automática de localização GPS ao abrir o modal
+- [x] Botão "Registrar e Adicionar Outra" já existe para salvar rascunho
+- [x] Campos de título, descrição, status e prioridade já estão personalizáveis

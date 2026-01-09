@@ -320,6 +320,42 @@ export function TarefaFacilModal({
   const IconeTipo = config.icon;
   const rascunhosCount = listarRascunhos.data?.length || 0;
 
+  // Capturar GPS automaticamente ao abrir o modal
+  useEffect(() => {
+    if (open && !localizacao && navigator.geolocation) {
+      setCarregandoGPS(true);
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude.toString();
+          const lng = position.coords.longitude.toString();
+          
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+            );
+            const data = await response.json();
+            setLocalizacao({
+              lat,
+              lng,
+              endereco: data.display_name || `${lat}, ${lng}`,
+            });
+          } catch {
+            setLocalizacao({
+              lat,
+              lng,
+              endereco: `${lat}, ${lng}`,
+            });
+          }
+          setCarregandoGPS(false);
+        },
+        () => {
+          setCarregandoGPS(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
