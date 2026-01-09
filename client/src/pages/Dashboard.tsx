@@ -564,65 +564,19 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* SECÇÃO TESTE - Para verificar se o deploy funciona */}
+          {/* SECÇÃO FUNÇÕES FÁCIL */}
           <div className="px-3 mb-4">
             <div className="flex items-center justify-between mb-2 px-3">
               <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">⚡ FUNÇÕES FÁCIL</p>
             </div>
-            <div className="space-y-3">
-              {/* Botão principal - Registro Rápido */}
-              <Link href="/dashboard/tarefas-facil">
-                <button 
-                  className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-500 to-amber-500"
-                >
-                  <Zap className="w-5 h-5 text-white" />
-                  <span className="text-sm font-semibold text-white">⚡ Registro Rápido</span>
-                </button>
-              </Link>
-              
-              {/* Grid 2x3 com os 5 botões - todos em laranja */}
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                {/* Vistoria */}
-                <Link href="/dashboard/tarefas-facil?tipo=vistoria">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
-                    <ClipboardCheck className="w-4 h-4 text-white" />
-                    <span className="text-xs font-medium text-white">Vistoria</span>
-                  </button>
-                </Link>
-                
-                {/* Manutenção */}
-                <Link href="/dashboard/tarefas-facil?tipo=manutencao">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
-                    <Wrench className="w-4 h-4 text-white" />
-                    <span className="text-xs font-medium text-white">Manutenção</span>
-                  </button>
-                </Link>
-                
-                {/* Ocorrência */}
-                <Link href="/dashboard/tarefas-facil?tipo=ocorrencia">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
-                    <AlertTriangle className="w-4 h-4 text-white" />
-                    <span className="text-xs font-medium text-white">Ocorrência</span>
-                  </button>
-                </Link>
-                
-                {/* Antes/Depois */}
-                <Link href="/dashboard/tarefas-facil?tipo=antes_depois">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
-                    <ArrowLeftRight className="w-4 h-4 text-white" />
-                    <span className="text-xs font-medium text-white">Antes/Depois</span>
-                  </button>
-                </Link>
-                
-                {/* Checklist */}
-                <Link href="/dashboard/tarefas-facil?tipo=checklist">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500 col-span-2">
-                    <ListChecks className="w-4 h-4 text-white" />
-                    <span className="text-xs font-medium text-white">Checklist</span>
-                  </button>
-                </Link>
-              </div>
-            </div>
+            <Link href="/dashboard/tarefas-facil">
+              <button 
+                className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-500 to-amber-500"
+              >
+                <Zap className="w-5 h-5 text-white" />
+                <span className="text-sm font-semibold text-white">⚡ Registro Rápido</span>
+              </button>
+            </Link>
           </div>
 
           {/* Separador */}
