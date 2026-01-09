@@ -51,8 +51,10 @@ import {
   Image,
   Sparkles,
   ClipboardList,
-  Check
+  Check,
+  Zap
 } from "lucide-react";
+import { Link } from "wouter";
 import { generateChecklistReport, generateListReport, formatStatus, formatDate } from "@/lib/pdfGenerator";
 import { ProtocolCard, StatsCards } from "@/components/ProtocolCard";
 import { Timeline, StatusBadge } from "@/components/Timeline";
@@ -467,22 +469,15 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
             <Plus className="h-4 w-4 mr-1" />
             Novo Checklist
           </Button>
-          <Button 
-            variant="outline" 
-            className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-            onClick={() => {
-              // Abrir o primeiro checklist existente para mostrar as funcionalidades
-              if (checklists && checklists.length > 0) {
-                setSelectedChecklist(checklists[0]);
-                setShowDetailDialog(true);
-              } else {
-                toast.info("Crie um checklist primeiro para ver as funções: checkbox estilizado, câmera e botão de problema");
-              }
-            }}
-          >
-            <Sparkles className="h-4 w-4 mr-1" />
-            VER FUNÇÕES
-          </Button>
+          <Link href="/dashboard/tarefas-facil">
+            <Button 
+              variant="outline" 
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-orange-500 shadow-md"
+            >
+              <Zap className="h-4 w-4 mr-1" />
+              ⚡ Registro Rápido
+            </Button>
+          </Link>
         </div>
       </div>
 
