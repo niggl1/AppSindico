@@ -175,7 +175,7 @@ const menuSections = [
     icon: Wrench,
     iconName: "Wrench",
     items: [
-      { icon: Zap, iconName: "Zap", label: "⚡ Funções Fácil", path: "/dashboard/tarefas-facil", funcaoId: "tarefas-facil" }, // Registro rápido
+      { icon: Sparkles, iconName: "Sparkles", label: "⚡ Funções Fácil", path: "/dashboard/tarefas-facil", funcaoId: "tarefas-facil" }, // Registro rápido
       { icon: ClipboardCheck, iconName: "ClipboardCheck", label: "Vistorias", path: "/dashboard/vistorias", funcaoId: "vistorias" },
       { icon: Wrench, iconName: "Wrench", label: "Manutenções", path: "/dashboard/manutencoes", funcaoId: "manutencoes" },
       { icon: AlertTriangle, iconName: "AlertTriangle", label: "Ocorrências", path: "/dashboard/ocorrencias", funcaoId: "ocorrencias" },

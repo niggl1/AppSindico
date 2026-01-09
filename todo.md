@@ -235,3 +235,10 @@
 ## Bug: Funções Fácil não aparece no menu (09/01/2026)
 
 - [ ] Verificar e corrigir item "⚡ Funções Fácil" no menu lateral da secção Operacional/Manutenção
+
+
+## Bug: Alterações não aparecem na versão publicada (09/01/2026)
+
+- [ ] Diagnosticar problema de publicação
+- [ ] Verificar se o checkpoint contém todas as alterações
+- [ ] Fazer rebuild completo e criar novo checkpoint
