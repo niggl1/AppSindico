@@ -7630,13 +7630,22 @@ function AntesDepoisSection() {
           <h1 className="text-2xl font-serif font-bold text-foreground">Antes e Depois</h1>
           <p className="text-muted-foreground">Mostre a transformação de melhorias realizadas</p>
         </div>
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Novo Registro
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard/tarefas-facil?tipo=antes_depois">
+            <Button 
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 font-semibold gap-2"
+            >
+              <Zap className="h-4 w-4" />
+              Registro Rápido
             </Button>
-          </DialogTrigger>
+          </Link>
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Novo Registro
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
             <div className="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4">
               <DialogHeader className="space-y-1">
@@ -7727,6 +7736,7 @@ function AntesDepoisSection() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {obras?.length === 0 ? (

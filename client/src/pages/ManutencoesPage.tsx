@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { ShareModal } from "@/components/ShareModal";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,8 @@ import {
   Image,
   CheckSquare,
   Building,
-  Navigation
+  Navigation,
+  Zap
 } from "lucide-react";
 import { generateManutencaoReport, generateListReport, formatStatus, formatDate } from "@/lib/pdfGenerator";
 import { LocationMiniMap } from "@/components/LocationMiniMap";
@@ -389,6 +391,14 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/dashboard/tarefas-facil?tipo=manutencao">
+            <Button 
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 font-semibold"
+            >
+              <Zap className="h-4 w-4 mr-1" />
+              Registro Rápido
+            </Button>
+          </Link>
           <Button variant="outline" size="sm" onClick={handleGeneratePDF}>
             <Download className="h-4 w-4 mr-1" />
             PDF

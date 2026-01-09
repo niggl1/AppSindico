@@ -206,3 +206,9 @@
 - [x] Protocolo automático (VS-2026-0001, MS-2026-0001, etc.)
 - [x] Captura GPS automática
 - [x] Botão "Registrar e Adicionar Outra" + "Enviar"
+- [x] BUG: Item Funções Fácil não aparece no menu lateral - item existe no código, verificar cache
+
+## Botão Registro Rápido nas Páginas (09/01/2026)
+
+- [x] Adicionar botão "⚡ Registro Rápido" na página de Vistorias (teste)
+- [x] Replicar para Manutenções, Ocorrências e Antes e Depois
