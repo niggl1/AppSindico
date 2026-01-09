@@ -23,6 +23,7 @@ import {
   ImageIcon,
   ArrowLeftRight
 } from "lucide-react";
+import InputWithSave from "@/components/InputWithSave";
 
 interface TarefaFacilModalProps {
   open: boolean;
@@ -43,6 +44,8 @@ interface FormData {
   prioridade: PrioridadeTarefa;
   imagemAntes: string;
   imagemDepois: string;
+  responsavel: string;
+  localizacaoNome: string;
 }
 
 const TIPOS_CONFIG = {
@@ -116,6 +119,8 @@ export function TarefaFacilModal({
     prioridade: "media",
     imagemAntes: "",
     imagemDepois: "",
+    responsavel: "",
+    localizacaoNome: "",
   });
   const [localizacao, setLocalizacao] = useState<{ lat: string; lng: string; endereco: string } | null>(null);
   const [carregandoGPS, setCarregandoGPS] = useState(false);
@@ -247,6 +252,8 @@ export function TarefaFacilModal({
       prioridade: "media",
       imagemAntes: "",
       imagemDepois: "",
+      responsavel: "",
+      localizacaoNome: "",
     });
     setLocalizacao(null);
   };
@@ -467,6 +474,26 @@ export function TarefaFacilModal({
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                {/* Responsável e Localização */}
+                <div className="grid grid-cols-2 gap-4">
+                  <InputWithSave
+                    label="Responsável"
+                    value={formData.responsavel}
+                    onChange={(v) => setFormData(prev => ({ ...prev, responsavel: v }))}
+                    condominioId={condominioId}
+                    tipo="responsavel"
+                    placeholder="Nome do responsável"
+                  />
+                  <InputWithSave
+                    label="Localização"
+                    value={formData.localizacaoNome}
+                    onChange={(v) => setFormData(prev => ({ ...prev, localizacaoNome: v }))}
+                    condominioId={condominioId}
+                    tipo="localizacao"
+                    placeholder="Ex: Bloco A - Térreo"
+                  />
                 </div>
 
                 {/* Imagens Antes/Depois (apenas para tipo antes_depois) */}

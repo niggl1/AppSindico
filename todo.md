@@ -219,3 +219,4 @@
 - [x] Captura automática de localização GPS ao abrir o modal
 - [x] Botão "Registrar e Adicionar Outra" já existe para salvar rascunho
 - [x] Campos de título, descrição, status e prioridade já estão personalizáveis
+- [x] Adicionar botão "+" para salvar valores personalizados (responsável, localização) no Registro Rápido
