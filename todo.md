@@ -239,6 +239,6 @@
 
 ## Bug: Alterações não aparecem na versão publicada (09/01/2026)
 
-- [ ] Diagnosticar problema de publicação
-- [ ] Verificar se o checkpoint contém todas as alterações
-- [ ] Fazer rebuild completo e criar novo checkpoint
+- [x] Diagnosticar problema de publicação
+- [x] Verificar se o checkpoint contém todas as alterações
+- [x] Fazer rebuild completo e criar novo checkpoint (38972704)
