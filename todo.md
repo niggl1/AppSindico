@@ -242,3 +242,4 @@
 - [x] Diagnosticar problema de publicação
 - [x] Verificar se o checkpoint contém todas as alterações
 - [x] Fazer rebuild completo e criar novo checkpoint (38972704)
+- [x] Adicionar link "Funções Fácil" na secção "Funções Rápidas" do Dashboard

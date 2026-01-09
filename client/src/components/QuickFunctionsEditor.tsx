@@ -29,6 +29,7 @@ import {
   BellRing,
   ClipboardList,
   Loader2,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -74,13 +75,14 @@ export const allQuickFunctions = [
   { id: "notificar-morador", label: "Notificar", icon: BellRing, gradient: "from-orange-500 to-red-500", path: "/dashboard/notificar-morador" },
   { id: "ordens-servico", label: "Ordens de Serviço", icon: ClipboardList, gradient: "from-yellow-500 to-amber-600", path: "/dashboard/ordens-servico" },
   { id: "antes-depois", label: "Antes e Depois", icon: Camera, gradient: "from-emerald-500 to-teal-600", path: "/dashboard/antes-depois" },
+  { id: "tarefas-facil", label: "⚡ Funções Fácil", icon: Zap, gradient: "from-orange-500 to-amber-500", path: "/dashboard/tarefas-facil" },
 ];
 
 // Mapa de ícones para uso externo
 export const iconMap: Record<string, any> = {
   ListChecks, Wrench, AlertTriangle, ClipboardCheck, Megaphone, Vote, Bell,
   CalendarDays, Users, Car, ShoppingBag, Search, Camera, FileText, Shield,
-  BookOpen, TrendingUp, Package, Video, CalendarClock, BellRing, ClipboardList,
+  BookOpen, TrendingUp, Package, Video, CalendarClock, BellRing, ClipboardList, Zap,
 };
 
 const QUICK_FUNCTIONS_KEY = "dashboard-quick-functions";
