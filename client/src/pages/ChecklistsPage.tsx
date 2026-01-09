@@ -467,6 +467,10 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
             <Plus className="h-4 w-4 mr-1" />
             Novo Checklist
           </Button>
+          <Button variant="outline" className="bg-orange-500 hover:bg-orange-600 text-white border-orange-500" onClick={() => toast.success("Botão de teste funcionando!")}>
+            <Sparkles className="h-4 w-4 mr-1" />
+            TESTE
+          </Button>
         </div>
       </div>
 
