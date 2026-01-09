@@ -50,7 +50,7 @@ interface FormData {
 
 const TIPOS_CONFIG = {
   vistoria: {
-    label: "Vistoria Fácil",
+    label: "Vistoria",
     icon: ClipboardCheck,
     cor: "#F97316", // Laranja
     bgCor: "bg-orange-500",
@@ -62,40 +62,40 @@ const TIPOS_CONFIG = {
     gradient: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)",
   },
   manutencao: {
-    label: "Manutenção Fácil",
+    label: "Manutenção",
     icon: Wrench,
-    cor: "#10B981", // Verde
-    bgCor: "bg-emerald-500",
-    textCor: "text-emerald-600",
-    borderCor: "border-emerald-300",
-    hoverCor: "hover:bg-emerald-600",
-    lightBg: "bg-emerald-50",
-    tabActiveBg: "data-[state=active]:bg-emerald-500",
-    gradient: "linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%)",
+    cor: "#F97316", // Laranja
+    bgCor: "bg-orange-500",
+    textCor: "text-orange-600",
+    borderCor: "border-orange-300",
+    hoverCor: "hover:bg-orange-600",
+    lightBg: "bg-orange-50",
+    tabActiveBg: "data-[state=active]:bg-orange-500",
+    gradient: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)",
   },
   ocorrencia: {
-    label: "Ocorrência Fácil",
+    label: "Ocorrência",
     icon: AlertTriangle,
-    cor: "#EF4444", // Vermelho
-    bgCor: "bg-red-500",
-    textCor: "text-red-600",
-    borderCor: "border-red-300",
-    hoverCor: "hover:bg-red-600",
-    lightBg: "bg-red-50",
-    tabActiveBg: "data-[state=active]:bg-red-500",
-    gradient: "linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%)",
+    cor: "#F97316", // Laranja
+    bgCor: "bg-orange-500",
+    textCor: "text-orange-600",
+    borderCor: "border-orange-300",
+    hoverCor: "hover:bg-orange-600",
+    lightBg: "bg-orange-50",
+    tabActiveBg: "data-[state=active]:bg-orange-500",
+    gradient: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)",
   },
   antes_depois: {
-    label: "Antes/Depois Fácil",
+    label: "Antes/Depois",
     icon: ArrowLeftRight,
-    cor: "#3B82F6", // Azul
-    bgCor: "bg-blue-500",
-    textCor: "text-blue-600",
-    borderCor: "border-blue-300",
-    hoverCor: "hover:bg-blue-600",
-    lightBg: "bg-blue-50",
-    tabActiveBg: "data-[state=active]:bg-blue-500",
-    gradient: "linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%)",
+    cor: "#F97316", // Laranja
+    bgCor: "bg-orange-500",
+    textCor: "text-orange-600",
+    borderCor: "border-orange-300",
+    hoverCor: "hover:bg-orange-600",
+    lightBg: "bg-orange-50",
+    tabActiveBg: "data-[state=active]:bg-orange-500",
+    gradient: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)",
   },
 };
 
@@ -382,26 +382,32 @@ export function TarefaFacilModal({
         </DialogHeader>
 
         <Tabs value={tipoAtivo} onValueChange={(v) => setTipoAtivo(v as TipoTarefa)} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-100 p-1 rounded-xl">
+          <TabsList className="flex w-full bg-transparent p-0 gap-2 justify-start">
             {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipoTab) => {
               const cfg = TIPOS_CONFIG[tipoTab];
               const Icon = cfg.icon;
               const isActive = tipoAtivo === tipoTab;
+              const label = tipoTab === "antes_depois" ? "Antes/Depois" : tipoTab.charAt(0).toUpperCase() + tipoTab.slice(1);
               return (
                 <TabsTrigger 
                   key={tipoTab} 
                   value={tipoTab}
-                  className="text-xs sm:text-sm transition-all duration-300 rounded-lg font-medium"
+                  className={`text-xs sm:text-sm transition-all duration-300 font-medium flex items-center gap-1 ${
+                    isActive 
+                      ? 'px-4 py-2 rounded-full shadow-md' 
+                      : 'px-2 py-1 bg-transparent hover:text-orange-500'
+                  }`}
                   style={isActive ? { 
-                    background: cfg.gradient, 
+                    background: 'linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)', 
                     color: 'white',
-                    boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.2)'
+                    boxShadow: '0 4px 14px 0 rgba(249, 115, 22, 0.4)'
                   } : {
-                    color: '#6B7280'
+                    color: '#6B7280',
+                    background: 'transparent'
                   }}
                 >
-                  <Icon className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">{tipoTab === "antes_depois" ? "Antes/Depois" : tipoTab.charAt(0).toUpperCase() + tipoTab.slice(1)}</span>
+                  <Icon className="w-4 h-4" />
+                  {isActive ? label : <span className="hidden sm:inline">{label}</span>}
                 </TabsTrigger>
               );
             })}
