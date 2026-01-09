@@ -564,10 +564,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* SECÇÃO FUNÇÕES FÁCIL */}
+          {/* SECÇÃO REGISTRO RÁPIDO */}
           <div className="px-3 mb-4">
             <div className="flex items-center justify-between mb-2 px-3">
-              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">⚡ FUNÇÕES FÁCIL</p>
+              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">⚡ REGISTRO RÁPIDO</p>
             </div>
             <Link href="/dashboard/tarefas-facil">
               <button 
