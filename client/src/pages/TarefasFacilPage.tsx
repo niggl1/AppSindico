@@ -181,7 +181,7 @@ export default function TarefasFacilPage() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2 text-orange-500">
               <Zap className="w-7 h-7" />
-              Funções Fácil
+              Registro Rápido
             </h1>
             <p className="text-muted-foreground">Registros rápidos de vistorias, manutenções, ocorrências e antes/depois</p>
           </div>
