@@ -1929,3 +1929,33 @@ export const inscricoesRevista = mysqlTable("inscricoes_revista", {
 
 export type InscricaoRevista = typeof inscricoesRevista.$inferSelect;
 export type InsertInscricaoRevista = typeof inscricoesRevista.$inferInsert;
+
+
+// ==================== TAREFAS FÁCIL (Registro Rápido) ====================
+export const tarefasFacil = mysqlTable("tarefas_facil", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").references(() => condominios.id).notNull(),
+  userId: int("userId").references(() => users.id).notNull(),
+  tipo: mysqlEnum("tipo", ["vistoria", "manutencao", "ocorrencia", "antes_depois"]).notNull(),
+  protocolo: varchar("protocolo", { length: 20 }).notNull().unique(), // VS-2026-0001, MS-2026-0001, OS-2026-0001, AD-2026-0001
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  imagens: json("imagens").$type<string[]>(),
+  latitude: varchar("latitude", { length: 50 }),
+  longitude: varchar("longitude", { length: 50 }),
+  endereco: text("endereco"), // Endereço formatado a partir do GPS
+  status: mysqlEnum("status", ["rascunho", "pendente", "em_andamento", "concluido", "cancelado"]).default("rascunho").notNull(),
+  prioridade: mysqlEnum("prioridade", ["baixa", "media", "alta", "urgente"]).default("media"),
+  observacoes: text("observacoes"),
+  // Para Antes/Depois
+  imagemAntes: text("imagemAntes"),
+  imagemDepois: text("imagemDepois"),
+  // Metadados
+  enviadoEm: timestamp("enviadoEm"),
+  concluidoEm: timestamp("concluidoEm"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TarefaFacil = typeof tarefasFacil.$inferSelect;
+export type InsertTarefaFacil = typeof tarefasFacil.$inferInsert;

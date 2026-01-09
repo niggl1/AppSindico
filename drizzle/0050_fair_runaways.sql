@@ -1,1 +1,0 @@
-ALTER TABLE `os_timeline` MODIFY COLUMN `tipo` enum('criacao','status_alterado','responsavel_adicionado','responsavel_removido','material_adicionado','material_removido','orcamento_adicionado','orcamento_aprovado','orcamento_rejeitado','orcamento_removido','inicio_servico','fim_servico','comentario','foto_adicionada','localizacao_atualizada','vinculo_manutencao') NOT NULL;

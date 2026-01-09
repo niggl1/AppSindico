@@ -1,1 +1,0 @@
-ALTER TABLE `condominios` ADD `capaUrl` text;

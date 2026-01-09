@@ -193,3 +193,16 @@
 - [x] Adicionar relatório de Ordens de Serviço
 - [x] Implementar melhorias visuais (tooltips, indicadores, cores)
 - [x] Ajustar PDF para não quebrar páginas
+
+
+## Módulo de Funções Fácil (09/01/2026)
+
+- [x] Criar schema da base de dados para tarefas fácil
+- [x] Criar rotas tRPC para CRUD de tarefas fácil
+- [x] Criar modal de registro rápido com 4 abas (Vistoria, Manutenção, Ocorrência, Antes/Depois)
+- [x] Criar página de histórico com filtros por tipo e status
+- [x] Integrar ao menu lateral e funções rápidas
+- [x] Design premium laranja (#F97316) com ícone Zap
+- [x] Protocolo automático (VS-2026-0001, MS-2026-0001, etc.)
+- [x] Captura GPS automática
+- [x] Botão "Registrar e Adicionar Outra" + "Enviar"

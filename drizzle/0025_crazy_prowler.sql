@@ -1,1 +1,0 @@
-ALTER TABLE `lembretes` MODIFY COLUMN `canais` json;

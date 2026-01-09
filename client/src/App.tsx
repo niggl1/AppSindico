@@ -48,6 +48,7 @@ import OrdemServicoDetalhe from "@/pages/OrdemServicoDetalhe";
 import OrdensServicoConfig from "@/pages/OrdensServicoConfig";
 import CriarProjeto from "./pages/CriarProjeto";
 import AppViewer from "./pages/AppViewer";
+import TarefasFacilPage from "./pages/TarefasFacilPage";
 import WhatsAppButton from "./components/WhatsAppButton";
 
 function Router() {
@@ -113,6 +114,7 @@ function Router() {
       <Route path="/dashboard/ordens-servico/configuracoes" component={OrdensServicoConfig} />
       <Route path="/dashboard/ordens-servico/:id" component={OrdemServicoDetalhe} />
       <Route path="/dashboard/criar-projeto" component={CriarProjeto} />
+      <Route path="/dashboard/tarefas-facil" component={TarefasFacilPage} />
       <Route path="/dashboard/revistas/nova">{() => { window.location.href = '/dashboard/revistas'; return null; }}</Route>
       <Route path="/dashboard/:section" component={Dashboard} />
       <Route path="/condominio/:id" component={CondominioManager} />
