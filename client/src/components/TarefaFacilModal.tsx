@@ -382,35 +382,33 @@ export function TarefaFacilModal({
         </DialogHeader>
 
         <Tabs value={tipoAtivo} onValueChange={(v) => setTipoAtivo(v as TipoTarefa)} className="w-full">
-          <TabsList className="flex w-full bg-transparent p-0 gap-2 justify-start">
-            {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipoTab) => {
-              const cfg = TIPOS_CONFIG[tipoTab];
+          {/* Apenas o tipo ativo aparece como botão */}
+          <div className="flex w-full justify-start">
+            {(() => {
+              const cfg = TIPOS_CONFIG[tipoAtivo];
               const Icon = cfg.icon;
-              const isActive = tipoAtivo === tipoTab;
-              const label = tipoTab === "antes_depois" ? "Antes/Depois" : tipoTab.charAt(0).toUpperCase() + tipoTab.slice(1);
+              const label = tipoAtivo === "antes_depois" ? "Antes/Depois" : tipoAtivo.charAt(0).toUpperCase() + tipoAtivo.slice(1);
               return (
-                <TabsTrigger 
-                  key={tipoTab} 
-                  value={tipoTab}
-                  className={`text-xs sm:text-sm transition-all duration-300 font-medium flex items-center gap-1 ${
-                    isActive 
-                      ? 'px-4 py-2 rounded-full shadow-md' 
-                      : 'px-2 py-1 bg-transparent hover:text-orange-500'
-                  }`}
-                  style={isActive ? { 
+                <div 
+                  className="px-4 py-2 rounded-full shadow-md text-sm font-medium flex items-center gap-2 cursor-default"
+                  style={{ 
                     background: 'linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)', 
                     color: 'white',
                     boxShadow: '0 4px 14px 0 rgba(249, 115, 22, 0.4)'
-                  } : {
-                    color: '#6B7280',
-                    background: 'transparent'
                   }}
                 >
                   <Icon className="w-4 h-4" />
-                  {isActive ? label : <span className="hidden sm:inline">{label}</span>}
-                </TabsTrigger>
+                  {label}
+                </div>
               );
-            })}
+            })()}
+          </div>
+          
+          {/* TabsList escondido mas funcional para manter a estrutura de Tabs */}
+          <TabsList className="hidden">
+            {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipoTab) => (
+              <TabsTrigger key={tipoTab} value={tipoTab}>{tipoTab}</TabsTrigger>
+            ))}
           </TabsList>
 
           {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipo) => (
