@@ -569,8 +569,8 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-2 px-3">
               <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">⚡ FUNÇÕES FÁCIL</p>
             </div>
-            <div className="space-y-2">
-              {/* Botão principal - Funções Fácil */}
+            <div className="space-y-3">
+              {/* Botão principal - Registro Rápido */}
               <Link href="/dashboard/tarefas-facil">
                 <button 
                   className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-500 to-amber-500"
@@ -580,9 +580,9 @@ export default function Dashboard() {
                 </button>
               </Link>
               
-              {/* Grid 2x3 com os 5 botões */}
-              <div className="grid grid-cols-2 gap-2">
-                {/* Vistoria - Laranja */}
+              {/* Grid 2x3 com os 5 botões - todos em laranja */}
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                {/* Vistoria */}
                 <Link href="/dashboard/tarefas-facil?tipo=vistoria">
                   <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
                     <ClipboardCheck className="w-4 h-4 text-white" />
@@ -590,33 +590,33 @@ export default function Dashboard() {
                   </button>
                 </Link>
                 
-                {/* Manutenção - Verde */}
+                {/* Manutenção */}
                 <Link href="/dashboard/tarefas-facil?tipo=manutencao">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-emerald-400 to-emerald-500">
+                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
                     <Wrench className="w-4 h-4 text-white" />
                     <span className="text-xs font-medium text-white">Manutenção</span>
                   </button>
                 </Link>
                 
-                {/* Ocorrência - Vermelho */}
+                {/* Ocorrência */}
                 <Link href="/dashboard/tarefas-facil?tipo=ocorrencia">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-red-400 to-red-500">
+                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
                     <AlertTriangle className="w-4 h-4 text-white" />
                     <span className="text-xs font-medium text-white">Ocorrência</span>
                   </button>
                 </Link>
                 
-                {/* Antes/Depois - Azul */}
+                {/* Antes/Depois */}
                 <Link href="/dashboard/tarefas-facil?tipo=antes_depois">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-blue-400 to-blue-500">
+                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500">
                     <ArrowLeftRight className="w-4 h-4 text-white" />
                     <span className="text-xs font-medium text-white">Antes/Depois</span>
                   </button>
                 </Link>
                 
-                {/* Checklist - Esmeralda */}
+                {/* Checklist */}
                 <Link href="/dashboard/tarefas-facil?tipo=checklist">
-                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-teal-400 to-teal-500 col-span-2">
+                  <button className="w-full flex items-center gap-2 p-2 rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-400 to-orange-500 col-span-2">
                     <ListChecks className="w-4 h-4 text-white" />
                     <span className="text-xs font-medium text-white">Checklist</span>
                   </button>
