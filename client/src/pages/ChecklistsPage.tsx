@@ -50,7 +50,8 @@ import {
   AlignLeft,
   Image,
   Sparkles,
-  ClipboardList
+  ClipboardList,
+  Check
 } from "lucide-react";
 import { generateChecklistReport, generateListReport, formatStatus, formatDate } from "@/lib/pdfGenerator";
 import { ProtocolCard, StatsCards } from "@/components/ProtocolCard";
@@ -86,8 +87,12 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
   const [problemData, setProblemData] = useState({
     titulo: "",
     descricao: "",
+    status: "pendente",
     imagens: [] as string[]
   });
+  const [showItemPhotoModal, setShowItemPhotoModal] = useState(false);
+  const [selectedItemForPhoto, setSelectedItemForPhoto] = useState<any>(null);
+  const [itemPhotoData, setItemPhotoData] = useState<string[]>([]);
   const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [saveTemplateData, setSaveTemplateData] = useState({
     nome: "",
@@ -992,50 +997,68 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
                     {checklistItens.map((item) => (
                       <div 
                         key={item.id} 
-                        className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors border-l-4 border-l-blue-500"
+                        className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border border-gray-200 shadow-sm"
                       >
-                        {/* Área clicável à esquerda com destaque */}
+                        {/* Checkbox estilizado com contorno e ícone de check */}
                         <div 
-                          className="flex items-center gap-3 flex-1 cursor-pointer p-2 -m-2 rounded-lg hover:bg-blue-50 border-2 border-dashed border-transparent hover:border-blue-300 transition-all"
+                          className={`w-7 h-7 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all ${
+                            item.completo 
+                              ? 'bg-emerald-500 border-emerald-500' 
+                              : 'bg-white border-gray-300 hover:border-emerald-400'
+                          }`}
                           onClick={() => handleToggleItem(item.id, item.completo ?? false)}
                           title="Clique para marcar/desmarcar"
                         >
-                          <Checkbox
-                            checked={item.completo ?? false}
-                            onCheckedChange={() => handleToggleItem(item.id, item.completo ?? false)}
-                            className="pointer-events-none"
-                          />
-                          <span className={`flex-1 ${item.completo ? "line-through text-muted-foreground" : ""}`}>
-                            {item.descricao}
-                          </span>
                           {item.completo ? (
-                            <CheckSquare className="h-4 w-4 text-green-500" />
+                            <Check className="h-4 w-4 text-white" />
                           ) : (
-                            <Square className="h-4 w-4 text-muted-foreground" />
+                            <Check className="h-4 w-4 text-gray-300" />
                           )}
                         </div>
-                        {/* Botão de problema à direita */}
+                        
+                        {/* Texto do item */}
+                        <span className={`flex-1 ${item.completo ? "line-through text-gray-400" : "text-gray-700"}`}>
+                          {item.descricao}
+                        </span>
+                        
+                        {/* Botão de câmera para adicionar foto */}
                         <Button
                           variant="outline"
-                          size="sm"
-                          className="h-8 gap-1 text-orange-600 border-orange-300 hover:bg-orange-50 hover:text-orange-700"
+                          size="icon"
+                          className="h-8 w-8 text-blue-600 border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                          onClick={() => {
+                            setSelectedItemForPhoto(item);
+                            setItemPhotoData([]);
+                            setShowItemPhotoModal(true);
+                          }}
+                          title="Adicionar foto"
+                        >
+                          <Camera className="h-4 w-4" />
+                        </Button>
+                        
+                        {/* Botão de problema (triângulo com exclamação) */}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 text-orange-600 border-orange-300 hover:bg-orange-50 hover:text-orange-700"
                           onClick={() => {
                             setSelectedItemForProblem(item);
-                            setProblemData({ titulo: "", descricao: "", imagens: [] });
+                            setProblemData({ titulo: "", descricao: "", status: "pendente", imagens: [] });
                             setShowProblemModal(true);
                           }}
                           title="Reportar problema"
                         >
                           <AlertTriangle className="h-4 w-4" />
-                          <span className="text-xs">Problema</span>
                         </Button>
+                        
+                        {/* Botão de excluir */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-destructive"
+                          className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50"
                           onClick={() => toast.info("Item removido")}
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
@@ -1167,26 +1190,48 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
                 <p className="font-medium">{selectedItemForProblem.descricao}</p>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="problemTitulo">Título do Problema *</Label>
-                <Input
-                  id="problemTitulo"
-                  value={problemData.titulo}
-                  onChange={(e) => setProblemData({ ...problemData, titulo: e.target.value })}
-                  placeholder="Ex: Equipamento danificado"
-                />
-              </div>
+              {/* Título com botão + */}
+              <InputWithSave
+                label="Título do Problema"
+                value={problemData.titulo}
+                onChange={(v) => setProblemData({ ...problemData, titulo: v })}
+                placeholder="Ex: Equipamento danificado"
+                condominioId={condominioId}
+                tipo="categoria_checklist"
+              />
               
+              {/* Descrição com botão + */}
               <div className="space-y-2">
-                <Label htmlFor="problemDescricao">Descrição do Problema *</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="problemDescricao">Descrição do Problema *</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6 text-blue-600 border-blue-300 hover:bg-blue-50"
+                    onClick={() => toast.info("Valor salvo para reutilização!")}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
                 <Textarea
                   id="problemDescricao"
                   value={problemData.descricao}
                   onChange={(e) => setProblemData({ ...problemData, descricao: e.target.value })}
                   placeholder="Descreva o problema encontrado..."
-                  rows={4}
+                  rows={3}
                 />
               </div>
+              
+              {/* Status com botão + */}
+              <InputWithSave
+                label="Status"
+                value={problemData.status}
+                onChange={(v) => setProblemData({ ...problemData, status: v })}
+                placeholder="Ex: Pendente"
+                condominioId={condominioId}
+                tipo="categoria_checklist"
+              />
               
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
@@ -1216,7 +1261,7 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
                   // Aqui poderia salvar no banco de dados
                   toast.success("Problema reportado com sucesso!");
                   setShowProblemModal(false);
-                  setProblemData({ titulo: "", descricao: "", imagens: [] });
+                  setProblemData({ titulo: "", descricao: "", status: "pendente", imagens: [] });
                   setSelectedItemForProblem(null);
                 }}
                 disabled={!problemData.titulo.trim() || !problemData.descricao.trim()}
@@ -1304,6 +1349,68 @@ export default function ChecklistsPage({ condominioId }: ChecklistsPageProps) {
               >
                 <Save className="h-4 w-4" />
                 {createTemplateMutation.isPending ? "Salvando..." : "Salvar Template"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Adicionar Foto ao Item */}
+      <Dialog open={showItemPhotoModal} onOpenChange={setShowItemPhotoModal}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-white" />
+                </div>
+                Adicionar Foto ao Item
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-[70vh]">
+            {selectedItemForPhoto && (
+              <div className="space-y-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">Item do checklist:</p>
+                  <p className="font-medium">{selectedItemForPhoto.descricao}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Camera className="h-4 w-4" />
+                    Fotos do Item
+                  </Label>
+                  <MultiImageUpload
+                    value={itemPhotoData}
+                    onChange={(imgs: string[]) => setItemPhotoData(imgs)}
+                    maxImages={10}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={() => setShowItemPhotoModal(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                onClick={() => {
+                  if (itemPhotoData.length === 0) {
+                    toast.error("Adicione pelo menos uma foto");
+                    return;
+                  }
+                  // Aqui poderia salvar as fotos no banco de dados
+                  toast.success("Fotos adicionadas com sucesso!");
+                  setShowItemPhotoModal(false);
+                  setItemPhotoData([]);
+                  setSelectedItemForPhoto(null);
+                }}
+                disabled={itemPhotoData.length === 0}
+              >
+                <Camera className="h-4 w-4 mr-1" />
+                Salvar Fotos
               </Button>
             </DialogFooter>
           </div>

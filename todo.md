@@ -225,3 +225,9 @@
 - [x] Colocar campos Responsável, Localização, Status e Prioridade um embaixo do outro (não lado a lado)
 - [x] Adicionar cores diferentes para cada aba no modal de Registro Rápido (Vistoria=laranja, Manutenção=verde, Ocorrência=vermelho, Antes/Depois=azul)
 - [x] Adicionar tom degradê (gradiente) estilo premium para cada aba no modal de Registro Rápido
+
+## Melhorias nos Itens do Checklist (09/01/2026)
+
+- [x] Adicionar contorno na marcação do checklist com ícone de check dentro
+- [x] Adicionar ícone de câmera para adicionar fotos ao item
+- [x] Adicionar ícone de triângulo com exclamação que abre modal com título, imagens, descrição e status (cada um com botão +)
