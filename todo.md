@@ -234,7 +234,7 @@
 
 ## Bug: Funções Fácil não aparece no menu (09/01/2026)
 
-- [ ] Verificar e corrigir item "⚡ Funções Fácil" no menu lateral da secção Operacional/Manutenção
+- [x] Verificar e corrigir item "⚡ Funções Fácil" no menu lateral - RESOLVIDO: problema de cache do build, rebuild completo corrigiu
 
 
 ## Bug: Alterações não aparecem na versão publicada (09/01/2026)
