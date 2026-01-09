@@ -59,6 +59,7 @@ const TIPOS_CONFIG = {
     hoverCor: "hover:bg-orange-600",
     lightBg: "bg-orange-50",
     tabActiveBg: "data-[state=active]:bg-orange-500",
+    gradient: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FDBA74 100%)",
   },
   manutencao: {
     label: "Manutenção Fácil",
@@ -70,6 +71,7 @@ const TIPOS_CONFIG = {
     hoverCor: "hover:bg-emerald-600",
     lightBg: "bg-emerald-50",
     tabActiveBg: "data-[state=active]:bg-emerald-500",
+    gradient: "linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%)",
   },
   ocorrencia: {
     label: "Ocorrência Fácil",
@@ -81,6 +83,7 @@ const TIPOS_CONFIG = {
     hoverCor: "hover:bg-red-600",
     lightBg: "bg-red-50",
     tabActiveBg: "data-[state=active]:bg-red-500",
+    gradient: "linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F87171 100%)",
   },
   antes_depois: {
     label: "Antes/Depois Fácil",
@@ -92,6 +95,7 @@ const TIPOS_CONFIG = {
     hoverCor: "hover:bg-blue-600",
     lightBg: "bg-blue-50",
     tabActiveBg: "data-[state=active]:bg-blue-500",
+    gradient: "linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%)",
   },
 };
 
@@ -378,7 +382,7 @@ export function TarefaFacilModal({
         </DialogHeader>
 
         <Tabs value={tipoAtivo} onValueChange={(v) => setTipoAtivo(v as TipoTarefa)} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-100 p-1 rounded-xl">
             {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipoTab) => {
               const cfg = TIPOS_CONFIG[tipoTab];
               const Icon = cfg.icon;
@@ -387,8 +391,14 @@ export function TarefaFacilModal({
                 <TabsTrigger 
                   key={tipoTab} 
                   value={tipoTab}
-                  className="text-xs sm:text-sm transition-all"
-                  style={isActive ? { backgroundColor: cfg.cor, color: 'white' } : {}}
+                  className="text-xs sm:text-sm transition-all duration-300 rounded-lg font-medium"
+                  style={isActive ? { 
+                    background: cfg.gradient, 
+                    color: 'white',
+                    boxShadow: '0 4px 14px 0 rgba(0, 0, 0, 0.2)'
+                  } : {
+                    color: '#6B7280'
+                  }}
                 >
                   <Icon className="w-4 h-4 mr-1" />
                   <span className="hidden sm:inline">{tipoTab === "antes_depois" ? "Antes/Depois" : tipoTab.charAt(0).toUpperCase() + tipoTab.slice(1)}</span>
