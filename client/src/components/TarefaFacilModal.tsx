@@ -409,25 +409,25 @@ export function TarefaFacilModal({
 
               {/* Formulário */}
               <div className="space-y-4">
-                {/* Responsável e Localização */}
-                <div className="grid grid-cols-2 gap-4">
-                  <InputWithSave
-                    label="Responsável"
-                    value={formData.responsavel}
-                    onChange={(v) => setFormData(prev => ({ ...prev, responsavel: v }))}
-                    condominioId={condominioId}
-                    tipo="responsavel"
-                    placeholder="Nome do responsável"
-                  />
-                  <InputWithSave
-                    label="Localização"
-                    value={formData.localizacaoNome}
-                    onChange={(v) => setFormData(prev => ({ ...prev, localizacaoNome: v }))}
-                    condominioId={condominioId}
-                    tipo="localizacao"
-                    placeholder="Ex: Bloco A - Térreo"
-                  />
-                </div>
+                {/* Responsável */}
+                <InputWithSave
+                  label="Responsável"
+                  value={formData.responsavel}
+                  onChange={(v) => setFormData(prev => ({ ...prev, responsavel: v }))}
+                  condominioId={condominioId}
+                  tipo="responsavel"
+                  placeholder="Nome do responsável"
+                />
+
+                {/* Localização */}
+                <InputWithSave
+                  label="Localização"
+                  value={formData.localizacaoNome}
+                  onChange={(v) => setFormData(prev => ({ ...prev, localizacaoNome: v }))}
+                  condominioId={condominioId}
+                  tipo="localizacao"
+                  placeholder="Ex: Bloco A - Térreo"
+                />
 
                 {/* Título */}
                 <div>
@@ -458,44 +458,44 @@ export function TarefaFacilModal({
                   />
                 </div>
 
-                {/* Status e Prioridade com botão + */}
-                <div className="grid grid-cols-2 gap-4">
-                  <InputWithSave
-                    label="Status"
-                    value={formData.status === 'pendente' ? 'Pendente' : formData.status === 'em_andamento' ? 'Em Andamento' : formData.status === 'concluido' ? 'Concluído' : formData.status === 'cancelado' ? 'Cancelado' : 'Rascunho'}
-                    onChange={(v) => {
-                      const statusMap: Record<string, StatusTarefa> = {
-                        'Pendente': 'pendente',
-                        'Em Andamento': 'em_andamento',
-                        'Concluído': 'concluido',
-                        'Cancelado': 'cancelado',
-                        'Rascunho': 'rascunho'
-                      };
-                      const status = statusMap[v] || 'pendente';
-                      setFormData(prev => ({ ...prev, status }));
-                    }}
-                    condominioId={condominioId}
-                    tipo="tipo_vistoria"
-                    placeholder="Ex: Pendente"
-                  />
-                  <InputWithSave
-                    label="Prioridade"
-                    value={formData.prioridade === 'baixa' ? 'Baixa' : formData.prioridade === 'media' ? 'Média' : formData.prioridade === 'alta' ? 'Alta' : 'Urgente'}
-                    onChange={(v) => {
-                      const prioridadeMap: Record<string, PrioridadeTarefa> = {
-                        'Baixa': 'baixa',
-                        'Média': 'media',
-                        'Alta': 'alta',
-                        'Urgente': 'urgente'
-                      };
-                      const prioridade = prioridadeMap[v] || 'media';
-                      setFormData(prev => ({ ...prev, prioridade }));
-                    }}
-                    condominioId={condominioId}
-                    tipo="categoria_vistoria"
-                    placeholder="Ex: Média"
-                  />
-                </div>
+                {/* Status */}
+                <InputWithSave
+                  label="Status"
+                  value={formData.status === 'pendente' ? 'Pendente' : formData.status === 'em_andamento' ? 'Em Andamento' : formData.status === 'concluido' ? 'Concluído' : formData.status === 'cancelado' ? 'Cancelado' : 'Rascunho'}
+                  onChange={(v) => {
+                    const statusMap: Record<string, StatusTarefa> = {
+                      'Pendente': 'pendente',
+                      'Em Andamento': 'em_andamento',
+                      'Concluído': 'concluido',
+                      'Cancelado': 'cancelado',
+                      'Rascunho': 'rascunho'
+                    };
+                    const status = statusMap[v] || 'pendente';
+                    setFormData(prev => ({ ...prev, status }));
+                  }}
+                  condominioId={condominioId}
+                  tipo="tipo_vistoria"
+                  placeholder="Ex: Pendente"
+                />
+
+                {/* Prioridade */}
+                <InputWithSave
+                  label="Prioridade"
+                  value={formData.prioridade === 'baixa' ? 'Baixa' : formData.prioridade === 'media' ? 'Média' : formData.prioridade === 'alta' ? 'Alta' : 'Urgente'}
+                  onChange={(v) => {
+                    const prioridadeMap: Record<string, PrioridadeTarefa> = {
+                      'Baixa': 'baixa',
+                      'Média': 'media',
+                      'Alta': 'alta',
+                      'Urgente': 'urgente'
+                    };
+                    const prioridade = prioridadeMap[v] || 'media';
+                    setFormData(prev => ({ ...prev, prioridade }));
+                  }}
+                  condominioId={condominioId}
+                  tipo="categoria_vistoria"
+                  placeholder="Ex: Média"
+                />
 
                 {/* Imagens Antes/Depois (apenas para tipo antes_depois) */}
                 {tipo === "antes_depois" && (
