@@ -571,12 +571,46 @@ export default function Dashboard() {
             </div>
             <Link href="/dashboard/tarefas-facil">
               <button 
-                className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-500 to-amber-500"
+                className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-500 to-amber-500 mb-3"
               >
                 <Zap className="w-5 h-5 text-white" />
                 <span className="text-sm font-semibold text-white">⚡ Registro Rápido</span>
               </button>
             </Link>
+            
+            {/* Botões de atalho - todos em laranja */}
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/dashboard/tarefas-facil?tipo=vistoria">
+                <button className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-md hover:scale-[1.02] transition-all">
+                  <ClipboardCheck className="w-4 h-4" />
+                  Vistoria
+                </button>
+              </Link>
+              <Link href="/dashboard/tarefas-facil?tipo=manutencao">
+                <button className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-md hover:scale-[1.02] transition-all">
+                  <Wrench className="w-4 h-4" />
+                  Manutenção
+                </button>
+              </Link>
+              <Link href="/dashboard/tarefas-facil?tipo=ocorrencia">
+                <button className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-md hover:scale-[1.02] transition-all">
+                  <AlertTriangle className="w-4 h-4" />
+                  Ocorrência
+                </button>
+              </Link>
+              <Link href="/dashboard/tarefas-facil?tipo=antes_depois">
+                <button className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-md hover:scale-[1.02] transition-all">
+                  <ArrowLeftRight className="w-4 h-4" />
+                  Antes/Depois
+                </button>
+              </Link>
+              <Link href="/dashboard/checklists" className="col-span-2">
+                <button className="w-full flex items-center justify-center gap-2 p-2 rounded-lg text-xs font-medium bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-md hover:scale-[1.02] transition-all">
+                  <ListChecks className="w-4 h-4" />
+                  Checklist
+                </button>
+              </Link>
+            </div>
           </div>
 
           {/* Separador */}
