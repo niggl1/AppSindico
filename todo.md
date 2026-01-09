@@ -231,3 +231,7 @@
 - [x] Adicionar contorno na marcação do checklist com ícone de check dentro
 - [x] Adicionar ícone de câmera para adicionar fotos ao item
 - [x] Adicionar ícone de triângulo com exclamação que abre modal com título, imagens, descrição e status (cada um com botão +)
+
+## Bug: Funções Fácil não aparece no menu (09/01/2026)
+
+- [ ] Verificar e corrigir item "⚡ Funções Fácil" no menu lateral da secção Operacional/Manutenção
