@@ -567,10 +567,7 @@ export default function Dashboard() {
           {/* SECÇÃO REGISTRO RÁPIDO */}
           <div className="px-3 mb-4">
             <div className="flex items-center justify-between mb-2 px-3">
-              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                ⚡ REGISTRO RÁPIDO
-              </p>
+              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">⚡ REGISTRO RÁPIDO</p>
             </div>
             <Link href="/dashboard/tarefas-facil">
               <button 

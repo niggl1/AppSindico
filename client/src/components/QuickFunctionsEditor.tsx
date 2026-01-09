@@ -75,7 +75,7 @@ export const allQuickFunctions = [
   { id: "notificar-morador", label: "Notificar", icon: BellRing, gradient: "from-orange-500 to-red-500", path: "/dashboard/notificar-morador" },
   { id: "ordens-servico", label: "Ordens de Serviço", icon: ClipboardList, gradient: "from-yellow-500 to-amber-600", path: "/dashboard/ordens-servico" },
   { id: "antes-depois", label: "Antes e Depois", icon: Camera, gradient: "from-emerald-500 to-teal-600", path: "/dashboard/antes-depois" },
-  { id: "tarefas-facil", label: "⚡ Funções Fácil", icon: Zap, gradient: "from-orange-500 to-amber-500", path: "/dashboard/tarefas-facil" },
+  { id: "tarefas-facil", label: "⚡ Registro Rápido", icon: Zap, gradient: "from-orange-500 to-amber-500", path: "/dashboard/tarefas-facil" },
 ];
 
 // Mapa de ícones para uso externo
