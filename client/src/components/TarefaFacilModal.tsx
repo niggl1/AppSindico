@@ -54,40 +54,44 @@ const TIPOS_CONFIG = {
     icon: ClipboardCheck,
     cor: "#F97316", // Laranja
     bgCor: "bg-orange-500",
-    textCor: "text-orange-500",
-    borderCor: "border-orange-500",
+    textCor: "text-orange-600",
+    borderCor: "border-orange-300",
     hoverCor: "hover:bg-orange-600",
     lightBg: "bg-orange-50",
+    tabActiveBg: "data-[state=active]:bg-orange-500",
   },
   manutencao: {
     label: "Manutenção Fácil",
     icon: Wrench,
-    cor: "#F97316",
-    bgCor: "bg-orange-500",
-    textCor: "text-orange-500",
-    borderCor: "border-orange-500",
-    hoverCor: "hover:bg-orange-600",
-    lightBg: "bg-orange-50",
+    cor: "#10B981", // Verde
+    bgCor: "bg-emerald-500",
+    textCor: "text-emerald-600",
+    borderCor: "border-emerald-300",
+    hoverCor: "hover:bg-emerald-600",
+    lightBg: "bg-emerald-50",
+    tabActiveBg: "data-[state=active]:bg-emerald-500",
   },
   ocorrencia: {
     label: "Ocorrência Fácil",
     icon: AlertTriangle,
-    cor: "#F97316",
-    bgCor: "bg-orange-500",
-    textCor: "text-orange-500",
-    borderCor: "border-orange-500",
-    hoverCor: "hover:bg-orange-600",
-    lightBg: "bg-orange-50",
+    cor: "#EF4444", // Vermelho
+    bgCor: "bg-red-500",
+    textCor: "text-red-600",
+    borderCor: "border-red-300",
+    hoverCor: "hover:bg-red-600",
+    lightBg: "bg-red-50",
+    tabActiveBg: "data-[state=active]:bg-red-500",
   },
   antes_depois: {
     label: "Antes/Depois Fácil",
     icon: ArrowLeftRight,
-    cor: "#F97316",
-    bgCor: "bg-orange-500",
-    textCor: "text-orange-500",
-    borderCor: "border-orange-500",
-    hoverCor: "hover:bg-orange-600",
-    lightBg: "bg-orange-50",
+    cor: "#3B82F6", // Azul
+    bgCor: "bg-blue-500",
+    textCor: "text-blue-600",
+    borderCor: "border-blue-300",
+    hoverCor: "hover:bg-blue-600",
+    lightBg: "bg-blue-50",
+    tabActiveBg: "data-[state=active]:bg-blue-500",
   },
 };
 
@@ -374,18 +378,20 @@ export function TarefaFacilModal({
         </DialogHeader>
 
         <Tabs value={tipoAtivo} onValueChange={(v) => setTipoAtivo(v as TipoTarefa)} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-orange-50">
-            {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipo) => {
-              const cfg = TIPOS_CONFIG[tipo];
+          <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+            {(Object.keys(TIPOS_CONFIG) as TipoTarefa[]).map((tipoTab) => {
+              const cfg = TIPOS_CONFIG[tipoTab];
               const Icon = cfg.icon;
+              const isActive = tipoAtivo === tipoTab;
               return (
                 <TabsTrigger 
-                  key={tipo} 
-                  value={tipo}
-                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs sm:text-sm"
+                  key={tipoTab} 
+                  value={tipoTab}
+                  className="text-xs sm:text-sm transition-all"
+                  style={isActive ? { backgroundColor: cfg.cor, color: 'white' } : {}}
                 >
                   <Icon className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">{tipo === "antes_depois" ? "Antes/Depois" : tipo.charAt(0).toUpperCase() + tipo.slice(1)}</span>
+                  <span className="hidden sm:inline">{tipoTab === "antes_depois" ? "Antes/Depois" : tipoTab.charAt(0).toUpperCase() + tipoTab.slice(1)}</span>
                 </TabsTrigger>
               );
             })}

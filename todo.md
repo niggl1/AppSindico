@@ -223,3 +223,4 @@
 - [x] Reorganizar campos: Responsável e Localização acima de Título
 - [x] Adicionar botão "+" em Status e Prioridade
 - [x] Colocar campos Responsável, Localização, Status e Prioridade um embaixo do outro (não lado a lado)
+- [x] Adicionar cores diferentes para cada aba no modal de Registro Rápido (Vistoria=laranja, Manutenção=verde, Ocorrência=vermelho, Antes/Depois=azul)
