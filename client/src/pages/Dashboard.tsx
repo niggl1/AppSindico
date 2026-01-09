@@ -564,6 +564,21 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* SECÇÃO TESTE - Para verificar se o deploy funciona */}
+          <div className="px-3 mb-4">
+            <div className="flex items-center justify-between mb-2 px-3">
+              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">TESTE</p>
+            </div>
+            <Link href="/dashboard/tarefas-facil">
+              <button 
+                className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-orange-500 to-amber-500"
+              >
+                <Zap className="w-5 h-5 text-white" />
+                <span className="text-sm font-semibold text-white">⚡ Funções Fácil</span>
+              </button>
+            </Link>
+          </div>
+
           {/* Separador */}
           <div className="px-6 mb-3">
             <Separator className="bg-sidebar-border/50" />
