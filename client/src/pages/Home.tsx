@@ -114,7 +114,7 @@ const sections = [
   { icon: CalendarClock, label: "Agenda de Vencimentos", description: "Contratos e manutenções", link: "/dashboard/vencimentos" },
   { icon: ImageIcon, label: "Antes e Depois", description: "Transformações realizadas", link: "/dashboard/antes-depois" },
   { icon: ShoppingBag, label: "Aquisições", description: "Compras do condomínio", link: "/dashboard/aquisicoes" },
-  { icon: Video, label: "Assembleia Online", description: "Assembleias virtuais", link: "/dashboard/assembleia" },
+  // { icon: Video, label: "Assembleia Online", description: "Assembleias virtuais", link: "/dashboard/assembleia" }, // OCULTO TEMPORARIAMENTE
   { icon: Megaphone, label: "Avisos", description: "Comunicados importantes", link: "/dashboard/avisos" },
   { icon: Car, label: "Caronas", description: "Compartilhe viagens", link: "/dashboard/caronas" },
   { icon: CheckSquare, label: "Checklists", description: "Listas de verificação", link: "/dashboard/checklists" },
