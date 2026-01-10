@@ -131,7 +131,7 @@ const modulosDisponiveis = {
     modulos: [
       { id: "eventos", nome: "Eventos", icon: CalendarDays, descricao: "Calendário de eventos" },
       { id: "agenda-vencimentos", nome: "Agenda de Vencimentos", icon: Calendar, descricao: "Controle de vencimentos" },
-      { id: "assembleia", nome: "Assembleia Online", icon: Users, descricao: "Assembleias virtuais" },
+      // { id: "assembleia", nome: "Assembleia Online", icon: Users, descricao: "Assembleias virtuais" }, // OCULTO TEMPORARIAMENTE
     ]
   },
   votacoes: {

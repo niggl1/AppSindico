@@ -172,7 +172,7 @@ const menuSections = [
     items: [
       { id: "eventos", label: "Eventos", icon: Calendar, funcaoId: "eventos" },
       { id: "vencimentos", label: "Agenda de Vencimentos", icon: CalendarClock, funcaoId: "agenda-vencimentos" },
-      { id: "assembleia", label: "Assembleia Online", icon: Video },
+      // { id: "assembleia", label: "Assembleia Online", icon: Video }, // OCULTO TEMPORARIAMENTE - Descomentar quando ativar
     ]
   },
   {

@@ -71,7 +71,7 @@ export const allQuickFunctions = [
   { id: "realizacoes", label: "Realizações", icon: TrendingUp, gradient: "from-emerald-400 to-emerald-600", path: "/dashboard/realizacoes" },
   { id: "aquisicoes", label: "Aquisições", icon: Package, gradient: "from-violet-400 to-violet-600", path: "/dashboard/aquisicoes" },
   { id: "vencimentos", label: "Vencimentos", icon: CalendarClock, gradient: "from-rose-400 to-rose-600", path: "/dashboard/vencimentos" },
-  { id: "assembleia", label: "Assembleia", icon: Video, gradient: "from-blue-500 to-blue-700", path: "/dashboard/assembleia" },
+  // { id: "assembleia", label: "Assembleia", icon: Video, gradient: "from-blue-500 to-blue-700", path: "/dashboard/assembleia" }, // OCULTO TEMPORARIAMENTE
   { id: "notificar-morador", label: "Notificar", icon: BellRing, gradient: "from-orange-500 to-red-500", path: "/dashboard/notificar-morador" },
   { id: "ordens-servico", label: "Ordens de Serviço", icon: ClipboardList, gradient: "from-yellow-500 to-amber-600", path: "/dashboard/ordens-servico" },
   { id: "antes-depois", label: "Antes e Depois", icon: Camera, gradient: "from-emerald-500 to-teal-600", path: "/dashboard/antes-depois" },
