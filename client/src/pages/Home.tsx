@@ -198,14 +198,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             {loading ? (
               <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
-            ) : isAuthenticated ? (
-              <Link href="/dashboard">
-                <Button className="btn-magazine">
-                  ACESSAR PLATAFORMA
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
-            ) : (
+            ) : !isAuthenticated && (
               <Link href="/login">
                 <Button className="btn-magazine">
                   Entrar
