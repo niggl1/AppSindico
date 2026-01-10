@@ -201,7 +201,7 @@ export default function Home() {
             ) : isAuthenticated ? (
               <Link href="/dashboard">
                 <Button className="btn-magazine">
-                  Meu Painel
+                  ACESSAR PLATAFORMA
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
@@ -232,10 +232,19 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                <Sparkles className="w-4 h-4" />
-                Nova forma de comunicar no condomínio
-              </div>
+              {isAuthenticated ? (
+                <Link href="/dashboard">
+                  <Button className="btn-magazine mb-6">
+                    ACESSAR PLATAFORMA
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                  <Sparkles className="w-4 h-4" />
+                  Nova forma de comunicar no condomínio
+                </div>
+              )}
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-foreground leading-tight mb-6">
                 Plataforma Digital
@@ -1186,7 +1195,7 @@ export default function Home() {
               {isAuthenticated ? (
                 <Link href="/dashboard">
                   <Button size="lg" variant="secondary" className="text-base font-semibold">
-                    Acessar Meu Painel
+                    ACESSAR PLATAFORMA
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
