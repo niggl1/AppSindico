@@ -309,35 +309,35 @@ export default function PortalManutencoes() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Button 
             variant="outline" 
-            className="h-auto py-4 bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30 text-green-400 hover:bg-green-500/30 hover:text-green-300 flex flex-col gap-2"
+            className="h-auto py-4 bg-white border-2 border-green-500 text-green-600 hover:bg-green-50 flex flex-col gap-2"
             onClick={() => setLocation("/dashboard/manutencoes?novo=true")}
           >
             <Wrench className="h-6 w-6" />
-            <span className="text-xs">Nova Manutenção</span>
+            <span className="text-xs font-semibold">Nova Manutenção</span>
           </Button>
           <Button 
             variant="outline" 
-            className="h-auto py-4 bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30 text-orange-400 hover:bg-orange-500/30 hover:text-orange-300 flex flex-col gap-2"
+            className="h-auto py-4 bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50 flex flex-col gap-2"
             onClick={() => setLocation("/dashboard/vistorias?novo=true")}
           >
             <Eye className="h-6 w-6" />
-            <span className="text-xs">Nova Vistoria</span>
+            <span className="text-xs font-semibold">Nova Vistoria</span>
           </Button>
           <Button 
             variant="outline" 
-            className="h-auto py-4 bg-gradient-to-br from-red-500/20 to-red-600/20 border-red-500/30 text-red-400 hover:bg-red-500/30 hover:text-red-300 flex flex-col gap-2"
+            className="h-auto py-4 bg-white border-2 border-red-500 text-red-600 hover:bg-red-50 flex flex-col gap-2"
             onClick={() => setLocation("/dashboard/ocorrencias?novo=true")}
           >
             <AlertTriangle className="h-6 w-6" />
-            <span className="text-xs">Nova Ocorrência</span>
+            <span className="text-xs font-semibold">Nova Ocorrência</span>
           </Button>
           <Button 
             variant="outline" 
-            className="h-auto py-4 bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-amber-500/30 text-amber-400 hover:bg-amber-500/30 hover:text-amber-300 flex flex-col gap-2"
+            className="h-auto py-4 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 flex flex-col gap-2"
             onClick={() => setLocation("/dashboard/tarefas-facil")}
           >
             <Zap className="h-6 w-6" />
-            <span className="text-xs">Registro Rápido</span>
+            <span className="text-xs font-semibold">Registro Rápido</span>
           </Button>
         </div>
       </div>
