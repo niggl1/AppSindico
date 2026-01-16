@@ -325,3 +325,11 @@
 - [x] Testar com funções ativas/inativas
 - [x] Verificar navegação e UX
 - [x] Escrever testes unitários (menuDinamico.test.ts)
+
+
+## Correções de Bugs (16/01/2026)
+
+### Bug: Funções Repetidas no Menu
+- [ ] Identificar onde as funções estão duplicadas
+- [ ] Remover duplicações no DashboardLayout
+- [ ] Testar menu após correção
