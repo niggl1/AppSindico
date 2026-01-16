@@ -333,3 +333,10 @@
 - [ ] Identificar onde as funções estão duplicadas
 - [ ] Remover duplicações no DashboardLayout
 - [ ] Testar menu após correção
+
+
+## Adicionar Itens ao Menu (16/01/2026)
+
+- [x] Adicionar Construtor de App ao menu
+- [x] Adicionar Relatórios ao menu
+- [x] Adicionar Livro de Manutenção ao menu

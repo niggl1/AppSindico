@@ -30,6 +30,9 @@ import {
   ClipboardList,
   Loader2,
   Zap,
+  Blocks,
+  BarChart3,
+  BookMarked,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -76,6 +79,9 @@ export const allQuickFunctions = [
   { id: "ordens-servico", label: "Ordens de Serviço", icon: ClipboardList, gradient: "from-yellow-500 to-amber-600", path: "/dashboard/ordens-servico" },
   { id: "antes-depois", label: "Antes e Depois", icon: Camera, gradient: "from-emerald-500 to-teal-600", path: "/dashboard/antes-depois" },
   { id: "tarefas-facil", label: "⚡ Registro Rápido", icon: Zap, gradient: "from-orange-500 to-amber-500", path: "/dashboard/tarefas-facil" },
+  { id: "construtor-app", label: "Construtor de App", icon: Blocks, gradient: "from-purple-500 to-indigo-600", path: "/dashboard/construtor-app" },
+  { id: "relatorios", label: "Relatórios", icon: BarChart3, gradient: "from-blue-500 to-cyan-600", path: "/dashboard/relatorios/novo" },
+  { id: "livro-manutencao", label: "Livro de Manutenção", icon: BookMarked, gradient: "from-green-500 to-emerald-600", path: "/dashboard/timeline" },
 ];
 
 // Mapa de ícones para uso externo
@@ -83,6 +89,7 @@ export const iconMap: Record<string, any> = {
   ListChecks, Wrench, AlertTriangle, ClipboardCheck, Megaphone, Vote, Bell,
   CalendarDays, Users, Car, ShoppingBag, Search, Camera, FileText, Shield,
   BookOpen, TrendingUp, Package, Video, CalendarClock, BellRing, ClipboardList, Zap,
+  Blocks, BarChart3, BookMarked,
 };
 
 const QUICK_FUNCTIONS_KEY = "dashboard-quick-functions";
