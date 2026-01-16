@@ -11216,7 +11216,24 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
         return result.map(r => r.funcaoId);
       }),
 
-    // Habilitar/desabilitar uma função (apenas admin)
+    // Listar categorias disponíveis
+    listarCategorias: publicProcedure.query(() => {
+      // Importar do schema
+      return [
+        { id: "comunicacao", nome: "Comunicação", icone: "MessageSquare", cor: "from-blue-500 to-blue-600" },
+        { id: "agenda", nome: "Agenda", icone: "Calendar", cor: "from-purple-500 to-purple-600" },
+        { id: "operacional", nome: "Operacional", icone: "Wrench", cor: "from-orange-500 to-orange-600" },
+        { id: "interativo", nome: "Interativo", icone: "Users", cor: "from-green-500 to-green-600" },
+        { id: "documentacao", nome: "Documentação", icone: "BookOpen", cor: "from-amber-500 to-amber-600" },
+        { id: "midia", nome: "Mídia", icone: "Image", cor: "from-pink-500 to-pink-600" },
+        { id: "publicidade", nome: "Publicidade", icone: "Megaphone", cor: "from-red-500 to-red-600" },
+        { id: "projetos", nome: "Projetos", icone: "FolderOpen", cor: "from-indigo-500 to-indigo-600" },
+        { id: "gestao", nome: "Gestão", icone: "Settings", cor: "from-slate-500 to-slate-600" },
+        { id: "relatorios", nome: "Relatórios", icone: "BarChart3", cor: "from-cyan-500 to-cyan-600" },
+      ];
+    }),
+
+    // Habilitar/desabilitar uma função (síndico do condomínio ou admin)
     toggle: protectedProcedure
       .input(z.object({
         condominioId: z.number(),
@@ -11224,9 +11241,9 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
         habilitada: z.boolean(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Verificar se é admin
-        if (ctx.user?.role !== 'admin') {
-          throw new Error("Apenas administradores podem alterar funções");
+        // Verificar se é admin ou síndico
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'sindico') {
+          throw new Error("Apenas síndicos ou administradores podem alterar funções");
         }
         
         const db = await getDb();
@@ -11258,7 +11275,7 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
         return { success: true, ...input };
       }),
 
-    // Atualizar múltiplas funções de uma vez (apenas admin)
+    // Atualizar múltiplas funções de uma vez (síndico ou admin)
     atualizarMultiplas: protectedProcedure
       .input(z.object({
         condominioId: z.number(),
@@ -11268,9 +11285,9 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
         })),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Verificar se é admin
-        if (ctx.user?.role !== 'admin') {
-          throw new Error("Apenas administradores podem alterar funções");
+        // Verificar se é admin ou síndico
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'sindico') {
+          throw new Error("Apenas síndicos ou administradores podem alterar funções");
         }
         
         const db = await getDb();
@@ -11307,9 +11324,9 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
     inicializar: protectedProcedure
       .input(z.object({ condominioId: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        // Verificar se é admin
-        if (ctx.user?.role !== 'admin') {
-          throw new Error("Apenas administradores podem inicializar funções");
+        // Verificar se é admin ou síndico
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'sindico') {
+          throw new Error("Apenas síndicos ou administradores podem inicializar funções");
         }
         
         const db = await getDb();

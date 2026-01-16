@@ -267,6 +267,36 @@
 - [x] Testar navegação entre portal e páginas
 
 ### Fase 4 - Construtor de App
-- [ ] Criar tela de configuração por categorias
-- [ ] Implementar ativação/desativação de funções
-- [ ] Menu dinâmico baseado nas configurações
+- [x] Criar tela de configuração por categorias
+- [x] Implementar ativação/desativação de funções
+- [x] Adicionar link no menu de configurações
+- [ ] Menu dinâmico baseado nas configurações (próxima fase)
+
+
+## Construtor de App - Personalização por Condomínio (16/01/2026)
+
+### Fase 1 - Arquitetura
+- [x] Definir categorias de módulos (Comunicação, Operacional, Financeiro, etc.)
+- [x] Listar todas as funções disponíveis no sistema
+- [x] Definir estrutura da tabela de configuração
+
+### Fase 2 - Banco de Dados
+- [x] Tabela condominio_funcoes já existia
+- [x] FUNCOES_DISPONIVEIS expandido com ícones e rotas
+- [x] CATEGORIAS_FUNCOES adicionado
+
+### Fase 3 - Backend
+- [x] Router funcoesCondominio já existia
+- [x] Adicionado listarCategorias endpoint
+- [x] Permissões atualizadas para síndicos
+
+### Fase 4 - Interface
+- [x] Criar página de Construtor de App
+- [x] Organizar módulos por categorias
+- [x] Implementar toggle de ativação/desativação
+- [x] Design premium com estatísticas
+
+### Fase 5 - Menu Dinâmico
+- [ ] Modificar Dashboard para usar configurações
+- [ ] Filtrar itens do menu baseado nos módulos ativos
+- [ ] Testar navegação dinâmica

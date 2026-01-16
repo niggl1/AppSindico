@@ -1499,39 +1499,76 @@ export type InsertCondominioFuncao = typeof condominioFuncoes.$inferInsert;
 
 // Lista de todas as funções disponíveis no sistema
 export const FUNCOES_DISPONIVEIS = [
-  { id: "avisos", nome: "Avisos", categoria: "comunicacao", descricao: "Publicar avisos e comunicados" },
-  { id: "comunicados", nome: "Comunicados", categoria: "comunicacao", descricao: "Enviar comunicados oficiais" },
-  { id: "notificacoes", nome: "Notificações", categoria: "comunicacao", descricao: "Sistema de notificações" },
-  { id: "notificar-morador", nome: "Notificar Morador", categoria: "comunicacao", descricao: "Notificar moradores individualmente" },
-  { id: "eventos", nome: "Eventos", categoria: "agenda", descricao: "Gestão de eventos do condomínio" },
-  { id: "agenda-vencimentos", nome: "Agenda de Vencimentos", categoria: "agenda", descricao: "Controle de vencimentos" },
-  { id: "reservas", nome: "Reservas", categoria: "agenda", descricao: "Reserva de áreas comuns" },
-  { id: "vistorias", nome: "Vistorias", categoria: "operacional", descricao: "Registro de vistorias" },
-  { id: "manutencoes", nome: "Manutenções", categoria: "operacional", descricao: "Controle de manutenções" },
-  { id: "ocorrencias", nome: "Ocorrências", categoria: "operacional", descricao: "Registro de ocorrências" },
-  { id: "checklists", nome: "Checklists", categoria: "operacional", descricao: "Listas de verificação" },
-  { id: "antes-depois", nome: "Antes e Depois", categoria: "operacional", descricao: "Registro de melhorias" },
-  { id: "ordens-servico", nome: "Ordens de Serviço", categoria: "operacional", descricao: "Gestão de ordens de serviço" },
-  { id: "votacoes", nome: "Votações", categoria: "interativo", descricao: "Sistema de votações" },
-  { id: "classificados", nome: "Classificados", categoria: "interativo", descricao: "Classificados dos moradores" },
-  { id: "achados-perdidos", nome: "Achados e Perdidos", categoria: "interativo", descricao: "Itens perdidos e encontrados" },
-  { id: "caronas", nome: "Caronas", categoria: "interativo", descricao: "Sistema de caronas" },
-  { id: "regras", nome: "Regras e Normas", categoria: "documentacao", descricao: "Regras do condomínio" },
-  { id: "dicas-seguranca", nome: "Dicas de Segurança", categoria: "documentacao", descricao: "Dicas de segurança" },
-  { id: "links-uteis", nome: "Links Úteis", categoria: "documentacao", descricao: "Links importantes" },
-  { id: "telefones-uteis", nome: "Telefones Úteis", categoria: "documentacao", descricao: "Telefones de emergência" },
-  { id: "galeria", nome: "Galeria de Fotos", categoria: "midia", descricao: "Fotos do condomínio" },
-  { id: "realizacoes", nome: "Realizações", categoria: "midia", descricao: "Realizações da gestão" },
-  { id: "melhorias", nome: "Melhorias", categoria: "midia", descricao: "Melhorias realizadas" },
-  { id: "aquisicoes", nome: "Aquisições", categoria: "midia", descricao: "Novas aquisições" },
-  { id: "publicidade", nome: "Publicidade", categoria: "publicidade", descricao: "Gestão de anunciantes" },
-  { id: "revistas", nome: "Meus Projetos", categoria: "projetos", descricao: "Apps, revistas e relatórios" },
-  { id: "moradores", nome: "Moradores", categoria: "gestao", descricao: "Gestão de moradores" },
-  { id: "funcionarios", nome: "Funcionários", categoria: "gestao", descricao: "Gestão de funcionários" },
-  { id: "vagas", nome: "Vagas de Estacionamento", categoria: "gestao", descricao: "Gestão de vagas" },
-  { id: "equipe", nome: "Equipe de Gestão", categoria: "gestao", descricao: "Membros da equipe" },
-  { id: "painel-controlo", nome: "Painel de Controlo", categoria: "relatorios", descricao: "Estatísticas e gráficos" },
-  { id: "relatorios", nome: "Relatórios", categoria: "relatorios", descricao: "Relatórios detalhados" },
+  // Comunicação
+  { id: "avisos", nome: "Avisos", categoria: "comunicacao", descricao: "Publicar avisos e comunicados", icone: "Megaphone", rota: "/dashboard/avisos" },
+  { id: "comunicados", nome: "Comunicados", categoria: "comunicacao", descricao: "Enviar comunicados oficiais", icone: "FileText", rota: "/dashboard/comunicados" },
+  { id: "notificacoes", nome: "Notificações", categoria: "comunicacao", descricao: "Sistema de notificações", icone: "Bell", rota: "/dashboard/notificacoes" },
+  { id: "notificar-morador", nome: "Notificar Morador", categoria: "comunicacao", descricao: "Notificar moradores individualmente", icone: "UserCheck", rota: "/dashboard/notificar-morador" },
+  
+  // Agenda
+  { id: "eventos", nome: "Eventos", categoria: "agenda", descricao: "Gestão de eventos do condomínio", icone: "Calendar", rota: "/dashboard/eventos" },
+  { id: "agenda-vencimentos", nome: "Agenda de Vencimentos", categoria: "agenda", descricao: "Controle de vencimentos", icone: "CalendarClock", rota: "/dashboard/agenda-vencimentos" },
+  { id: "reservas", nome: "Reservas", categoria: "agenda", descricao: "Reserva de áreas comuns", icone: "CalendarCheck", rota: "/dashboard/reservas" },
+  
+  // Operacional (Portal de Manutenções)
+  { id: "portal-manutencoes", nome: "Portal de Manutenções", categoria: "operacional", descricao: "Hub central de operações", icone: "Wrench", rota: "/modulo/manutencoes" },
+  { id: "vistorias", nome: "Vistorias", categoria: "operacional", descricao: "Registro de vistorias", icone: "Eye", rota: "/dashboard/vistorias" },
+  { id: "manutencoes", nome: "Manutenções", categoria: "operacional", descricao: "Controle de manutenções", icone: "Tool", rota: "/dashboard/manutencoes" },
+  { id: "ocorrencias", nome: "Ocorrências", categoria: "operacional", descricao: "Registro de ocorrências", icone: "AlertTriangle", rota: "/dashboard/ocorrencias" },
+  { id: "checklists", nome: "Checklists", categoria: "operacional", descricao: "Listas de verificação", icone: "ClipboardCheck", rota: "/dashboard/checklists" },
+  { id: "antes-depois", nome: "Antes e Depois", categoria: "operacional", descricao: "Registro de melhorias", icone: "ArrowLeftRight", rota: "/dashboard/antes-depois" },
+  { id: "ordens-servico", nome: "Ordens de Serviço", categoria: "operacional", descricao: "Gestão de ordens de serviço", icone: "FileText", rota: "/dashboard/ordens-servico" },
+  { id: "registro-rapido", nome: "Registro Rápido", categoria: "operacional", descricao: "Registro simplificado com foto e GPS", icone: "Zap", rota: "/dashboard/tarefas-facil" },
+  { id: "timeline", nome: "Timeline", categoria: "operacional", descricao: "Visualização cronológica", icone: "Clock", rota: "/dashboard/timeline" },
+  { id: "equipe-operacional", nome: "Gestão de Equipes", categoria: "operacional", descricao: "Membros e funcionários", icone: "Users", rota: "/dashboard/membros-equipe" },
+  
+  // Interativo
+  { id: "votacoes", nome: "Votações", categoria: "interativo", descricao: "Sistema de votações", icone: "Vote", rota: "/dashboard/votacoes" },
+  { id: "classificados", nome: "Classificados", categoria: "interativo", descricao: "Classificados dos moradores", icone: "ShoppingBag", rota: "/dashboard/classificados" },
+  { id: "achados-perdidos", nome: "Achados e Perdidos", categoria: "interativo", descricao: "Itens perdidos e encontrados", icone: "Search", rota: "/dashboard/achados-perdidos" },
+  { id: "caronas", nome: "Caronas", categoria: "interativo", descricao: "Sistema de caronas", icone: "Car", rota: "/dashboard/caronas" },
+  
+  // Documentação
+  { id: "regras", nome: "Regras e Normas", categoria: "documentacao", descricao: "Regras do condomínio", icone: "BookOpen", rota: "/dashboard/regras" },
+  { id: "dicas-seguranca", nome: "Dicas de Segurança", categoria: "documentacao", descricao: "Dicas de segurança", icone: "Shield", rota: "/dashboard/dicas-seguranca" },
+  { id: "links-uteis", nome: "Links Úteis", categoria: "documentacao", descricao: "Links importantes", icone: "Link", rota: "/dashboard/links-uteis" },
+  { id: "telefones-uteis", nome: "Telefones Úteis", categoria: "documentacao", descricao: "Telefones de emergência", icone: "Phone", rota: "/dashboard/telefones-uteis" },
+  
+  // Mídia
+  { id: "galeria", nome: "Galeria de Fotos", categoria: "midia", descricao: "Fotos do condomínio", icone: "Image", rota: "/dashboard/galeria" },
+  { id: "realizacoes", nome: "Realizações", categoria: "midia", descricao: "Realizações da gestão", icone: "Trophy", rota: "/dashboard/realizacoes" },
+  { id: "melhorias", nome: "Melhorias", categoria: "midia", descricao: "Melhorias realizadas", icone: "TrendingUp", rota: "/dashboard/melhorias" },
+  { id: "aquisicoes", nome: "Aquisições", categoria: "midia", descricao: "Novas aquisições", icone: "Package", rota: "/dashboard/aquisicoes" },
+  
+  // Publicidade
+  { id: "publicidade", nome: "Publicidade", categoria: "publicidade", descricao: "Gestão de anunciantes", icone: "Megaphone", rota: "/dashboard/publicidade" },
+  
+  // Projetos
+  { id: "revistas", nome: "Meus Projetos", categoria: "projetos", descricao: "Apps, revistas e relatórios", icone: "FolderOpen", rota: "/dashboard/revistas" },
+  
+  // Gestão
+  { id: "moradores", nome: "Moradores", categoria: "gestao", descricao: "Gestão de moradores", icone: "Users", rota: "/dashboard/moradores" },
+  { id: "funcionarios", nome: "Funcionários", categoria: "gestao", descricao: "Gestão de funcionários", icone: "UserCog", rota: "/dashboard/funcionarios" },
+  { id: "vagas", nome: "Vagas de Estacionamento", categoria: "gestao", descricao: "Gestão de vagas", icone: "ParkingCircle", rota: "/dashboard/vagas" },
+  { id: "equipe", nome: "Equipe de Gestão", categoria: "gestao", descricao: "Membros da equipe", icone: "UserPlus", rota: "/dashboard/equipe" },
+  
+  // Relatórios
+  { id: "painel-controlo", nome: "Painel de Controlo", categoria: "relatorios", descricao: "Estatísticas e gráficos", icone: "BarChart3", rota: "/dashboard" },
+  { id: "relatorios", nome: "Relatórios", categoria: "relatorios", descricao: "Relatórios detalhados", icone: "FileBarChart", rota: "/dashboard/relatorios" },
+] as const;
+
+// Categorias de funções
+export const CATEGORIAS_FUNCOES = [
+  { id: "comunicacao", nome: "Comunicação", icone: "MessageSquare", cor: "from-blue-500 to-blue-600" },
+  { id: "agenda", nome: "Agenda", icone: "Calendar", cor: "from-purple-500 to-purple-600" },
+  { id: "operacional", nome: "Operacional", icone: "Wrench", cor: "from-orange-500 to-orange-600" },
+  { id: "interativo", nome: "Interativo", icone: "Users", cor: "from-green-500 to-green-600" },
+  { id: "documentacao", nome: "Documentação", icone: "BookOpen", cor: "from-amber-500 to-amber-600" },
+  { id: "midia", nome: "Mídia", icone: "Image", cor: "from-pink-500 to-pink-600" },
+  { id: "publicidade", nome: "Publicidade", icone: "Megaphone", cor: "from-red-500 to-red-600" },
+  { id: "projetos", nome: "Projetos", icone: "FolderOpen", cor: "from-indigo-500 to-indigo-600" },
+  { id: "gestao", nome: "Gestão", icone: "Settings", cor: "from-slate-500 to-slate-600" },
+  { id: "relatorios", nome: "Relatórios", icone: "BarChart3", cor: "from-cyan-500 to-cyan-600" },
 ] as const;
 
 export type FuncaoId = typeof FUNCOES_DISPONIVEIS[number]["id"];

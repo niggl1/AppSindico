@@ -273,6 +273,7 @@ const menuSections = [
       { icon: User, iconName: "User", label: "Perfil do Usuário", path: "/perfil", funcaoId: "perfil" },
       { icon: BellRing, iconName: "BellRing", label: "Config. Notificações", path: "/dashboard/config-notificacoes", funcaoId: "config-notificacoes" },
       { icon: Sliders, iconName: "Sliders", label: "Preferências", path: "/dashboard/preferencias", funcaoId: "preferencias" },
+      { icon: Sparkles, iconName: "Sparkles", label: "Construtor de App", path: "/dashboard/construtor-app", funcaoId: "construtor-app" },
     ]
   },
 ];
