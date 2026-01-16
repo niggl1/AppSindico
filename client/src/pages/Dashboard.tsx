@@ -532,11 +532,11 @@ export default function Dashboard() {
                   return (
                     <Link key={funcao.id} href={funcao.path}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
+                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
+                        style={{ borderColor: cor }}
                       >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[10px] font-semibold text-white">{funcao.nome}</span>
+                        <Icon className="w-4 h-4" style={{ color: cor }} />
+                        <span className="text-[10px] font-semibold" style={{ color: cor }}>{funcao.nome}</span>
                       </button>
                     </Link>
                   );
@@ -551,11 +551,11 @@ export default function Dashboard() {
                   return (
                     <Link key={func.id} href={func.path}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
+                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
+                        style={{ borderColor: cor }}
                       >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[10px] font-semibold text-white">{func.label}</span>
+                        <Icon className="w-4 h-4" style={{ color: cor }} />
+                        <span className="text-[10px] font-semibold" style={{ color: cor }}>{func.label}</span>
                       </button>
                     </Link>
                   );
@@ -861,11 +861,11 @@ export default function Dashboard() {
                   return (
                     <Link key={funcao.id} href={funcao.path}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
+                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
+                        style={{ borderColor: cor }}
                       >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[9px] font-semibold text-white">{funcao.nome}</span>
+                        <Icon className="w-4 h-4" style={{ color: cor }} />
+                        <span className="text-[9px] font-semibold" style={{ color: cor }}>{funcao.nome}</span>
                       </button>
                     </Link>
                   );
@@ -879,11 +879,11 @@ export default function Dashboard() {
                   return (
                     <Link key={func.id} href={func.path}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
+                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
+                        style={{ borderColor: cor }}
                       >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[9px] font-semibold text-white">{func.label}</span>
+                        <Icon className="w-4 h-4" style={{ color: cor }} />
+                        <span className="text-[9px] font-semibold" style={{ color: cor }}>{func.label}</span>
                       </button>
                     </Link>
                   );
@@ -1016,11 +1016,11 @@ export default function Dashboard() {
                     return (
                       <Link key={funcao.id} href={funcao.path} onClick={() => setMobileMenuOpen(false)}>
                         <div 
-                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
-                          style={{ backgroundColor: cor }}
+                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all bg-white border-2"
+                          style={{ borderColor: cor }}
                         >
-                          <Icon className="w-4 h-4 text-white" />
-                          <span className="text-xs font-semibold text-white">{funcao.nome}</span>
+                          <Icon className="w-4 h-4" style={{ color: cor }} />
+                          <span className="text-xs font-semibold" style={{ color: cor }}>{funcao.nome}</span>
                         </div>
                       </Link>
                     );
@@ -1034,11 +1034,11 @@ export default function Dashboard() {
                     return (
                       <Link key={func.id} href={func.path} onClick={() => setMobileMenuOpen(false)}>
                         <div 
-                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
-                          style={{ backgroundColor: cor }}
+                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all bg-white border-2"
+                          style={{ borderColor: cor }}
                         >
-                          <Icon className="w-4 h-4 text-white" />
-                          <span className="text-xs font-semibold text-white">{func.label}</span>
+                          <Icon className="w-4 h-4" style={{ color: cor }} />
+                          <span className="text-xs font-semibold" style={{ color: cor }}>{func.label}</span>
                         </div>
                       </Link>
                     );
