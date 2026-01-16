@@ -564,6 +564,22 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* SECÇÃO PORTAL DE MANUTENÇÕES */}
+          <div className="px-3 mb-4">
+            <div className="flex items-center justify-between mb-2 px-3">
+              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">🔧 MANUTENÇÕES</p>
+            </div>
+            <Link href="/modulo/manutencoes">
+              <button 
+                className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-green-600 to-emerald-500 mb-3"
+              >
+                <Wrench className="w-5 h-5 text-white" />
+                <span className="text-sm font-semibold text-white">Portal de Manutenções</span>
+                <ChevronRight className="w-4 h-4 text-white ml-auto" />
+              </button>
+            </Link>
+          </div>
+
           {/* SECÇÃO REGISTRO RÁPIDO */}
           <div className="px-3 mb-4">
             <div className="flex items-center justify-between mb-2 px-3">
