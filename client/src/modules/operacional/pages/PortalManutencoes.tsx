@@ -115,7 +115,7 @@ const modulosOperacionais = [
     nome: "Construtor de App",
     descricao: "Personalize as funções do seu condomínio",
     icone: Puzzle,
-    cor: "from-violet-500 to-violet-600",
+    cor: "from-orange-500 to-orange-600",
     path: "/dashboard/construtor-app",
     badge: null
   },
@@ -124,7 +124,7 @@ const modulosOperacionais = [
     nome: "Relatórios",
     descricao: "Gere relatórios profissionais personalizados",
     icone: BarChart3,
-    cor: "from-emerald-500 to-emerald-600",
+    cor: "from-orange-500 to-orange-600",
     path: "/dashboard/relatorios/novo",
     badge: null
   },
@@ -133,7 +133,7 @@ const modulosOperacionais = [
     nome: "Livro de Manutenção",
     descricao: "Histórico completo de todas as atividades",
     icone: BookOpen,
-    cor: "from-teal-500 to-teal-600",
+    cor: "from-orange-500 to-orange-600",
     path: "/dashboard/timeline",
     badge: null
   }
