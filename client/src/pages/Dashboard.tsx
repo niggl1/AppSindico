@@ -549,7 +549,7 @@ export default function Dashboard() {
                   const Icon = func.icon;
                   const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
                   return (
-                    <Link key={func.id} href={`/dashboard/${func.id}`}>
+                    <Link key={func.id} href={func.path}>
                       <button 
                         className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
                         style={{ backgroundColor: cor }}
@@ -877,7 +877,7 @@ export default function Dashboard() {
                   const Icon = func.icon;
                   const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
                   return (
-                    <Link key={func.id} href={`/dashboard/${func.id}`}>
+                    <Link key={func.id} href={func.path}>
                       <button 
                         className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
                         style={{ backgroundColor: cor }}
@@ -1032,7 +1032,7 @@ export default function Dashboard() {
                     const Icon = func.icon;
                     const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
                     return (
-                      <Link key={func.id} href={`/dashboard/${func.id}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Link key={func.id} href={func.path} onClick={() => setMobileMenuOpen(false)}>
                         <div 
                           className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
                           style={{ backgroundColor: cor }}

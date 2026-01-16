@@ -93,7 +93,7 @@ export const iconMap: Record<string, any> = {
 };
 
 const QUICK_FUNCTIONS_KEY = "dashboard-quick-functions";
-const DEFAULT_FUNCTIONS = ["checklists", "manutencoes", "ocorrencias", "vistorias", "avisos", "votacoes", "gestao-notificacoes", "eventos", "ordens-servico"];
+const DEFAULT_FUNCTIONS = ["checklists", "manutencoes", "ocorrencias", "vistorias", "avisos", "votacoes", "gestao-notificacoes", "eventos", "ordens-servico", "construtor-app", "relatorios", "livro-manutencao"];
 
 // Funções para compatibilidade com localStorage (fallback)
 export function getSelectedQuickFunctions(): string[] {
