@@ -340,3 +340,10 @@
 - [x] Adicionar Construtor de App ao menu
 - [x] Adicionar Relatórios ao menu
 - [x] Adicionar Livro de Manutenção ao menu
+
+
+## Portal de Manutenções - Novos Módulos (16/01/2026)
+
+- [x] Adicionar Construtor de App ao Portal de Manutenções
+- [x] Adicionar Relatórios ao Portal de Manutenções
+- [x] Adicionar Livro de Manutenção ao Portal de Manutenções

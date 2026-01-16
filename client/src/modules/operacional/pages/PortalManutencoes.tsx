@@ -18,7 +18,9 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  BarChart3
+  BarChart3,
+  Puzzle,
+  BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -105,6 +107,33 @@ const modulosOperacionais = [
     descricao: "Visualização cronológica de atividades",
     icone: Clock,
     cor: "from-indigo-500 to-indigo-600",
+    path: "/dashboard/timeline",
+    badge: null
+  },
+  {
+    id: "construtor-app",
+    nome: "Construtor de App",
+    descricao: "Personalize as funções do seu condomínio",
+    icone: Puzzle,
+    cor: "from-violet-500 to-violet-600",
+    path: "/dashboard/construtor-app",
+    badge: null
+  },
+  {
+    id: "relatorios",
+    nome: "Relatórios",
+    descricao: "Gere relatórios profissionais personalizados",
+    icone: BarChart3,
+    cor: "from-emerald-500 to-emerald-600",
+    path: "/dashboard/relatorios/novo",
+    badge: null
+  },
+  {
+    id: "livro-manutencao",
+    nome: "Livro de Manutenção",
+    descricao: "Histórico completo de todas as atividades",
+    icone: BookOpen,
+    cor: "from-teal-500 to-teal-600",
     path: "/dashboard/timeline",
     badge: null
   }
