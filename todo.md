@@ -347,3 +347,47 @@
 - [x] Adicionar Construtor de App ao Portal de Manutenções
 - [x] Adicionar Relatórios ao Portal de Manutenções
 - [x] Adicionar Livro de Manutenção ao Portal de Manutenções
+
+
+## Notificações Automáticas (16/01/2026)
+
+### Fase 1 - Análise
+- [ ] Verificar estrutura existente de notificações
+- [ ] Identificar eventos que devem gerar notificações
+
+### Fase 2 - Banco de Dados
+- [ ] Criar tabela de configuração de notificações
+- [ ] Definir tipos de notificação por evento
+
+### Fase 3 - Backend
+- [ ] Implementar triggers nos routers de manutenção
+- [ ] Implementar triggers nos routers de ocorrências
+- [ ] Implementar triggers nos routers de vistorias
+- [ ] Usar notifyOwner para enviar alertas
+
+### Fase 4 - Interface
+- [ ] Criar página de configuração de notificações
+- [ ] Permitir ativar/desativar notificações por tipo
+
+
+## Migração: Dashboard de Manutenção Universal → App Síndico (16/01/2026)
+
+### Fase 1 - Análise
+- [ ] Criar checkpoint de segurança
+- [ ] Analisar estrutura do manutencao-universal
+- [ ] Mapear páginas e componentes a migrar
+
+### Fase 2 - Backend
+- [ ] Migrar schema do banco de dados
+- [ ] Migrar routers/endpoints
+- [ ] Adaptar para sistema de condomínios
+
+### Fase 3 - Frontend
+- [ ] Migrar páginas de manutenção
+- [ ] Migrar componentes específicos
+- [ ] Preservar rotas e navegação existentes
+
+### Fase 4 - Limpeza
+- [ ] Remover código antigo duplicado
+- [ ] Testar todas as funcionalidades
+- [ ] Checkpoint final
