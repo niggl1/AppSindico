@@ -243,3 +243,28 @@
 - [x] Verificar se o checkpoint contém todas as alterações
 - [x] Fazer rebuild completo e criar novo checkpoint (38972704)
 - [x] Adicionar link "Funções Fácil" na secção "Funções Rápidas" do Dashboard
+
+
+## Integração Modular - App Síndico (16/01/2026)
+
+### Fase 1 - Análise
+- [ ] Clonar repositório Manutenção Universal (sem alterar)
+- [ ] Analisar estrutura de componentes e páginas
+- [ ] Identificar schemas de base de dados
+- [ ] Documentar rotas e procedures
+
+### Fase 2 - Estrutura Modular
+- [ ] Criar estrutura de pastas para módulos
+- [ ] Criar sistema de navegação entre módulos
+- [ ] Criar tabela condominio_modulos no banco
+
+### Fase 3 - Módulo Operacional
+- [ ] Integrar App Manutenção como módulo
+- [ ] Remover funções de manutenção antigas
+- [ ] Adaptar rotas para /modulo/operacional/*
+- [ ] Testar integração
+
+### Fase 4 - Construtor de App
+- [ ] Criar tela de configuração por categorias
+- [ ] Implementar ativação/desativação de funções
+- [ ] Menu dinâmico baseado nas configurações
