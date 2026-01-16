@@ -1,0 +1,18 @@
+{
+  "query": "SELECT funcaoId, habilitada FROM condominio_funcoes WHERE habilitada = false;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SELECT funcaoId, habilitada FROM condominio_funcoes WHERE habilitada = false;",
+  "rows": [
+    {
+      "funcaoId": "classificados",
+      "habilitada": "0"
+    },
+    {
+      "funcaoId": "achados-perdidos",
+      "habilitada": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "funcaoId\thabilitada\nclassificados\t0\nachados-perdidos\t0\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

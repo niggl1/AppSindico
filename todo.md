@@ -297,6 +297,31 @@
 - [x] Design premium com estatísticas
 
 ### Fase 5 - Menu Dinâmico
-- [ ] Modificar Dashboard para usar configurações
-- [ ] Filtrar itens do menu baseado nos módulos ativos
-- [ ] Testar navegação dinâmica
+- [x] Criar hook useFuncoesAtivas
+- [x] Adicionar endpoint listarAtivas no router
+- [x] Modificar DashboardLayout para filtrar itens
+- [x] Ocultar seções vazias automaticamente
+- [x] Testar navegação dinâmica
+
+
+## Menu Dinâmico - Filtragem por Funções Ativas (16/01/2026)
+
+### Fase 1 - Análise
+- [x] Verificar mapeamento funcaoId nos menuSections
+- [x] Identificar funções que precisam de mapeamento
+- [x] Verificar endpoint de funções ativas
+
+### Fase 2 - Hook de Funções Ativas
+- [x] Criar hook useFuncoesAtivas
+- [x] Integrar com tRPC funcoesCondominio.listarAtivas
+- [x] Cache e otimização de performance (5 min staleTime)
+
+### Fase 3 - Filtrar Menu
+- [x] Modificar DashboardLayout para usar hook
+- [x] Filtrar itens baseado em funções ativas
+- [x] Ocultar seções vazias automaticamente
+
+### Fase 4 - Testes
+- [x] Testar com funções ativas/inativas
+- [x] Verificar navegação e UX
+- [x] Escrever testes unitários (menuDinamico.test.ts)

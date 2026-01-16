@@ -11216,6 +11216,31 @@ Para gerenciar suas notificações, acesse a Agenda de Vencimentos no painel.
         return result.map(r => r.funcaoId);
       }),
 
+    // Listar funções ativas para o menu dinâmico
+    listarAtivas: protectedProcedure
+      .input(z.object({ condominioId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) {
+          // Se não há DB, retornar todas as funções como ativas
+          return { funcoes: FUNCOES_DISPONIVEIS.map(f => ({ funcaoId: f.id, habilitada: true })) };
+        }
+        
+        const result = await db.select()
+          .from(condominioFuncoes)
+          .where(eq(condominioFuncoes.condominioId, input.condominioId));
+        
+        // Se não há registros, todas estão habilitadas por padrão
+        if (result.length === 0) {
+          return { funcoes: FUNCOES_DISPONIVEIS.map(f => ({ funcaoId: f.id, habilitada: true })) };
+        }
+        
+        // Retornar apenas as funções habilitadas
+        return { 
+          funcoes: result.filter(r => r.habilitada).map(r => ({ funcaoId: r.funcaoId, habilitada: true }))
+        };
+      }),
+
     // Listar categorias disponíveis
     listarCategorias: publicProcedure.query(() => {
       // Importar do schema

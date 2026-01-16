@@ -31,6 +31,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useCondominioAtivo } from "@/hooks/useCondominioAtivo";
+import { useFuncoesAtivas } from "@/hooks/useFuncoesAtivas";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { 
@@ -364,6 +365,7 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { condominioAtivo } = useCondominioAtivo();
+  const { isFuncaoAtiva, filterFuncoesAtivas } = useFuncoesAtivas();
   
   // Estado para controlar seções expandidas
   const [expandedSections, setExpandedSections] = useState<string[]>(() => {
@@ -610,7 +612,14 @@ function DashboardLayoutContent({
               {menuSections.map((section) => {
                 const isSectionActive = activeSection?.id === section.id;
                 const isExpanded = expandedSections.includes(section.id);
-                const hasItems = section.items.length > 0;
+                // Filtrar itens baseado nas funções ativas
+                const filteredItems = filterFuncoesAtivas(section.items);
+                const hasItems = filteredItems.length > 0;
+                
+                // Ocultar seções sem itens visíveis (exceto seções especiais)
+                if (!hasItems && !section.path && section.id !== "visao-geral") {
+                  return null;
+                }
 
                 // Renderização especial para Visão Geral com dropdown
                 if (section.id === "visao-geral") {
@@ -693,7 +702,7 @@ function DashboardLayoutContent({
                     {/* Subitens da seção */}
                     {hasItems && isExpanded && !isCollapsed && (
                       <div className="ml-4 border-l border-border/50 pl-2 mt-1 space-y-0.5">
-                        {section.items.map((item) => {
+                        {filteredItems.map((item) => {
                           const isItemActive = activeItem?.path === item.path;
                           const isRapida = isFuncaoRapida(item.funcaoId);
                           return (

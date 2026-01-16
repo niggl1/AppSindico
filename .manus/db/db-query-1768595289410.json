@@ -1,0 +1,26 @@
+{
+  "query": "SELECT * FROM condominio_funcoes WHERE habilitada = false LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute SELECT * FROM condominio_funcoes WHERE habilitada = false LIMIT 10;",
+  "rows": [
+    {
+      "id": "19",
+      "condominioId": "1",
+      "funcaoId": "classificados",
+      "habilitada": "0",
+      "createdAt": "2026-01-16 20:26:55",
+      "updatedAt": "2026-01-16 20:26:55"
+    },
+    {
+      "id": "20",
+      "condominioId": "1",
+      "funcaoId": "achados-perdidos",
+      "habilitada": "0",
+      "createdAt": "2026-01-16 20:26:55",
+      "updatedAt": "2026-01-16 20:26:55"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcondominioId\tfuncaoId\thabilitada\tcreatedAt\tupdatedAt\n19\t1\tclassificados\t0\t2026-01-16 20:26:55\t2026-01-16 20:26:55\n20\t1\tachados-perdidos\t0\t2026-01-16 20:26:55\t2026-01-16 20:26:55\n",
+  "stderr": "",
+  "execution_time_ms": 111
+}
