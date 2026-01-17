@@ -53,6 +53,10 @@ import { MembrosEquipePage } from "./pages/MembrosEquipePage";
 import { PortalManutencoes } from "./modules/operacional";
 import TimelinePage from "./pages/TimelinePage";
 import ConstrutorApp from "./pages/ConstrutorApp";
+import LivroManutencaoPage from "./pages/LivroManutencaoPage";
+import LivroManutencaoHistorico from "./pages/LivroManutencaoHistorico";
+import LivroManutencaoVisualizar from "./pages/LivroManutencaoVisualizar";
+import LivroManutencaoDashboard from "./pages/LivroManutencaoDashboard";
 import WhatsAppButton from "./components/WhatsAppButton";
 
 function Router() {
@@ -122,6 +126,10 @@ function Router() {
       <Route path="/dashboard/membros-equipe">{() => <MembrosEquipePage condominioId={1} />}</Route>
       <Route path="/modulo/manutencoes" component={PortalManutencoes} />
       <Route path="/dashboard/timeline" component={TimelinePage} />
+      <Route path="/dashboard/livro-manutencao">{() => <LivroManutencaoPage condominioId={1} />}</Route>
+      <Route path="/dashboard/livro-manutencao-historico">{() => <LivroManutencaoHistorico condominioId={1} />}</Route>
+      <Route path="/dashboard/livro-manutencao-dashboard">{() => <LivroManutencaoDashboard condominioId={1} />}</Route>
+      <Route path="/timeline/:token" component={LivroManutencaoVisualizar} />
       <Route path="/dashboard/construtor-app" component={ConstrutorApp} />
       <Route path="/dashboard/revistas/nova">{() => { window.location.href = '/dashboard/revistas'; return null; }}</Route>
       <Route path="/dashboard/:section" component={Dashboard} />

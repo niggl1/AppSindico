@@ -134,7 +134,7 @@ const modulosOperacionais = [
     descricao: "Histórico completo de todas as atividades",
     icone: BookOpen,
     cor: "from-orange-500 to-orange-600",
-    path: "/dashboard/timeline",
+    path: "/dashboard/livro-manutencao-historico",
     badge: null
   }
 ];

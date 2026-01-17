@@ -1996,3 +1996,167 @@ export const tarefasFacil = mysqlTable("tarefas_facil", {
 
 export type TarefaFacil = typeof tarefasFacil.$inferSelect;
 export type InsertTarefaFacil = typeof tarefasFacil.$inferInsert;
+
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - CONFIGURAÇÕES ====================
+
+// Responsáveis da Timeline
+export const timelineResponsaveis = mysqlTable("timeline_responsaveis", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  cargo: varchar("cargo", { length: 255 }),
+  email: varchar("email", { length: 320 }),
+  telefone: varchar("telefone", { length: 20 }),
+  ativo: boolean("ativo").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineResponsavel = typeof timelineResponsaveis.$inferSelect;
+export type InsertTimelineResponsavel = typeof timelineResponsaveis.$inferInsert;
+
+// Locais/Itens da Timeline
+export const timelineLocais = mysqlTable("timeline_locais", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  ativo: boolean("ativo").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineLocal = typeof timelineLocais.$inferSelect;
+export type InsertTimelineLocal = typeof timelineLocais.$inferInsert;
+
+// Status da Timeline
+export const timelineStatus = mysqlTable("timeline_status", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").notNull(),
+  nome: varchar("nome", { length: 100 }).notNull(),
+  cor: varchar("cor", { length: 20 }).default("#6B7280"),
+  icone: varchar("icone", { length: 50 }).default("Circle"),
+  ordem: int("ordem").default(0),
+  ativo: boolean("ativo").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineStatusConfig = typeof timelineStatus.$inferSelect;
+export type InsertTimelineStatusConfig = typeof timelineStatus.$inferInsert;
+
+// Prioridades da Timeline
+export const timelinePrioridades = mysqlTable("timeline_prioridades", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").notNull(),
+  nome: varchar("nome", { length: 100 }).notNull(),
+  cor: varchar("cor", { length: 20 }).default("#6B7280"),
+  icone: varchar("icone", { length: 50 }).default("Minus"),
+  nivel: int("nivel").default(0),
+  ativo: boolean("ativo").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelinePrioridade = typeof timelinePrioridades.$inferSelect;
+export type InsertTimelinePrioridade = typeof timelinePrioridades.$inferInsert;
+
+// Títulos predefinidos da Timeline
+export const timelineTitulos = mysqlTable("timeline_titulos", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricaoPadrao: text("descricaoPadrao"),
+  ativo: boolean("ativo").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineTitulo = typeof timelineTitulos.$inferSelect;
+export type InsertTimelineTitulo = typeof timelineTitulos.$inferInsert;
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - REGISTOS PRINCIPAIS ====================
+
+export const timelines = mysqlTable("timelines", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").notNull(),
+  protocolo: varchar("protocolo", { length: 50 }).notNull(),
+  
+  // Campos obrigatórios
+  responsavelId: int("responsavelId").notNull(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  
+  // Campos opcionais
+  localId: int("localId"),
+  statusId: int("statusId"),
+  prioridadeId: int("prioridadeId"),
+  tituloPredefId: int("tituloPredefId"),
+  descricao: text("descricao"),
+  
+  // Registo automático
+  dataRegistro: timestamp("dataRegistro").defaultNow().notNull(),
+  horaRegistro: varchar("horaRegistro", { length: 10 }),
+  localizacaoGps: varchar("localizacaoGps", { length: 100 }),
+  latitude: varchar("latitude", { length: 20 }),
+  longitude: varchar("longitude", { length: 20 }),
+  
+  // Estado do registo
+  estado: mysqlEnum("estado", ["rascunho", "enviado", "registado"]).default("rascunho"),
+  
+  // Token para link público
+  tokenPublico: varchar("tokenPublico", { length: 64 }).unique(),
+  
+  // Metadados
+  criadoPor: int("criadoPor"),
+  criadoPorNome: varchar("criadoPorNome", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Timeline = typeof timelines.$inferSelect;
+export type InsertTimeline = typeof timelines.$inferInsert;
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - IMAGENS ====================
+
+export const timelineImagens = mysqlTable("timeline_imagens", {
+  id: int("id").autoincrement().primaryKey(),
+  timelineId: int("timelineId").notNull(),
+  url: text("url").notNull(),
+  legenda: varchar("legenda", { length: 255 }),
+  ordem: int("ordem").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineImagem = typeof timelineImagens.$inferSelect;
+export type InsertTimelineImagem = typeof timelineImagens.$inferInsert;
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - EVENTOS/HISTÓRICO ====================
+
+export const timelineEventos = mysqlTable("timeline_eventos", {
+  id: int("id").autoincrement().primaryKey(),
+  timelineId: int("timelineId").notNull(),
+  tipo: mysqlEnum("tipo", ["criacao", "edicao", "status", "comentario", "imagem", "compartilhamento", "visualizacao", "pdf", "registro"]).default("comentario"),
+  descricao: text("descricao"),
+  usuarioId: int("usuarioId"),
+  usuarioNome: varchar("usuarioNome", { length: 255 }),
+  dadosAnteriores: text("dadosAnteriores"),
+  dadosNovos: text("dadosNovos"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineEvento = typeof timelineEventos.$inferSelect;
+export type InsertTimelineEvento = typeof timelineEventos.$inferInsert;
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - COMPARTILHAMENTOS ====================
+
+export const timelineCompartilhamentos = mysqlTable("timeline_compartilhamentos", {
+  id: int("id").autoincrement().primaryKey(),
+  timelineId: int("timelineId").notNull(),
+  membroEquipeId: int("membroEquipeId"),
+  membroNome: varchar("membroNome", { length: 255 }),
+  membroEmail: varchar("membroEmail", { length: 320 }),
+  membroTelefone: varchar("membroTelefone", { length: 20 }),
+  canalEnvio: mysqlEnum("canalEnvio", ["email", "whatsapp", "ambos"]).default("email"),
+  visualizado: boolean("visualizado").default(false),
+  dataVisualizacao: timestamp("dataVisualizacao"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineCompartilhamento = typeof timelineCompartilhamentos.$inferSelect;
+export type InsertTimelineCompartilhamento = typeof timelineCompartilhamentos.$inferInsert;

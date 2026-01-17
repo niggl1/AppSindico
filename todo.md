@@ -370,7 +370,30 @@
 - [ ] Permitir ativar/desativar notificações por tipo
 
 
-## Migração: Dashboard de Manutenção Universal → App Síndico (16/01/2026)
+## Migração: Dashboard de Manutenção Universal → App Síndico (17/01/2026)
+
+### Fase 1 - Schema do Banco
+- [x] Adicionar tabelas de timeline ao schema
+- [x] Criar tabelas no banco de dados
+
+### Fase 2 - Router Backend
+- [x] Criar router timelineLivro
+- [x] Registar no appRouter
+
+### Fase 3 - Páginas Frontend
+- [x] Criar LivroManutencaoPage (nova timeline)
+- [x] Criar LivroManutencaoDashboard (estatísticas)
+- [x] Criar LivroManutencaoHistorico (lista)
+- [x] Criar LivroManutencaoVisualizar (visualização pública)
+
+### Fase 4 - Integração
+- [x] Adicionar rotas no App.tsx
+- [x] Atualizar links no Portal de Manutenções
+- [x] Atualizar links nas Funções Rápidas
+
+---
+
+## Histórico Anterior:
 
 ### Fase 1 - Análise
 - [ ] Criar checkpoint de segurança

@@ -81,7 +81,7 @@ export const allQuickFunctions = [
   { id: "tarefas-facil", label: "⚡ Registro Rápido", icon: Zap, gradient: "from-orange-500 to-amber-500", path: "/dashboard/tarefas-facil" },
   { id: "construtor-app", label: "Construtor de App", icon: Blocks, gradient: "from-purple-500 to-indigo-600", path: "/dashboard/construtor-app" },
   { id: "relatorios", label: "Relatórios", icon: BarChart3, gradient: "from-blue-500 to-cyan-600", path: "/dashboard/relatorios/novo" },
-  { id: "livro-manutencao", label: "Livro de Manutenção", icon: BookMarked, gradient: "from-green-500 to-emerald-600", path: "/dashboard/timeline" },
+  { id: "livro-manutencao", label: "Livro de Manutenção", icon: BookMarked, gradient: "from-green-500 to-emerald-600", path: "/dashboard/livro-manutencao-historico" },
 ];
 
 // Mapa de ícones para uso externo
