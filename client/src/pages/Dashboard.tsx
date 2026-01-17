@@ -585,60 +585,7 @@ export default function Dashboard() {
 
         {/* Navigation com Seções Colapsáveis */}
         <ScrollArea className="flex-1 py-4">
-          {/* Funções Rápidas - Atalhos personalizados */}
-          <div className="px-3 mb-4">
-            <div className="flex items-center justify-between mb-2 px-3">
-              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">Atalhos</p>
-              <QuickFunctionsEditor onSave={refreshQuickFunctions} condominioId={condominioId} />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {funcoesRapidas && funcoesRapidas.length > 0 ? (
-                funcoesRapidas.map((funcao, index) => {
-                  const funcInfo = allQuickFunctions.find(f => f.id === funcao.funcaoId);
-                  const Icon = funcInfo?.icon || Zap;
-                  const cor = funcao.cor || CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
-                  return (
-                    <Link key={funcao.id} href={funcao.path}>
-                      <button 
-                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
-                      >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[10px] font-semibold text-white">{funcao.nome}</span>
-                      </button>
-                    </Link>
-                  );
-                })
-              ) : (
-                // Fallback para funções padrão se não houver na base de dados
-                getSelectedQuickFunctions().map((funcId, index) => {
-                  const func = allQuickFunctions.find(f => f.id === funcId);
-                  if (!func) return null;
-                  const Icon = func.icon;
-                  const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
-                  return (
-                    <Link key={func.id} href={`/dashboard/${func.id}`}>
-                      <button 
-                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
-                      >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[10px] font-semibold text-white">{func.label}</span>
-                      </button>
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          {/* Separador */}
-          <div className="px-6 mb-3">
-            <Separator className="bg-sidebar-border/50" />
-          </div>
-
           {/* Seções do Menu */}
-          <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2 px-6">Menu</p>
           <nav className="px-3 space-y-1">
             {menuSectionsFiltrado.map((section) => {
               const isSectionActive = activeSection?.id === section.id;
@@ -851,51 +798,7 @@ export default function Dashboard() {
               </Button>
             </div>
           </div>
-          {/* Funções Rápidas Mobile */}
-          <div className="px-4 pb-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Funções Rápidas</p>
-              <QuickFunctionsEditor onSave={refreshQuickFunctions} triggerClassName="text-muted-foreground" condominioId={condominioId} />
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {funcoesRapidas && funcoesRapidas.length > 0 ? (
-                funcoesRapidas.slice(0, 8).map((funcao, index) => {
-                  const funcInfo = allQuickFunctions.find(f => f.id === funcao.funcaoId);
-                  const Icon = funcInfo?.icon || Zap;
-                  const cor = funcao.cor || CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
-                  return (
-                    <Link key={funcao.id} href={funcao.path}>
-                      <button 
-                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
-                      >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[9px] font-semibold text-white">{funcao.nome}</span>
-                      </button>
-                    </Link>
-                  );
-                })
-              ) : (
-                getSelectedQuickFunctions().slice(0, 8).map((funcId, index) => {
-                  const func = allQuickFunctions.find(f => f.id === funcId);
-                  if (!func) return null;
-                  const Icon = func.icon;
-                  const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
-                  return (
-                    <Link key={func.id} href={`/dashboard/${func.id}`}>
-                      <button 
-                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-                        style={{ backgroundColor: cor }}
-                      >
-                        <Icon className="w-4 h-4 text-white" />
-                        <span className="text-[9px] font-semibold text-white">{func.label}</span>
-                      </button>
-                    </Link>
-                  );
-                })
-              )}
-            </div>
-          </div>
+
         </header>
 
         {/* Content */}
@@ -1019,52 +922,6 @@ export default function Dashboard() {
               >
                 <X className="w-5 h-5" />
               </button>
-            </div>
-
-            {/* Funções Rápidas */}
-            <div className="p-4 border-b border-border">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Funções Rápidas</p>
-                <QuickFunctionsEditor onSave={refreshQuickFunctions} triggerClassName="text-muted-foreground" condominioId={condominioId} />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {funcoesRapidas && funcoesRapidas.length > 0 ? (
-                  funcoesRapidas.map((funcao, index) => {
-                    const funcInfo = allQuickFunctions.find(f => f.id === funcao.funcaoId);
-                    const Icon = funcInfo?.icon || Zap;
-                    const cor = funcao.cor || CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
-                    return (
-                      <Link key={funcao.id} href={funcao.path} onClick={() => setMobileMenuOpen(false)}>
-                        <div 
-                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
-                          style={{ backgroundColor: cor }}
-                        >
-                          <Icon className="w-4 h-4 text-white" />
-                          <span className="text-xs font-semibold text-white">{funcao.nome}</span>
-                        </div>
-                      </Link>
-                    );
-                  })
-                ) : (
-                  getSelectedQuickFunctions().map((funcId, index) => {
-                    const func = allQuickFunctions.find(f => f.id === funcId);
-                    if (!func) return null;
-                    const Icon = func.icon;
-                    const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
-                    return (
-                      <Link key={func.id} href={`/dashboard/${func.id}`} onClick={() => setMobileMenuOpen(false)}>
-                        <div 
-                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
-                          style={{ backgroundColor: cor }}
-                        >
-                          <Icon className="w-4 h-4 text-white" />
-                          <span className="text-xs font-semibold text-white">{func.label}</span>
-                        </div>
-                      </Link>
-                    );
-                  })
-                )}
-              </div>
             </div>
 
             {/* Seções do Menu */}

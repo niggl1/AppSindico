@@ -370,6 +370,9 @@
 - [ ] Permitir ativar/desativar notificações por tipo
 
 
+## Remover Atalhos do Menu (17/01/2026)
+- [x] Remover seção de ATALHOS do menu lateral (menu já está grande)
+
 ## Migração: Dashboard de Manutenção Universal → App Síndico (17/01/2026)
 
 ### Fase 1 - Schema do Banco
