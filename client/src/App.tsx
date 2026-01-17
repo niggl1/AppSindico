@@ -50,6 +50,7 @@ import AppViewer from "./pages/AppViewer";
 import TarefasFacilPage from "./pages/TarefasFacilPage";
 import RevistaModeracaoPage from "./pages/RevistaModeracaoPage";
 import RevistaTemplatesPage from "./pages/RevistaTemplatesPage";
+import RevistaHistoricoPage from "./pages/RevistaHistoricoPage";
 import { MembrosEquipePage } from "./pages/MembrosEquipePage";
 import { PortalManutencoes } from "./modules/operacional";
 import TimelinePage from "./pages/TimelinePage";
@@ -139,6 +140,7 @@ function Router() {
       <Route path="/revista/editor/:id" component={RevistaEditor} />
       <Route path="/revista/moderacao/:condominioId" component={RevistaModeracaoPage} />
       <Route path="/revista/templates/:condominioId" component={RevistaTemplatesPage} />
+      <Route path="/revista/:id/historico" component={RevistaHistoricoPage} />
       
       {/* Fallback */}
       <Route path="/404" component={NotFound} />

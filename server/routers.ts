@@ -115,7 +115,8 @@ import {
   revistaAgendamentos,
   revistaAssinantes,
   revistaConfigModeracaoComentarios,
-  revistaTemplates
+  revistaTemplates,
+  revistaVersoes
 } from "../drizzle/schema";
 import { tarefaFacilRouter } from "./routers/tarefaFacil";
 import { timelineRouter } from "./routers/timeline";
@@ -1668,6 +1669,249 @@ export const appRouter = router({
         }
         
         return { success: true, secoesIncluidas: template.secoesIncluidas, ordemSecoes: template.ordemSecoes };
+      }),
+
+    // ==================== HISTÓRICO DE VERSÕES ====================
+    
+    // Salvar versão da revista
+    salvarVersao: protectedProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        descricaoAlteracao: z.string().optional(),
+        tipoAlteracao: z.enum(["criacao", "edicao", "publicacao", "restauracao"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        // Buscar revista atual
+        const [revista] = await db.select().from(revistas)
+          .where(eq(revistas.id, input.revistaId));
+        if (!revista) throw new Error("Revista não encontrada");
+        
+        // Buscar seções da revista
+        const secoesRevista = await db.select().from(secoes)
+          .where(eq(secoes.revistaId, input.revistaId))
+          .orderBy(asc(secoes.ordem));
+        
+        // Buscar última versão para incrementar
+        const [ultimaVersao] = await db.select({ versao: revistaVersoes.versao })
+          .from(revistaVersoes)
+          .where(eq(revistaVersoes.revistaId, input.revistaId))
+          .orderBy(desc(revistaVersoes.versao))
+          .limit(1);
+        
+        const novaVersao = (ultimaVersao?.versao || 0) + 1;
+        
+        // Criar snapshot das seções
+        const secoesSnapshot = secoesRevista.map(s => ({
+          id: s.id.toString(),
+          tipo: s.tipo,
+          titulo: s.titulo,
+          conteudo: s.conteudo,
+          ordem: s.ordem,
+          ativo: s.ativo ?? true,
+        }));
+        
+        // Salvar versão
+        const result = await db.insert(revistaVersoes).values({
+          revistaId: input.revistaId,
+          versao: novaVersao,
+          titulo: revista.titulo,
+          subtitulo: revista.subtitulo,
+          edicao: revista.edicao,
+          mesAno: revista.mesAno,
+          imagemCapaUrl: revista.imagemCapaUrl,
+          corFundo: revista.corFundo,
+          estiloPdf: revista.estiloPdf,
+          secoes: secoesSnapshot,
+          descricaoAlteracao: input.descricaoAlteracao || `Versão ${novaVersao}`,
+          tipoAlteracao: input.tipoAlteracao || "edicao",
+          criadoPor: ctx.user?.id,
+          criadoPorNome: ctx.user?.name,
+        });
+        
+        return { id: Number(result[0].insertId), versao: novaVersao };
+      }),
+    
+    // Listar versões da revista
+    listarVersoes: protectedProcedure
+      .input(z.object({ revistaId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        return db.select()
+          .from(revistaVersoes)
+          .where(eq(revistaVersoes.revistaId, input.revistaId))
+          .orderBy(desc(revistaVersoes.versao));
+      }),
+    
+    // Obter versão específica
+    obterVersao: protectedProcedure
+      .input(z.object({ versaoId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const [versao] = await db.select()
+          .from(revistaVersoes)
+          .where(eq(revistaVersoes.id, input.versaoId));
+        
+        return versao;
+      }),
+    
+    // Comparar duas versões
+    compararVersoes: protectedProcedure
+      .input(z.object({ versaoId1: z.number(), versaoId2: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const [versao1] = await db.select().from(revistaVersoes)
+          .where(eq(revistaVersoes.id, input.versaoId1));
+        const [versao2] = await db.select().from(revistaVersoes)
+          .where(eq(revistaVersoes.id, input.versaoId2));
+        
+        if (!versao1 || !versao2) throw new Error("Versão não encontrada");
+        
+        // Comparar campos principais
+        const diferencas: { campo: string; versao1: any; versao2: any }[] = [];
+        
+        if (versao1.titulo !== versao2.titulo) {
+          diferencas.push({ campo: "titulo", versao1: versao1.titulo, versao2: versao2.titulo });
+        }
+        if (versao1.subtitulo !== versao2.subtitulo) {
+          diferencas.push({ campo: "subtitulo", versao1: versao1.subtitulo, versao2: versao2.subtitulo });
+        }
+        if (versao1.edicao !== versao2.edicao) {
+          diferencas.push({ campo: "edicao", versao1: versao1.edicao, versao2: versao2.edicao });
+        }
+        if (versao1.mesAno !== versao2.mesAno) {
+          diferencas.push({ campo: "mesAno", versao1: versao1.mesAno, versao2: versao2.mesAno });
+        }
+        if (versao1.imagemCapaUrl !== versao2.imagemCapaUrl) {
+          diferencas.push({ campo: "imagemCapaUrl", versao1: versao1.imagemCapaUrl, versao2: versao2.imagemCapaUrl });
+        }
+        
+        // Comparar seções
+        const secoes1 = (versao1.secoes as any[]) || [];
+        const secoes2 = (versao2.secoes as any[]) || [];
+        
+        const secoesAdicionadas = secoes2.filter(s2 => !secoes1.find(s1 => s1.id === s2.id));
+        const secoesRemovidas = secoes1.filter(s1 => !secoes2.find(s2 => s2.id === s1.id));
+        const secoesModificadas = secoes2.filter(s2 => {
+          const s1 = secoes1.find(s => s.id === s2.id);
+          return s1 && JSON.stringify(s1) !== JSON.stringify(s2);
+        });
+        
+        return {
+          versao1,
+          versao2,
+          diferencas,
+          secoes: {
+            adicionadas: secoesAdicionadas,
+            removidas: secoesRemovidas,
+            modificadas: secoesModificadas,
+          },
+        };
+      }),
+    
+    // Restaurar versão anterior
+    restaurarVersao: protectedProcedure
+      .input(z.object({ versaoId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        // Buscar versão a restaurar
+        const [versao] = await db.select().from(revistaVersoes)
+          .where(eq(revistaVersoes.id, input.versaoId));
+        if (!versao) throw new Error("Versão não encontrada");
+        
+        // Salvar versão atual antes de restaurar
+        const [revistaAtual] = await db.select().from(revistas)
+          .where(eq(revistas.id, versao.revistaId));
+        if (!revistaAtual) throw new Error("Revista não encontrada");
+        
+        const secoesAtuais = await db.select().from(secoes)
+          .where(eq(secoes.revistaId, versao.revistaId));
+        
+        const [ultimaVersao] = await db.select({ versao: revistaVersoes.versao })
+          .from(revistaVersoes)
+          .where(eq(revistaVersoes.revistaId, versao.revistaId))
+          .orderBy(desc(revistaVersoes.versao))
+          .limit(1);
+        
+        // Salvar backup da versão atual
+        await db.insert(revistaVersoes).values({
+          revistaId: versao.revistaId,
+          versao: (ultimaVersao?.versao || 0) + 1,
+          titulo: revistaAtual.titulo,
+          subtitulo: revistaAtual.subtitulo,
+          edicao: revistaAtual.edicao,
+          secoes: secoesAtuais.map(s => ({
+            id: s.id.toString(),
+            tipo: s.tipo,
+            titulo: s.titulo,
+            ordem: s.ordem,
+            ativo: s.ativo ?? true,
+          })),
+          descricaoAlteracao: `Backup antes de restaurar versão ${versao.versao}`,
+          tipoAlteracao: "edicao",
+          criadoPor: ctx.user?.id,
+          criadoPorNome: ctx.user?.name,
+        });
+        
+        // Restaurar dados da revista
+        await db.update(revistas).set({
+          titulo: versao.titulo,
+          subtitulo: versao.subtitulo,
+          edicao: versao.edicao,
+        }).where(eq(revistas.id, versao.revistaId));
+        
+        // Criar nova versão após restauração
+        const novaVersaoNum = (ultimaVersao?.versao || 0) + 2;
+        await db.insert(revistaVersoes).values({
+          revistaId: versao.revistaId,
+          versao: novaVersaoNum,
+          titulo: versao.titulo,
+          subtitulo: versao.subtitulo,
+          edicao: versao.edicao,
+          secoes: versao.secoes,
+          descricaoAlteracao: `Restaurado da versão ${versao.versao}`,
+          tipoAlteracao: "restauracao",
+          criadoPor: ctx.user?.id,
+          criadoPorNome: ctx.user?.name,
+        });
+        
+        return { success: true, versaoRestaurada: versao.versao };
+      }),
+    
+    // Excluir versão (apenas versões antigas, não a atual)
+    excluirVersao: protectedProcedure
+      .input(z.object({ versaoId: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        // Verificar se não é a última versão
+        const [versao] = await db.select().from(revistaVersoes)
+          .where(eq(revistaVersoes.id, input.versaoId));
+        if (!versao) throw new Error("Versão não encontrada");
+        
+        const [ultimaVersao] = await db.select({ id: revistaVersoes.id })
+          .from(revistaVersoes)
+          .where(eq(revistaVersoes.revistaId, versao.revistaId))
+          .orderBy(desc(revistaVersoes.versao))
+          .limit(1);
+        
+        if (ultimaVersao?.id === input.versaoId) {
+          throw new Error("Não é possível excluir a versão mais recente");
+        }
+        
+        await db.delete(revistaVersoes).where(eq(revistaVersoes.id, input.versaoId));
+        return { success: true };
       }),
   }),
 

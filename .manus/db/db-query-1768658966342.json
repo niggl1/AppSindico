@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS revista_versoes (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  revistaId INT NOT NULL,\n  versao INT NOT NULL,\n  titulo VARCHAR(255) NOT NULL,\n  subtitulo VARCHAR(500),\n  edicao VARCHAR(100),\n  mesAno VARCHAR(50),\n  imagemCapaUrl VARCHAR(500),\n  corFundo VARCHAR(50),\n  estiloPdf VARCHAR(50),\n  secoes JSON,\n  descricaoAlteracao TEXT,\n  tipoAlteracao ENUM('criacao', 'edicao', 'publicacao', 'restauracao') DEFAULT 'edicao',\n  criadoPor INT,\n  criadoPorNome VARCHAR(255),\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  FOREIGN KEY (revistaId) REFERENCES revistas(id),\n  FOREIGN KEY (criadoPor) REFERENCES users(id)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4BJigjDSHDXY3fo.3a8343122767 --database FKCZX4UNP9ayQib2iMPF73 --execute CREATE TABLE IF NOT EXISTS revista_versoes (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  revistaId INT NOT NULL,\n  versao INT NOT NULL,\n  titulo VARCHAR(255) NOT NULL,\n  subtitulo VARCHAR(500),\n  edicao VARCHAR(100),\n  mesAno VARCHAR(50),\n  imagemCapaUrl VARCHAR(500),\n  corFundo VARCHAR(50),\n  estiloPdf VARCHAR(50),\n  secoes JSON,\n  descricaoAlteracao TEXT,\n  tipoAlteracao ENUM('criacao', 'edicao', 'publicacao', 'restauracao') DEFAULT 'edicao',\n  criadoPor INT,\n  criadoPorNome VARCHAR(255),\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  FOREIGN KEY (revistaId) REFERENCES revistas(id),\n  FOREIGN KEY (criadoPor) REFERENCES users(id)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 282
+}

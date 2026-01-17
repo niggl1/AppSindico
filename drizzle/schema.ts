@@ -2502,3 +2502,40 @@ export const revistaTemplates = mysqlTable("revista_templates", {
 
 export type RevistaTemplate = typeof revistaTemplates.$inferSelect;
 export type InsertRevistaTemplate = typeof revistaTemplates.$inferInsert;
+
+
+// ==================== HISTÓRICO DE VERSÕES DA REVISTA ====================
+export const revistaVersoes = mysqlTable("revista_versoes", {
+  id: int("id").autoincrement().primaryKey(),
+  revistaId: int("revistaId").references(() => revistas.id).notNull(),
+  // Número da versão
+  versao: int("versao").notNull(),
+  // Snapshot completo da revista
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  subtitulo: varchar("subtitulo", { length: 500 }),
+  edicao: varchar("edicao", { length: 100 }),
+  mesAno: varchar("mesAno", { length: 50 }),
+  imagemCapaUrl: varchar("imagemCapaUrl", { length: 500 }),
+  corFundo: varchar("corFundo", { length: 50 }),
+  estiloPdf: varchar("estiloPdf", { length: 50 }),
+  // Seções da revista (snapshot completo)
+  secoes: json("secoes").$type<{
+    id: string;
+    tipo: string;
+    titulo: string;
+    conteudo: any;
+    ordem: number;
+    ativo: boolean;
+  }[]>(),
+  // Metadados da versão
+  descricaoAlteracao: text("descricaoAlteracao"),
+  tipoAlteracao: mysqlEnum("tipoAlteracao", ["criacao", "edicao", "publicacao", "restauracao"]).default("edicao"),
+  // Quem criou a versão
+  criadoPor: int("criadoPor").references(() => users.id),
+  criadoPorNome: varchar("criadoPorNome", { length: 255 }),
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RevistaVersao = typeof revistaVersoes.$inferSelect;
+export type InsertRevistaVersao = typeof revistaVersoes.$inferInsert;

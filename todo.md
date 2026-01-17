@@ -701,3 +701,14 @@
 - [x] Selecionar seções incluídas
 - [x] Preview de templates
 - [x] Usar template ao criar nova revista
+
+
+## Histórico de Versões da Revista (17/01/2026)
+
+- [x] Criar tabela de versões da revista no banco de dados
+- [x] Salvar versão automaticamente ao publicar ou editar
+- [x] Listar histórico de versões por revista
+- [x] Visualizar versão anterior
+- [x] Comparar duas versões lado a lado
+- [x] Restaurar versão anterior
+- [x] Interface de histórico no editor da revista
