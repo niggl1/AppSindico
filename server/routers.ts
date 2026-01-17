@@ -7234,6 +7234,15 @@ export const appRouter = router({
 
   // ==================== MEMBROS DA EQUIPE ====================
   membroEquipe: router({
+    // Retorna o membro da equipe logado (se existir)
+    // Nota: membrosEquipe não tem campo email, então retornamos null por enquanto
+    // Para funcionar corretamente, seria necessário adicionar campo email ou vincular ao userId
+    me: protectedProcedure
+      .query(async ({ ctx }) => {
+        // Por enquanto, retorna null já que não há vinculação entre user e membroEquipe
+        return null;
+      }),
+
     list: protectedProcedure
       .input(z.object({ condominioId: z.number() }))
       .query(async ({ input }) => {

@@ -422,3 +422,6 @@
 
 - [ ] Adicionar "Notificar o Morador" no menu lateral do Dashboard
 - [x] Remover menu lateral interno (DashboardLayout) das páginas internas - usar apenas conteúdo principal
+
+## Correção de Erro (17/01/2026)
+- [x] Corrigir erro: No procedure found on path "membroEquipe.me"
