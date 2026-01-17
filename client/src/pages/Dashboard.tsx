@@ -175,7 +175,7 @@ const menuSections = [
       { id: "funcoes-simples-checklist", label: "Checklist Rápido", icon: Zap, funcaoId: "checklist-rapido", path: "/dashboard/funcoes-simples?tipo=checklist" },
       { id: "antes-depois", label: "Antes e Depois Completo", icon: ArrowLeftRight, funcaoId: "antes-depois" },
       { id: "funcoes-simples-antes-depois", label: "Antes/Depois Rápido", icon: Zap, funcaoId: "antes-depois-rapido", path: "/dashboard/funcoes-simples?tipo=antes_depois" },
-      { id: "vencimentos", label: "Agenda de Vencimentos", icon: CalendarClock, funcaoId: "agenda-vencimentos" },
+      { id: "agenda-vencimentos", label: "Agenda de Vencimentos", icon: CalendarClock, funcaoId: "agenda-vencimentos" },
       { id: "timeline", label: "Timeline", icon: Clock, funcaoId: "timeline" },
       { id: "timeline-historico", label: "Histórico Timeline", icon: History, funcaoId: "timeline" },
       { id: "timeline-dashboard", label: "Dashboard Timeline", icon: BarChart3, funcaoId: "timeline" },

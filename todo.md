@@ -443,3 +443,7 @@
 - [x] Remover ícone de + do menu
 - [x] Remover botão "MEUS PROJETOS" do menu
 - [x] Remover opção "+ Novo Projeto" que aparece ao clicar em VISÃO GERAL
+
+## Corrigir Agenda de Vencimentos (17/01/2026)
+- [ ] Substituir a página de Agenda de Vencimentos atual pela versão funcional do App Manutenção
+- [ ] Testar botões de cadastro (Contrato, Serviço, Manutenção)
