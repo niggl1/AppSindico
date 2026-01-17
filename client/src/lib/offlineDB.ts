@@ -45,6 +45,10 @@ const STORES = {
   // Ocorrências
   ocorrencias: 'ocorrencias',
   
+  // Revistas
+  revistas: 'revistas',
+  revistasDados: 'revistasDados',
+  
   // Sistema
   syncQueue: 'syncQueue',
   metadata: 'metadata',
@@ -758,6 +762,53 @@ class OfflineDB {
         console.error(`[OfflineDB] Erro ao limpar ${storeName}:`, error);
       }
     }
+  }
+
+  // ==================== FUNÇÕES ESPECÍFICAS PARA REVISTAS ====================
+  
+  // Salvar revista para leitura offline
+  async salvarRevistaOffline(revistaId: number, dadosCompletos: any): Promise<void> {
+    // Salvar metadados da revista
+    await this.save(STORES.revistas, revistaId, {
+      id: revistaId,
+      titulo: dadosCompletos.titulo,
+      edicao: dadosCompletos.edicao,
+      condominioId: dadosCompletos.condominioId,
+      shareLink: dadosCompletos.shareLink,
+      capaUrl: dadosCompletos.capaUrl,
+      salvadoEm: Date.now(),
+    }, false);
+    
+    // Salvar dados completos da revista (seções, conteúdo, etc.)
+    await this.save(STORES.revistasDados, revistaId, dadosCompletos, false);
+  }
+  
+  // Obter revista offline
+  async obterRevistaOffline(revistaId: number): Promise<any | null> {
+    return this.get(STORES.revistasDados, revistaId);
+  }
+  
+  // Listar revistas salvas offline
+  async listarRevistasOffline(): Promise<any[]> {
+    return this.getAllModuleData(STORES.revistas);
+  }
+  
+  // Verificar se revista está disponível offline
+  async revistaDisponivelOffline(revistaId: number): Promise<boolean> {
+    const revista = await this.get(STORES.revistas, revistaId);
+    return revista !== null;
+  }
+  
+  // Remover revista offline
+  async removerRevistaOffline(revistaId: number): Promise<void> {
+    await this.delete(STORES.revistas, revistaId);
+    await this.delete(STORES.revistasDados, revistaId);
+  }
+  
+  // Obter tamanho estimado das revistas offline
+  async obterTamanhoRevistasOffline(): Promise<number> {
+    const revistas = await this.getAllModuleData(STORES.revistasDados);
+    return revistas.reduce((total, r) => total + JSON.stringify(r).length, 0);
   }
 
   // Exportar dados para backup

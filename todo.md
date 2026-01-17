@@ -632,3 +632,34 @@
 - [x] Configurar atalhos no Service Worker
 - [x] Interface de configuração de widgets
 - [x] Suporte a arrastar e reordenar
+
+
+## Melhorias Revista do Síndico (17/01/2026)
+
+### Integração com Timeline
+- [x] Adicionar seção de resumo das últimas timelines de manutenção na revista
+- [x] Exibir status, responsáveis e datas das timelines recentes
+
+### Modo Offline para Revista
+- [x] Salvar revistas no IndexedDB para leitura offline
+- [x] Indicador de revistas disponíveis offline
+- [x] Sincronização automática de novas edições
+
+### Notificações de Nova Edição
+- [x] Alertar moradores quando nova edição for publicada
+- [x] Notificação push e email para assinantes
+
+### Estatísticas de Visualização
+- [x] Registrar visualizações por revista e seção
+- [x] Dashboard com analytics de leitura
+- [x] Gráficos de engajamento por período
+
+### Comentários na Revista
+- [x] Sistema de comentários por seção
+- [x] Moderação de comentários pelo síndico
+- [x] Notificações de novos comentários
+
+### Agendamento de Publicação
+- [x] Programar data/hora para publicação automática
+- [x] Status de rascunho vs publicado
+- [x] Histórico de publicações

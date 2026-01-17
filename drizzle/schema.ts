@@ -2346,3 +2346,98 @@ export const timelineLembretes = mysqlTable("timeline_lembretes", {
 
 export type TimelineLembrete = typeof timelineLembretes.$inferSelect;
 export type InsertTimelineLembrete = typeof timelineLembretes.$inferInsert;
+
+
+// ==================== ESTATÍSTICAS DE VISUALIZAÇÃO DA REVISTA ====================
+export const revistaVisualizacoes = mysqlTable("revista_visualizacoes", {
+  id: int("id").autoincrement().primaryKey(),
+  revistaId: int("revistaId").references(() => revistas.id).notNull(),
+  usuarioId: int("usuarioId").references(() => users.id),
+  // Dados da visualização
+  secaoId: varchar("secaoId", { length: 50 }),
+  paginaNumero: int("paginaNumero"),
+  tempoLeitura: int("tempoLeitura"), // em segundos
+  // Informações do dispositivo
+  dispositivo: varchar("dispositivo", { length: 50 }),
+  navegador: varchar("navegador", { length: 100 }),
+  ipHash: varchar("ipHash", { length: 64 }), // Hash do IP para privacidade
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RevistaVisualizacao = typeof revistaVisualizacoes.$inferSelect;
+export type InsertRevistaVisualizacao = typeof revistaVisualizacoes.$inferInsert;
+
+// ==================== COMENTÁRIOS DA REVISTA ====================
+export const revistaComentarios = mysqlTable("revista_comentarios", {
+  id: int("id").autoincrement().primaryKey(),
+  revistaId: int("revistaId").references(() => revistas.id).notNull(),
+  usuarioId: int("usuarioId").references(() => users.id),
+  moradorId: int("moradorId").references(() => moradores.id),
+  // Dados do comentário
+  secaoId: varchar("secaoId", { length: 50 }).notNull(),
+  secaoTipo: varchar("secaoTipo", { length: 50 }),
+  texto: text("texto").notNull(),
+  // Moderação
+  status: mysqlEnum("status", ["pendente", "aprovado", "rejeitado"]).default("pendente"),
+  moderadoPor: int("moderadoPor").references(() => users.id),
+  dataModeracao: timestamp("dataModeracao"),
+  motivoRejeicao: text("motivoRejeicao"),
+  // Respostas
+  parentId: int("parentId"),
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RevistaComentario = typeof revistaComentarios.$inferSelect;
+export type InsertRevistaComentario = typeof revistaComentarios.$inferInsert;
+
+// ==================== AGENDAMENTO DE PUBLICAÇÃO DA REVISTA ====================
+export const revistaAgendamentos = mysqlTable("revista_agendamentos", {
+  id: int("id").autoincrement().primaryKey(),
+  revistaId: int("revistaId").references(() => revistas.id).notNull(),
+  // Dados do agendamento
+  dataPublicacao: timestamp("dataPublicacao").notNull(),
+  status: mysqlEnum("status", ["agendado", "publicado", "cancelado", "erro"]).default("agendado"),
+  // Notificações
+  notificarMoradores: boolean("notificarMoradores").default(true),
+  notificarEmail: boolean("notificarEmail").default(true),
+  notificarPush: boolean("notificarPush").default(true),
+  mensagemNotificacao: text("mensagemNotificacao"),
+  // Execução
+  dataExecucao: timestamp("dataExecucao"),
+  erroMensagem: text("erroMensagem"),
+  // Metadados
+  criadoPor: int("criadoPor").references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RevistaAgendamento = typeof revistaAgendamentos.$inferSelect;
+export type InsertRevistaAgendamento = typeof revistaAgendamentos.$inferInsert;
+
+// ==================== ASSINANTES DA REVISTA (para notificações) ====================
+export const revistaAssinantes = mysqlTable("revista_assinantes", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").references(() => condominios.id).notNull(),
+  // Dados do assinante
+  nome: varchar("nome", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  whatsapp: varchar("whatsapp", { length: 20 }),
+  unidade: varchar("unidade", { length: 50 }),
+  // Preferências
+  receberEmail: boolean("receberEmail").default(true),
+  receberWhatsapp: boolean("receberWhatsapp").default(false),
+  receberPush: boolean("receberPush").default(true),
+  // Status
+  ativo: boolean("ativo").default(false), // Precisa ser ativado pela administração
+  dataAtivacao: timestamp("dataAtivacao"),
+  ativadoPor: int("ativadoPor").references(() => users.id),
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RevistaAssinante = typeof revistaAssinantes.$inferSelect;
+export type InsertRevistaAssinante = typeof revistaAssinantes.$inferInsert;

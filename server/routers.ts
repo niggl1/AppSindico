@@ -109,7 +109,11 @@ import {
   osImagens,
   funcoesRapidas,
   inscricoesRevista,
-  tarefasFacil
+  tarefasFacil,
+  revistaVisualizacoes,
+  revistaComentarios,
+  revistaAgendamentos,
+  revistaAssinantes
 } from "../drizzle/schema";
 import { tarefaFacilRouter } from "./routers/tarefaFacil";
 import { timelineRouter } from "./routers/timeline";
@@ -1101,6 +1105,291 @@ export const appRouter = router({
         return {
           pdf: pdfBuffer.toString('base64'),
           filename: `${revista.titulo.replace(/[^a-zA-Z0-9]/g, '_')}_${revista.edicao?.replace(/[^a-zA-Z0-9]/g, '_') || 'revista'}.pdf`,
+        };
+      }),
+
+    // ==================== ESTATÍSTICAS DE VISUALIZAÇÃO ====================
+    registrarVisualizacao: publicProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        secaoId: z.string().optional(),
+        paginaNumero: z.number().optional(),
+        tempoLeitura: z.number().optional(),
+        dispositivo: z.string().optional(),
+        navegador: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const ipHash = ctx.req?.ip ? Buffer.from(ctx.req.ip).toString('base64').slice(0, 64) : null;
+        await db.insert(revistaVisualizacoes).values({
+          ...input,
+          usuarioId: ctx.user?.id || null,
+          ipHash,
+        });
+        return { success: true };
+      }),
+
+    obterEstatisticas: protectedProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        dataInicio: z.date().optional(),
+        dataFim: z.date().optional(),
+      }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        
+        let query = db.select({
+          total: sql<number>`COUNT(*)`,
+          usuariosUnicos: sql<number>`COUNT(DISTINCT COALESCE(usuarioId, ipHash))`,
+          tempoMedioLeitura: sql<number>`AVG(tempoLeitura)`,
+        }).from(revistaVisualizacoes)
+          .where(eq(revistaVisualizacoes.revistaId, input.revistaId));
+        
+        const [stats] = await query;
+        
+        // Visualizações por seção
+        const porSecao = await db.select({
+          secaoId: revistaVisualizacoes.secaoId,
+          total: sql<number>`COUNT(*)`,
+        }).from(revistaVisualizacoes)
+          .where(eq(revistaVisualizacoes.revistaId, input.revistaId))
+          .groupBy(revistaVisualizacoes.secaoId);
+        
+        // Visualizações por dia (ultimos 30 dias)
+        const porDia = await db.select({
+          data: sql<string>`DATE(createdAt)`,
+          total: sql<number>`COUNT(*)`,
+        }).from(revistaVisualizacoes)
+          .where(and(
+            eq(revistaVisualizacoes.revistaId, input.revistaId),
+            gte(revistaVisualizacoes.createdAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+          ))
+          .groupBy(sql`DATE(createdAt)`)
+          .orderBy(sql`DATE(createdAt)`);
+        
+        return { ...stats, porSecao, porDia };
+      }),
+
+    // ==================== COMENTÁRIOS DA REVISTA ====================
+    listarComentarios: publicProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        secaoId: z.string().optional(),
+        status: z.enum(["pendente", "aprovado", "rejeitado"]).optional(),
+      }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        const conditions = [eq(revistaComentarios.revistaId, input.revistaId)];
+        if (input.secaoId) conditions.push(eq(revistaComentarios.secaoId, input.secaoId));
+        if (input.status) conditions.push(eq(revistaComentarios.status, input.status));
+        
+        return db.select({
+          comentario: revistaComentarios,
+          usuario: users,
+          morador: moradores,
+        }).from(revistaComentarios)
+          .leftJoin(users, eq(revistaComentarios.usuarioId, users.id))
+          .leftJoin(moradores, eq(revistaComentarios.moradorId, moradores.id))
+          .where(and(...conditions))
+          .orderBy(desc(revistaComentarios.createdAt));
+      }),
+
+    criarComentario: publicProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        secaoId: z.string(),
+        secaoTipo: z.string().optional(),
+        texto: z.string().min(1),
+        parentId: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const result = await db.insert(revistaComentarios).values({
+          ...input,
+          usuarioId: ctx.user?.id || null,
+          status: "pendente",
+        });
+        return { id: Number(result[0].insertId) };
+      }),
+
+    moderarComentario: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["aprovado", "rejeitado"]),
+        motivoRejeicao: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        await db.update(revistaComentarios).set({
+          status: input.status,
+          moderadoPor: ctx.user?.id,
+          dataModeracao: new Date(),
+          motivoRejeicao: input.motivoRejeicao,
+        }).where(eq(revistaComentarios.id, input.id));
+        return { success: true };
+      }),
+
+    excluirComentario: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.delete(revistaComentarios).where(eq(revistaComentarios.id, input.id));
+        return { success: true };
+      }),
+
+    // ==================== AGENDAMENTO DE PUBLICAÇÃO ====================
+    listarAgendamentos: protectedProcedure
+      .input(z.object({ revistaId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(revistaAgendamentos)
+          .where(eq(revistaAgendamentos.revistaId, input.revistaId))
+          .orderBy(desc(revistaAgendamentos.dataPublicacao));
+      }),
+
+    criarAgendamento: protectedProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        dataPublicacao: z.date(),
+        notificarMoradores: z.boolean().optional(),
+        notificarEmail: z.boolean().optional(),
+        notificarPush: z.boolean().optional(),
+        mensagemNotificacao: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const result = await db.insert(revistaAgendamentos).values({
+          ...input,
+          criadoPor: ctx.user?.id,
+        });
+        return { id: Number(result[0].insertId) };
+      }),
+
+    cancelarAgendamento: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.update(revistaAgendamentos).set({ status: "cancelado" })
+          .where(eq(revistaAgendamentos.id, input.id));
+        return { success: true };
+      }),
+
+    // ==================== ASSINANTES DA REVISTA ====================
+    listarAssinantes: protectedProcedure
+      .input(z.object({ condominioId: z.number(), apenasAtivos: z.boolean().optional() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        const conditions = [eq(revistaAssinantes.condominioId, input.condominioId)];
+        if (input.apenasAtivos) conditions.push(eq(revistaAssinantes.ativo, true));
+        
+        return db.select().from(revistaAssinantes)
+          .where(and(...conditions))
+          .orderBy(desc(revistaAssinantes.createdAt));
+      }),
+
+    cadastrarAssinante: publicProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        nome: z.string().min(1),
+        email: z.string().email().optional(),
+        whatsapp: z.string().optional(),
+        unidade: z.string().optional(),
+        receberEmail: z.boolean().optional(),
+        receberWhatsapp: z.boolean().optional(),
+        receberPush: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const result = await db.insert(revistaAssinantes).values({
+          ...input,
+          ativo: false, // Precisa ser ativado pela administração
+        });
+        return { id: Number(result[0].insertId) };
+      }),
+
+    ativarAssinante: protectedProcedure
+      .input(z.object({ id: z.number(), ativo: z.boolean() }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        await db.update(revistaAssinantes).set({
+          ativo: input.ativo,
+          dataAtivacao: input.ativo ? new Date() : null,
+          ativadoPor: input.ativo ? ctx.user?.id : null,
+        }).where(eq(revistaAssinantes.id, input.id));
+        return { success: true };
+      }),
+
+    excluirAssinante: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.delete(revistaAssinantes).where(eq(revistaAssinantes.id, input.id));
+        return { success: true };
+      }),
+
+    // ==================== NOTIFICAR NOVA EDIÇÃO ====================
+    notificarNovaEdicao: protectedProcedure
+      .input(z.object({
+        revistaId: z.number(),
+        condominioId: z.number(),
+        mensagem: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        // Buscar revista
+        const [revista] = await db.select().from(revistas)
+          .where(eq(revistas.id, input.revistaId));
+        if (!revista) throw new Error("Revista não encontrada");
+        
+        // Buscar assinantes ativos
+        const assinantes = await db.select().from(revistaAssinantes)
+          .where(and(
+            eq(revistaAssinantes.condominioId, input.condominioId),
+            eq(revistaAssinantes.ativo, true)
+          ));
+        
+        const mensagem = input.mensagem || `Nova edição da revista "${revista.titulo}" disponível!`;
+        const link = `/revista/${revista.shareLink}`;
+        
+        // Enviar emails
+        const emailsParaEnviar = assinantes
+          .filter(a => a.receberEmail && a.email)
+          .map(a => a.email!);
+        
+        if (emailsParaEnviar.length > 0 && isEmailConfigured()) {
+          await sendBulkEmail({
+            to: emailsParaEnviar,
+            subject: `Nova Edição: ${revista.titulo}`,
+            html: `<h2>${revista.titulo}</h2><p>${mensagem}</p><p><a href="${link}">Clique aqui para ler</a></p>`,
+          });
+        }
+        
+        return { 
+          success: true, 
+          notificados: assinantes.length,
+          emailsEnviados: emailsParaEnviar.length,
         };
       }),
   }),

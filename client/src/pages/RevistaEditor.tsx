@@ -98,6 +98,7 @@ const sectionTypes = [
   { id: "aquisicoes", name: "Aquisições", icon: Package, color: "text-fuchsia-500" },
   { id: "publicidade", name: "Publicidade", icon: Megaphone, color: "text-rose-500" },
   { id: "cadastro", name: "Cadastre-se para Receber", icon: Send, color: "text-green-500" },
+  { id: "timeline_manutencao", name: "Timeline de Manutenções", icon: Calendar, color: "text-blue-600" },
 ];
 
 export default function RevistaEditor() {
@@ -124,6 +125,12 @@ export default function RevistaEditor() {
   const [showPublicidadeForm, setShowPublicidadeForm] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   
+  // Estados para agendamento de publicação
+  const [showAgendamento, setShowAgendamento] = useState(false);
+  const [dataAgendamento, setDataAgendamento] = useState('');
+  const [horaAgendamento, setHoraAgendamento] = useState('');
+  const [notificarMoradores, setNotificarMoradores] = useState(true);
+  
   // Estado para secções ocultas
   const [hiddenSections, setHiddenSections] = useState<Set<string>>(new Set());
   
@@ -148,6 +155,7 @@ export default function RevistaEditor() {
     "telefones",
     "links",
     "cadastro",
+    "timeline_manutencao",
   ]);
   
   // Sensores para drag and drop

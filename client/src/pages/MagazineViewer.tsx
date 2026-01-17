@@ -45,7 +45,12 @@ import {
   ScrollText,
   Printer,
   AlertCircle,
+  WifiOff,
+  BarChart3,
+  Send,
+  Clock,
 } from "lucide-react";
+import { offlineDB } from "@/lib/offlineDB";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -109,6 +114,20 @@ export default function MagazineViewer() {
   const [readingMode, setReadingMode] = useState<'page' | 'continuous'>('page');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Offline state
+  const [isOfflineAvailable, setIsOfflineAvailable] = useState(false);
+  const [isSavingOffline, setIsSavingOffline] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  
+  // Comentários state
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  
+  // Tempo de leitura para estatísticas
+  const [startTime] = useState(Date.now());
+  const [lastPageView, setLastPageView] = useState(Date.now());
 
   // Buscar dados reais da revista via tRPC
   const { data: magazineData, isLoading, error } = trpc.revista.getPublicFull.useQuery(
@@ -481,6 +500,92 @@ export default function MagazineViewer() {
   }, [magazineData]);
 
   const totalPages = magazine?.pages.length || 0;
+  
+  // Mutations para estatísticas e comentários
+  const registrarVisualizacao = trpc.revista.registrarVisualizacao.useMutation();
+  const criarComentario = trpc.revista.criarComentario.useMutation({
+    onSuccess: () => {
+      toast.success('Comentário enviado para moderação!');
+      setNewComment('');
+    },
+    onError: () => toast.error('Erro ao enviar comentário'),
+  });
+  
+  // Verificar disponibilidade offline ao carregar
+  useEffect(() => {
+    const checkOffline = async () => {
+      if (magazineData?.revista?.id) {
+        const available = await offlineDB.revistaDisponivelOffline(magazineData.revista.id);
+        setIsOfflineAvailable(available);
+      }
+    };
+    checkOffline();
+  }, [magazineData?.revista?.id]);
+  
+  // Registrar visualização ao carregar
+  useEffect(() => {
+    if (magazineData?.revista?.id && !isOfflineMode) {
+      registrarVisualizacao.mutate({
+        revistaId: magazineData.revista.id,
+        dispositivo: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        navegador: navigator.userAgent.slice(0, 100),
+      });
+    }
+  }, [magazineData?.revista?.id]);
+  
+  // Registrar tempo de leitura por página
+  useEffect(() => {
+    if (magazineData?.revista?.id && magazine?.pages[currentPage] && !isOfflineMode) {
+      const tempoNaPagina = Math.floor((Date.now() - lastPageView) / 1000);
+      if (tempoNaPagina > 2) { // Só registrar se ficou mais de 2 segundos
+        registrarVisualizacao.mutate({
+          revistaId: magazineData.revista.id,
+          secaoId: magazine.pages[currentPage].type,
+          paginaNumero: currentPage + 1,
+          tempoLeitura: tempoNaPagina,
+        });
+      }
+      setLastPageView(Date.now());
+    }
+  }, [currentPage]);
+  
+  // Função para salvar revista offline
+  const handleSaveOffline = async () => {
+    if (!magazineData) return;
+    setIsSavingOffline(true);
+    try {
+      await offlineDB.salvarRevistaOffline(magazineData.revista.id, magazineData);
+      setIsOfflineAvailable(true);
+      toast.success('Revista salva para leitura offline!');
+    } catch (error) {
+      toast.error('Erro ao salvar revista offline');
+    } finally {
+      setIsSavingOffline(false);
+    }
+  };
+  
+  // Função para remover revista offline
+  const handleRemoveOffline = async () => {
+    if (!magazineData?.revista?.id) return;
+    try {
+      await offlineDB.removerRevistaOffline(magazineData.revista.id);
+      setIsOfflineAvailable(false);
+      toast.success('Revista removida do armazenamento offline');
+    } catch (error) {
+      toast.error('Erro ao remover revista offline');
+    }
+  };
+  
+  // Função para enviar comentário
+  const handleSubmitComment = () => {
+    if (!newComment.trim() || !magazineData?.revista?.id || !selectedSection) return;
+    criarComentario.mutate({
+      revistaId: magazineData.revista.id,
+      secaoId: selectedSection,
+      secaoTipo: magazine?.pages.find(p => p.type === selectedSection)?.type,
+      texto: newComment,
+    });
+  };
 
   const generatePDF = trpc.revista.generatePDF.useMutation({
     onSuccess: (data) => {
@@ -854,6 +959,39 @@ export default function MagazineViewer() {
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </Button>
+            
+            {/* Botão Offline */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "text-white/70 hover:text-white hover:bg-white/10",
+                isOfflineAvailable && "bg-green-500/20 text-green-400"
+              )}
+              onClick={isOfflineAvailable ? handleRemoveOffline : handleSaveOffline}
+              disabled={isSavingOffline}
+              title={isOfflineAvailable ? "Remover do offline" : "Salvar para offline"}
+            >
+              {isSavingOffline ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <WifiOff className="w-4 h-4" />
+              )}
+            </Button>
+            
+            {/* Botão Comentários */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "text-white/70 hover:text-white hover:bg-white/10",
+                showComments && "bg-white/20 text-white"
+              )}
+              onClick={() => setShowComments(!showComments)}
+              title="Comentários"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </header>
@@ -951,6 +1089,73 @@ export default function MagazineViewer() {
                   </button>
                 ))}
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Painel de Comentários */}
+        <AnimatePresence>
+          {showComments && (
+            <motion.div
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 300, opacity: 0 }}
+              className="absolute right-4 top-4 bottom-4 w-80 bg-black/50 backdrop-blur-xl rounded-xl border border-white/10 p-4 z-20 flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-serif font-bold text-white">Comentários</h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white/70 hover:text-white"
+                  onClick={() => setShowComments(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              {/* Seleção de seção */}
+              <div className="mb-4">
+                <label className="text-white/70 text-sm mb-2 block">Comentar sobre:</label>
+                <select
+                  value={selectedSection || ''}
+                  onChange={(e) => setSelectedSection(e.target.value || null)}
+                  className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-primary"
+                >
+                  <option value="" className="bg-slate-800">Selecione uma seção</option>
+                  {magazine?.pages.map((page, index) => (
+                    <option key={page.id} value={page.type} className="bg-slate-800">
+                      {getPageTitle(page)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Campo de comentário */}
+              <div className="flex-1 flex flex-col">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Escreva seu comentário..."
+                  className="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-primary resize-none min-h-[100px]"
+                />
+                <Button
+                  className="mt-3 w-full"
+                  onClick={handleSubmitComment}
+                  disabled={!newComment.trim() || !selectedSection || criarComentario.isPending}
+                >
+                  {criarComentario.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Enviar Comentário
+                </Button>
+              </div>
+              
+              <p className="text-white/50 text-xs mt-3 text-center">
+                Comentários são enviados para moderação antes de serem publicados
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
