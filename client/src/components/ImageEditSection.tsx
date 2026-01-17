@@ -35,7 +35,7 @@ import * as fabric from "fabric";
 interface ImageEditSectionProps {
   onSaveEditedImage: (imageBase64: string) => void;
   label?: string;
-  logoUrl?: string; // URL do logo do condomínio
+  logoUrl?: string; // URL do logo da organização
 }
 
 type Tool = "select" | "text" | "arrow" | "line" | "rect" | "circle" | "draw";
@@ -767,7 +767,7 @@ export default function ImageEditSection({
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 flex items-center gap-2">
               <Stamp className="h-4 w-4 text-amber-600 flex-shrink-0" />
               <p className="text-xs text-amber-700">
-                Para usar marca d'água, configure o logo do condomínio nas configurações.
+                Para usar marca d'água, configure o logo da organização nas configurações.
               </p>
             </div>
           )}

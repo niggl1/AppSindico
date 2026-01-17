@@ -109,8 +109,8 @@ export function ShareModal({ isOpen, onClose, tipo, itemId, itemTitulo, itemProt
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden p-0">
-        <div className={`bg-gradient-to-r ${getTipoColor(tipo)} px-6 py-4`}>
+      <DialogContent className="w-[92vw] max-w-sm max-h-[85vh] overflow-hidden p-0">
+        <div className={`bg-gradient-to-r ${getTipoColor(tipo)} px-4 py-3`}>
           <DialogHeader className="space-y-1">
             <DialogTitle className="flex items-center gap-2 text-white text-lg">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -121,7 +121,7 @@ export function ShareModal({ isOpen, onClose, tipo, itemId, itemTitulo, itemProt
           </DialogHeader>
         </div>
 
-        <div className="space-y-6 p-6 overflow-y-auto max-h-[60vh]">
+        <div className="space-y-4 p-4 overflow-y-auto max-h-[55vh]">
           {/* Info do Item */}
           <Card className="border-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
             <CardContent className="p-4">

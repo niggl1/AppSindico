@@ -15,7 +15,8 @@ import {
   ChevronUp,
   Hash,
   Share2,
-  FileDown
+  FileDown,
+  Users
 } from "lucide-react";
 import { useState } from "react";
 
@@ -37,6 +38,7 @@ interface ProtocolCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onShare?: () => void;
+  onShareEquipe?: () => void;
   onPdf?: () => void;
   tipo?: string | null;
   categoria?: string | null;
@@ -83,6 +85,7 @@ export function ProtocolCard({
   onEdit,
   onDelete,
   onShare,
+  onShareEquipe,
   onPdf,
   tipo,
   categoria,
@@ -127,6 +130,11 @@ export function ProtocolCard({
             {onShare && (
               <Button variant="ghost" size="icon" onClick={onShare} title="Compartilhar via WhatsApp" className="text-green-600 hover:text-green-700 hover:bg-green-50">
                 <Share2 className="h-4 w-4" />
+              </Button>
+            )}
+            {onShareEquipe && (
+              <Button variant="ghost" size="icon" onClick={onShareEquipe} title="Compartilhar com Equipe" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50">
+                <Users className="h-4 w-4" />
               </Button>
             )}
             {onPdf && (
