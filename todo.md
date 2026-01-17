@@ -558,3 +558,24 @@
 - [x] Atualizar contexto offline com funções de todas as áreas
 - [x] Atualizar Service Worker com padrões de cache expandidos
 - [x] Criar componentes de status offline por módulo
+
+
+## Melhorias Avançadas Modo Offline (17/01/2026)
+
+### Resolução de Conflitos
+- [x] Sistema de detecção de conflitos entre dados offline e online
+- [x] Interface visual para comparar versões conflitantes
+- [x] Opções de resolução: manter local, manter servidor, mesclar
+- [x] Histórico de conflitos resolvidos
+
+### Compressão de Dados
+- [x] Implementar compressão LZ-String para dados do IndexedDB
+- [x] Compressão automática ao salvar dados offline
+- [x] Descompressão transparente ao ler dados
+- [x] Indicador de economia de espaço
+
+### Sincronização Seletiva
+- [x] Interface para configurar módulos a sincronizar
+- [x] Opção de sincronização automática por módulo
+- [x] Prioridade de sincronização configurável
+- [x] Agendamento de sincronização por horário

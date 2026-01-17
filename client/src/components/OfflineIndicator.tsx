@@ -24,7 +24,14 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  Settings,
+  AlertTriangle,
+  Zap,
 } from 'lucide-react';
+import { SyncSettingsDialog } from './SyncSettings';
+import { ConflictResolver } from './ConflictResolver';
+import { ConflictItem } from '@/lib/conflictResolver';
+import { formatSize, getByteSize, compressObject, decompressObject, getCompressionRatio } from '@/lib/compression';
 import { toast } from 'sonner';
 
 interface ModuleStats {
@@ -56,6 +63,9 @@ export function OfflineIndicator() {
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [conflicts, setConflicts] = useState<ConflictItem[]>([]);
+  const [showConflicts, setShowConflicts] = useState(false);
+  const [compressionStats, setCompressionStats] = useState<{ original: number; compressed: number } | null>(null);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -136,6 +146,54 @@ export function OfflineIndicator() {
       await clearModuleData(module as any);
       const newStats = await getOfflineStats();
       setStats(newStats);
+    }
+  };
+
+  // Handler para resolver conflito individual
+  const handleResolveConflict = (conflict: ConflictItem, resolution: 'local' | 'server' | 'merge', data?: any) => {
+    setConflicts(prev => prev.map(c => 
+      c.id === conflict.id 
+        ? { ...c, resolved: true, resolution, resolvedAt: Date.now(), resolvedData: data }
+        : c
+    ));
+  };
+
+  // Handler para resolver todos os conflitos
+  const handleResolveAllConflicts = (strategy: 'newest' | 'oldest' | 'local' | 'server') => {
+    setConflicts(prev => prev.map(c => {
+      if (c.resolved) return c;
+      let resolution: 'local' | 'server' = 'local';
+      let resolvedData = c.localData;
+      
+      if (strategy === 'newest') {
+        if (c.serverTimestamp > c.localTimestamp) {
+          resolution = 'server';
+          resolvedData = c.serverData;
+        }
+      } else if (strategy === 'oldest') {
+        if (c.serverTimestamp < c.localTimestamp) {
+          resolution = 'server';
+          resolvedData = c.serverData;
+        }
+      } else if (strategy === 'server') {
+        resolution = 'server';
+        resolvedData = c.serverData;
+      }
+      
+      return { ...c, resolved: true, resolution, resolvedAt: Date.now(), resolvedData };
+    }));
+    toast.success('Todos os conflitos foram resolvidos!');
+  };
+
+  // Calcular estatísticas de compressão
+  const calculateCompressionStats = async () => {
+    try {
+      const data = await exportOfflineData();
+      const original = getByteSize(data);
+      const compressed = getByteSize(compressObject(JSON.parse(data)));
+      setCompressionStats({ original, compressed });
+    } catch (e) {
+      console.error('Erro ao calcular compressão:', e);
     }
   };
 
@@ -252,6 +310,42 @@ export function OfflineIndicator() {
               Importar
             </Button>
           </div>
+          
+          {/* Botões de Configurações e Conflitos */}
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <SyncSettingsDialog
+              trigger={
+                <Button size="sm" variant="outline" className="text-xs w-full">
+                  <Settings className="h-3 w-3 mr-1" />
+                  Config Sync
+                </Button>
+              }
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs"
+              onClick={() => setShowConflicts(true)}
+            >
+              <AlertTriangle className="h-3 w-3 mr-1" />
+              Conflitos {conflicts.filter(c => !c.resolved).length > 0 && `(${conflicts.filter(c => !c.resolved).length})`}
+            </Button>
+          </div>
+          
+          {/* Estatísticas de Compressão */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full mt-2 text-xs"
+            onClick={calculateCompressionStats}
+          >
+            <Zap className="h-3 w-3 mr-1" />
+            {compressionStats 
+              ? `Compressão: ${formatSize(compressionStats.original)} → ${formatSize(compressionStats.compressed)} (${getCompressionRatio(String(compressionStats.original), String(compressionStats.compressed)).toFixed(1)}% economia)`
+              : 'Calcular Compressão'
+            }
+          </Button>
+          
           <Button
             size="sm"
             variant="ghost"
@@ -266,6 +360,15 @@ export function OfflineIndicator() {
             Limpar todos os dados offline
           </Button>
         </div>
+        
+        {/* Modal de Resolução de Conflitos */}
+        <ConflictResolver
+          conflicts={conflicts}
+          open={showConflicts}
+          onOpenChange={setShowConflicts}
+          onResolve={handleResolveConflict}
+          onResolveAll={handleResolveAllConflicts}
+        />
         <div className="p-2 bg-blue-50 border-t">
           <p className="text-xs text-blue-600 text-center flex items-center justify-center gap-1">
             <HardDrive className="h-3 w-3" />
