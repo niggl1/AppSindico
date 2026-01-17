@@ -1289,7 +1289,9 @@ export const timelineRouter = router({
       // Agrupar reações por tipo
       const reacoesPorTipo: Record<string, number> = {};
       reacoes.forEach((r) => {
-        reacoesPorTipo[r.tipo] = (reacoesPorTipo[r.tipo] || 0) + 1;
+        if (r.tipo) {
+          reacoesPorTipo[r.tipo] = (reacoesPorTipo[r.tipo] || 0) + 1;
+        }
       });
 
       // Comentários por dia (últimos 7 dias)
@@ -1532,6 +1534,330 @@ export const timelineRouter = router({
         .where(eq(timelineLembretes.id, input.id));
 
       return { success: true };
+    }),
+
+  // ==================== TIMELINE - RELATÓRIO DE ATIVIDADES ====================
+
+  // Gerar relatório de atividades mensal
+  gerarRelatorioAtividades: protectedProcedure
+    .input(z.object({
+      condominioId: z.number(),
+      mes: z.number().min(1).max(12),
+      ano: z.number().min(2020).max(2100),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Calcular datas do mês
+      const dataInicio = new Date(input.ano, input.mes - 1, 1);
+      const dataFim = new Date(input.ano, input.mes, 0, 23, 59, 59);
+
+      // Buscar timelines do período
+      const timelinesDoMes = await db.select()
+        .from(timelines)
+        .where(and(
+          eq(timelines.condominioId, input.condominioId),
+          gte(timelines.createdAt, dataInicio),
+          lte(timelines.createdAt, dataFim)
+        ));
+
+      // Buscar comentários do período
+      const comentariosDoMes = await db.select()
+        .from(timelineComentarios)
+        .where(and(
+          gte(timelineComentarios.createdAt, dataInicio),
+          lte(timelineComentarios.createdAt, dataFim)
+        ));
+
+      // Buscar status para categorização
+      const statusList = await db.select()
+        .from(timelineStatus)
+        .where(eq(timelineStatus.condominioId, input.condominioId));
+
+      // Buscar prioridades
+      const prioridadesList = await db.select()
+        .from(timelinePrioridades)
+        .where(eq(timelinePrioridades.condominioId, input.condominioId));
+
+      // Calcular estatísticas
+      const totalTimelines = timelinesDoMes.length;
+      const totalComentarios = comentariosDoMes.length;
+
+      // Timelines por status
+      const timelinesPorStatus: Record<string, number> = {};
+      for (const timeline of timelinesDoMes) {
+        const status = statusList.find(s => s.id === timeline.statusId);
+        const statusNome = status?.nome || "Sem status";
+        timelinesPorStatus[statusNome] = (timelinesPorStatus[statusNome] || 0) + 1;
+      }
+
+      // Timelines por prioridade
+      const timelinesPorPrioridade: Record<string, number> = {};
+      for (const timeline of timelinesDoMes) {
+        const prioridade = prioridadesList.find(p => p.id === timeline.prioridadeId);
+        const prioridadeNome = prioridade?.nome || "Sem prioridade";
+        timelinesPorPrioridade[prioridadeNome] = (timelinesPorPrioridade[prioridadeNome] || 0) + 1;
+      }
+
+      // Atividade por dia
+      const atividadePorDia: Record<string, { timelines: number; comentarios: number }> = {};
+      for (let dia = 1; dia <= dataFim.getDate(); dia++) {
+        const dataStr = `${input.ano}-${String(input.mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+        atividadePorDia[dataStr] = { timelines: 0, comentarios: 0 };
+      }
+
+      for (const timeline of timelinesDoMes) {
+        const dataStr = new Date(timeline.createdAt).toISOString().split("T")[0];
+        if (atividadePorDia[dataStr]) {
+          atividadePorDia[dataStr].timelines++;
+        }
+      }
+
+      for (const comentario of comentariosDoMes) {
+        const dataStr = new Date(comentario.createdAt).toISOString().split("T")[0];
+        if (atividadePorDia[dataStr]) {
+          atividadePorDia[dataStr].comentarios++;
+        }
+      }
+
+      // Participantes mais ativos
+      const participantesPorComentario: Record<string, number> = {};
+      for (const comentario of comentariosDoMes) {
+        const nome = comentario.autorNome || "Anônimo";
+        participantesPorComentario[nome] = (participantesPorComentario[nome] || 0) + 1;
+      }
+
+      // Top 5 participantes
+      const topParticipantes = Object.entries(participantesPorComentario)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([nome, count]) => ({ nome, comentarios: count }));
+
+      // Timelines com mais comentários
+      const comentariosPorTimeline: Record<number, number> = {};
+      for (const comentario of comentariosDoMes) {
+        comentariosPorTimeline[comentario.timelineId] = (comentariosPorTimeline[comentario.timelineId] || 0) + 1;
+      }
+
+      const topTimelines = Object.entries(comentariosPorTimeline)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([timelineId, count]) => {
+          const timeline = timelinesDoMes.find(t => t.id === Number(timelineId));
+          return {
+            id: Number(timelineId),
+            titulo: timeline?.titulo || "Timeline",
+            protocolo: timeline?.protocolo || "",
+            comentarios: count,
+          };
+        });
+
+      return {
+        periodo: {
+          mes: input.mes,
+          ano: input.ano,
+          mesNome: new Date(input.ano, input.mes - 1).toLocaleString("pt-BR", { month: "long" }),
+        },
+        resumo: {
+          totalTimelines,
+          totalComentarios,
+          mediaComentariosPorTimeline: totalTimelines > 0 ? Math.round(totalComentarios / totalTimelines * 10) / 10 : 0,
+        },
+        timelinesPorStatus,
+        timelinesPorPrioridade,
+        atividadePorDia,
+        topParticipantes,
+        topTimelines,
+      };
+    }),
+
+  // ==================== TIMELINE - INTEGRAÇÃO CALENDÁRIO ====================
+
+  // Exportar lembretes para formato iCal
+  exportarCalendario: protectedProcedure
+    .input(z.object({
+      timelineId: z.number().optional(),
+      condominioId: z.number().optional(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const conditions = [
+        eq(timelineLembretes.usuarioId, ctx.user?.id || 0),
+        eq(timelineLembretes.status, "pendente"),
+      ];
+
+      if (input.timelineId) {
+        conditions.push(eq(timelineLembretes.timelineId, input.timelineId));
+      }
+      if (input.condominioId) {
+        conditions.push(eq(timelineLembretes.condominioId, input.condominioId));
+      }
+
+      const lembretesList = await db.select()
+        .from(timelineLembretes)
+        .where(and(...conditions));
+
+      // Gerar conteúdo iCal
+      const now = new Date();
+      const formatDate = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      };
+
+      let icalContent = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//App Sindico//Timeline Lembretes//PT",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+      ];
+
+      for (const lembrete of lembretesList) {
+        const dataLembrete = new Date(lembrete.dataLembrete);
+        const dataFim = new Date(dataLembrete.getTime() + 30 * 60 * 1000); // 30 minutos depois
+
+        icalContent.push(
+          "BEGIN:VEVENT",
+          `UID:lembrete-${lembrete.id}@appsindico.com`,
+          `DTSTAMP:${formatDate(now)}`,
+          `DTSTART:${formatDate(dataLembrete)}`,
+          `DTEND:${formatDate(dataFim)}`,
+          `SUMMARY:${lembrete.titulo}`,
+          lembrete.descricao ? `DESCRIPTION:${lembrete.descricao.replace(/\n/g, "\\n")}` : "",
+          "STATUS:CONFIRMED",
+          lembrete.recorrente && lembrete.intervaloRecorrencia ? 
+            `RRULE:FREQ=${lembrete.intervaloRecorrencia === "diario" ? "DAILY" : lembrete.intervaloRecorrencia === "semanal" ? "WEEKLY" : "MONTHLY"}` : "",
+          "BEGIN:VALARM",
+          "TRIGGER:-PT15M",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:Lembrete: ${lembrete.titulo}`,
+          "END:VALARM",
+          "END:VEVENT"
+        );
+      }
+
+      icalContent.push("END:VCALENDAR");
+
+      // Filtrar linhas vazias
+      const icalString = icalContent.filter(line => line).join("\r\n");
+
+      return {
+        content: icalString,
+        filename: `lembretes-timeline-${now.toISOString().split("T")[0]}.ics`,
+        totalLembretes: lembretesList.length,
+      };
+    }),
+
+  // Gerar link do Google Calendar
+  gerarLinkGoogleCalendar: protectedProcedure
+    .input(z.object({
+      lembreteId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [lembrete] = await db.select()
+        .from(timelineLembretes)
+        .where(eq(timelineLembretes.id, input.lembreteId));
+
+      if (!lembrete) throw new Error("Lembrete não encontrado");
+
+      const dataLembrete = new Date(lembrete.dataLembrete);
+      const dataFim = new Date(dataLembrete.getTime() + 30 * 60 * 1000);
+
+      const formatGoogleDate = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      };
+
+      const params = new URLSearchParams({
+        action: "TEMPLATE",
+        text: lembrete.titulo,
+        dates: `${formatGoogleDate(dataLembrete)}/${formatGoogleDate(dataFim)}`,
+        details: lembrete.descricao || "",
+        sf: "true",
+      });
+
+      if (lembrete.recorrente && lembrete.intervaloRecorrencia) {
+        const recur = lembrete.intervaloRecorrencia === "diario" ? "DAILY" :
+                      lembrete.intervaloRecorrencia === "semanal" ? "WEEKLY" : "MONTHLY";
+        params.set("recur", `RRULE:FREQ=${recur}`);
+      }
+
+      return {
+        url: `https://calendar.google.com/calendar/render?${params.toString()}`,
+        lembrete: {
+          id: lembrete.id,
+          titulo: lembrete.titulo,
+          dataLembrete: lembrete.dataLembrete,
+        },
+      };
+    }),
+
+  // ==================== TIMELINE - SUPORTE A VÍDEOS ====================
+
+  // Validar vídeo antes do upload
+  validarVideo: protectedProcedure
+    .input(z.object({
+      tamanho: z.number(), // em bytes
+      tipo: z.string(),
+      duracao: z.number().optional(), // em segundos
+    }))
+    .mutation(async ({ input }) => {
+      const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+      const MAX_DURATION = 120; // 2 minutos
+      const TIPOS_PERMITIDOS = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"];
+
+      const erros: string[] = [];
+
+      if (input.tamanho > MAX_SIZE) {
+        erros.push(`Vídeo muito grande. Máximo permitido: ${MAX_SIZE / (1024 * 1024)}MB`);
+      }
+
+      if (!TIPOS_PERMITIDOS.includes(input.tipo)) {
+        erros.push(`Tipo de vídeo não suportado. Permitidos: MP4, WebM, MOV, AVI`);
+      }
+
+      if (input.duracao && input.duracao > MAX_DURATION) {
+        erros.push(`Vídeo muito longo. Máximo permitido: ${MAX_DURATION} segundos`);
+      }
+
+      return {
+        valido: erros.length === 0,
+        erros,
+        limites: {
+          tamanhoMaximo: MAX_SIZE,
+          duracaoMaxima: MAX_DURATION,
+          tiposPermitidos: TIPOS_PERMITIDOS,
+        },
+      };
+    }),
+
+  // Obter informações de vídeos de um comentário
+  obterVideosComentario: protectedProcedure
+    .input(z.object({
+      comentarioId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      const [comentario] = await db.select()
+        .from(timelineComentarios)
+        .where(eq(timelineComentarios.id, input.comentarioId));
+
+      if (!comentario) return [];
+
+      // Extrair URLs de vídeos dos arquivos anexados
+      const arquivos = comentario.arquivosUrls || [];
+      const videos = arquivos.filter((arq: any) => 
+        arq.tipo?.startsWith("video/") || 
+        arq.url?.match(/\.(mp4|webm|mov|avi)$/i)
+      );
+
+      return videos;
     }),
 
   // ==================== TIMELINE - CONFIGURAÇÕES DE NOTIFICAÇÕES ====================

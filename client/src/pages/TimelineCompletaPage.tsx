@@ -85,6 +85,12 @@ import {
   CalendarClock,
   Repeat,
   Mail,
+  FileSpreadsheet,
+  Video,
+  Play,
+  ExternalLink,
+  CalendarPlus,
+  Download,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -673,6 +679,16 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   });
   const [editandoLembrete, setEditandoLembrete] = useState<any>(null);
 
+  // Estados de relatório
+  const [showRelatorio, setShowRelatorio] = useState(false);
+  const [relatorioMes, setRelatorioMes] = useState(new Date().getMonth() + 1);
+  const [relatorioAno, setRelatorioAno] = useState(new Date().getFullYear());
+
+  // Estados de vídeos
+  const [comentarioVideos, setComentarioVideos] = useState<Array<{ url: string; nome: string; tipo: string; tamanho: number }>>([]);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
   // Queries para listas
   const { data: responsaveis = [] } = trpc.timeline.listarResponsaveis.useQuery({ condominioId });
   const { data: locais = [] } = trpc.timeline.listarLocais.useQuery({ condominioId });
@@ -733,6 +749,18 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const { data: lembretes = [], refetch: refetchLembretes } = trpc.timeline.listarLembretes.useQuery(
     { timelineId: timelineCriada?.id || 0 },
     { enabled: !!timelineCriada?.id && showLembretes }
+  );
+
+  // Query de relatório de atividades
+  const { data: relatorio, isLoading: carregandoRelatorio } = trpc.timeline.gerarRelatorioAtividades.useQuery(
+    { condominioId, mes: relatorioMes, ano: relatorioAno },
+    { enabled: showRelatorio }
+  );
+
+  // Query de exportar calendário
+  const { data: calendarioData, refetch: refetchCalendario } = trpc.timeline.exportarCalendario.useQuery(
+    { timelineId: timelineCriada?.id || 0 },
+    { enabled: false }
   );
 
   // Lista de autores únicos para o filtro
@@ -1533,6 +1561,77 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     return `${Math.round(ms / 86400000)} dias`;
   };
 
+  // Handler para exportar calendário
+  const handleExportarCalendario = async () => {
+    try {
+      const { data } = await refetchCalendario();
+      if (!data) {
+        toast.error("Erro ao gerar arquivo de calendário");
+        return;
+      }
+
+      // Criar e baixar arquivo .ics
+      const blob = new Blob([data.content], { type: "text/calendar;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`${data.totalLembretes} lembrete(s) exportado(s) para calendário!`);
+    } catch (error) {
+      toast.error("Erro ao exportar calendário");
+    }
+  };
+
+  // Handler para upload de vídeo
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+    const TIPOS_PERMITIDOS = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"];
+
+    if (file.size > MAX_SIZE) {
+      toast.error(`Vídeo muito grande. Máximo: ${MAX_SIZE / (1024 * 1024)}MB`);
+      return;
+    }
+
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      toast.error("Tipo de vídeo não suportado. Use MP4, WebM, MOV ou AVI");
+      return;
+    }
+
+    setUploadingVideo(true);
+    try {
+      // Simular upload (em produção, usar storagePut)
+      const fakeUrl = URL.createObjectURL(file);
+      setComentarioVideos(prev => [...prev, {
+        url: fakeUrl,
+        nome: file.name,
+        tipo: file.type,
+        tamanho: file.size,
+      }]);
+      toast.success("Vídeo adicionado!");
+    } catch (error) {
+      toast.error("Erro ao fazer upload do vídeo");
+    } finally {
+      setUploadingVideo(false);
+      if (videoInputRef.current) {
+        videoInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Handler para remover vídeo
+  const handleRemoverVideo = (index: number) => {
+    setComentarioVideos(prev => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -1552,6 +1651,15 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowRelatorio(true)}
+            className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-1" />
+            Relatório
+          </Button>
           {timelineCriada && (
             <>
               <Button
@@ -2238,6 +2346,38 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                       </div>
                     )}
 
+                    {/* Vídeos anexados */}
+                    {comentarioVideos.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {comentarioVideos.map((video, idx) => (
+                          <div
+                            key={idx}
+                            className="relative bg-gray-900 rounded-lg overflow-hidden"
+                            style={{ width: "200px", height: "120px" }}
+                          >
+                            <video
+                              src={video.url}
+                              className="w-full h-full object-cover"
+                              muted
+                            />
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                              <Play className="w-8 h-8 text-white" />
+                            </div>
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
+                              <p className="text-xs text-white truncate">{video.nome}</p>
+                              <p className="text-xs text-gray-300">{formatFileSize(video.tamanho)}</p>
+                            </div>
+                            <button
+                              onClick={() => handleRemoverVideo(idx)}
+                              className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white hover:bg-red-600"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center">
                       <div className="flex gap-2">
                         <input
@@ -2273,6 +2413,27 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                         >
                           <AtSign className="w-4 h-4 mr-1" />
                           Mencionar
+                        </Button>
+                        <input
+                          type="file"
+                          ref={videoInputRef}
+                          onChange={handleVideoUpload}
+                          className="hidden"
+                          accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+                        />
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-500"
+                          onClick={() => videoInputRef.current?.click()}
+                          disabled={uploadingVideo}
+                        >
+                          {uploadingVideo ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          ) : (
+                            <Video className="w-4 h-4 mr-1" />
+                          )}
+                          Vídeo
                         </Button>
                       </div>
                       <Button
@@ -2942,15 +3103,26 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Botão adicionar lembrete */}
-            <Button
-              variant="outline"
-              onClick={() => setShowAddLembrete(true)}
-              className="w-full border-dashed border-2 border-amber-300 text-amber-700 hover:bg-amber-50"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Agendar Novo Lembrete
-            </Button>
+            {/* Botões de ação */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowAddLembrete(true)}
+                className="flex-1 border-dashed border-2 border-amber-300 text-amber-700 hover:bg-amber-50"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Agendar Novo Lembrete
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleExportarCalendario}
+                className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                title="Exportar para arquivo .ics"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Exportar .ics
+              </Button>
+            </div>
 
             {/* Lista de lembretes */}
             <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -3020,6 +3192,25 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/trpc/timeline.gerarLinkGoogleCalendar?input=${encodeURIComponent(JSON.stringify({ lembreteId: lembrete.id }))}`);
+                                const data = await res.json();
+                                if (data.result?.data?.url) {
+                                  window.open(data.result.data.url, "_blank");
+                                }
+                              } catch (e) {
+                                toast.error("Erro ao gerar link do Google Calendar");
+                              }
+                            }}
+                            className="text-blue-600 hover:text-blue-700"
+                            title="Adicionar ao Google Calendar"
+                          >
+                            <CalendarPlus className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setEditandoLembrete(lembrete)}
                           >
                             <Edit2 className="w-4 h-4" />
@@ -3050,6 +3241,168 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowLembretes(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Relatório de Atividades */}
+      <Dialog open={showRelatorio} onOpenChange={setShowRelatorio}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
+              Relatório de Atividades
+            </DialogTitle>
+            <DialogDescription>
+              Visualize as atividades da timeline por período
+            </DialogDescription>
+          </DialogHeader>
+          
+          {/* Seletor de período */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Label>Mês:</Label>
+              <Select value={String(relatorioMes)} onValueChange={(v) => setRelatorioMes(Number(v))}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <SelectItem key={i + 1} value={String(i + 1)}>
+                      {new Date(2024, i).toLocaleString("pt-BR", { month: "long" })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label>Ano:</Label>
+              <Select value={String(relatorioAno)} onValueChange={(v) => setRelatorioAno(Number(v))}>
+                <SelectTrigger className="w-28">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <SelectItem key={i} value={String(new Date().getFullYear() - 2 + i)}>
+                      {new Date().getFullYear() - 2 + i}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {carregandoRelatorio ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
+              <p className="text-gray-500 mt-2">Gerando relatório...</p>
+            </div>
+          ) : relatorio ? (
+            <div className="space-y-6">
+              {/* Resumo */}
+              <div className="bg-indigo-50 rounded-lg p-4">
+                <h4 className="font-medium text-indigo-800 mb-3">
+                  Resumo de {relatorio.periodo.mesNome} de {relatorio.periodo.ano}
+                </h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-indigo-700">{relatorio.resumo.totalTimelines}</p>
+                    <p className="text-sm text-gray-600">Timelines Criadas</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-indigo-700">{relatorio.resumo.totalComentarios}</p>
+                    <p className="text-sm text-gray-600">Comentários</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-indigo-700">{relatorio.resumo.mediaComentariosPorTimeline}</p>
+                    <p className="text-sm text-gray-600">Média por Timeline</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Por Status */}
+              {Object.keys(relatorio.timelinesPorStatus).length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-700 mb-3">Timelines por Status</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(relatorio.timelinesPorStatus).map(([status, count]) => (
+                      <Badge key={status} variant="secondary" className="px-3 py-1">
+                        {status}: {count as number}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Por Prioridade */}
+              {Object.keys(relatorio.timelinesPorPrioridade).length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-700 mb-3">Timelines por Prioridade</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(relatorio.timelinesPorPrioridade).map(([prioridade, count]) => (
+                      <Badge key={prioridade} variant="secondary" className="px-3 py-1">
+                        {prioridade}: {count as number}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Top Participantes */}
+              {relatorio.topParticipantes.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Top 5 Participantes
+                  </h4>
+                  <div className="space-y-2">
+                    {relatorio.topParticipantes.map((p: any, idx: number) => (
+                      <div key={p.nome} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-medium">
+                            {idx + 1}
+                          </span>
+                          <span className="text-sm text-gray-700">{p.nome}</span>
+                        </div>
+                        <span className="text-sm font-medium text-indigo-600">{p.comentarios} comentários</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Top Timelines */}
+              {relatorio.topTimelines.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Timelines Mais Ativas
+                  </h4>
+                  <div className="space-y-2">
+                    {relatorio.topTimelines.map((t: any) => (
+                      <div key={t.id} className="flex items-center justify-between bg-white rounded-lg p-2">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{t.titulo}</p>
+                          <p className="text-xs text-gray-500">Protocolo: {t.protocolo}</p>
+                        </div>
+                        <Badge variant="secondary">{t.comentarios} comentários</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <FileSpreadsheet className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>Selecione um período para gerar o relatório</p>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRelatorio(false)}>
               Fechar
             </Button>
           </DialogFooter>
