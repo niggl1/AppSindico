@@ -1,0 +1,42 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "🔔 Notificações",
+      "weight": "Bolder",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "${notificationCount} notificações pendentes",
+      "spacing": "None",
+      "isSubtle": true
+    },
+    {
+      "type": "Container",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "${lastNotification}",
+          "wrap": true,
+          "maxLines": 2
+        }
+      ],
+      "style": "emphasis",
+      "bleed": true
+    },
+    {
+      "type": "ActionSet",
+      "actions": [
+        {
+          "type": "Action.OpenUrl",
+          "title": "Ver Todas",
+          "url": "/dashboard?section=notificacoes"
+        }
+      ]
+    }
+  ]
+}

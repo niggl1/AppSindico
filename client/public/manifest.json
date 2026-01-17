@@ -98,6 +98,63 @@
       "description": "Gerenciar ordens de serviço",
       "url": "/dashboard?section=ordens-servico",
       "icons": [{ "src": "/icons/shortcut-os.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Notificações",
+      "short_name": "Alertas",
+      "description": "Ver notificações e alertas",
+      "url": "/dashboard?section=notificacoes",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "widgets": [
+    {
+      "name": "quick-actions",
+      "description": "Atalhos rápidos para funções principais",
+      "tag": "app-sindico-quick-actions",
+      "ms_ac_template": "widgets/quick-actions.json",
+      "data": "widgets/quick-actions-data.json",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/screenshots/widget-quick-actions.png",
+          "sizes": "300x200",
+          "label": "Widget de atalhos rápidos"
+        }
+      ],
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ],
+      "backgrounds": [
+        {
+          "src": "/icons/icon-512x512.png",
+          "sizes": "512x512"
+        }
+      ]
+    },
+    {
+      "name": "notifications",
+      "description": "Notificações recentes do condomínio",
+      "tag": "app-sindico-notifications",
+      "ms_ac_template": "widgets/notifications.json",
+      "data": "widgets/notifications-data.json",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/screenshots/widget-notifications.png",
+          "sizes": "300x200",
+          "label": "Widget de notificações"
+        }
+      ],
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
   "related_applications": [],

@@ -1,0 +1,6 @@
+{
+  "dashboardUrl": "/dashboard",
+  "timelinesUrl": "/dashboard?section=timeline",
+  "ordensUrl": "/dashboard?section=ordens-servico",
+  "notificacoesUrl": "/dashboard?section=notificacoes"
+}

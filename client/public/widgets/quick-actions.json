@@ -1,0 +1,44 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "App Síndico",
+      "weight": "Bolder",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Atalhos Rápidos",
+      "spacing": "None",
+      "isSubtle": true
+    },
+    {
+      "type": "ActionSet",
+      "actions": [
+        {
+          "type": "Action.OpenUrl",
+          "title": "📊 Dashboard",
+          "url": "${dashboardUrl}"
+        },
+        {
+          "type": "Action.OpenUrl",
+          "title": "📅 Timelines",
+          "url": "${timelinesUrl}"
+        },
+        {
+          "type": "Action.OpenUrl",
+          "title": "🔧 Ordens de Serviço",
+          "url": "${ordensUrl}"
+        },
+        {
+          "type": "Action.OpenUrl",
+          "title": "🔔 Notificações",
+          "url": "${notificacoesUrl}"
+        }
+      ]
+    }
+  ]
+}

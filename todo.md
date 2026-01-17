@@ -596,3 +596,39 @@
 - [x] Atualizar Service Worker para instalação
 - [x] Adicionar meta tags para iOS
 - [x] Configurar tema de cor da barra de status
+
+
+## Biometria e Widgets PWA (17/01/2026)
+
+### Autenticação Biométrica
+- [ ] Implementar Web Authentication API (WebAuthn)
+- [ ] Suporte a Face ID e Touch ID
+- [ ] Configuração de biometria nas preferências do usuário
+- [ ] Fallback para PIN/senha quando biometria não disponível
+- [ ] Armazenamento seguro de credenciais
+
+### Widgets de Atalhos
+- [ ] Criar componente de widgets personalizáveis
+- [ ] Widget de acesso rápido ao Dashboard
+- [ ] Widget de Timelines recentes
+- [ ] Widget de Ordens de Serviço pendentes
+- [ ] Widget de Notificações
+- [ ] Configuração de widgets na tela inicial
+- [ ] Integrar widgets no manifest.json
+
+
+## Biometria e Widgets PWA (17/01/2026)
+
+### Biometria/Face ID
+- [x] Implementar Web Authentication API (WebAuthn)
+- [x] Criar componente de configuração de biometria
+- [x] Tela de bloqueio biométrico
+- [x] Suporte a PIN como alternativa
+- [x] Persistência de credenciais
+
+### Widgets de Atalhos
+- [x] Criar componente de widgets personalizáveis
+- [x] Adicionar widgets no manifest.json
+- [x] Configurar atalhos no Service Worker
+- [x] Interface de configuração de widgets
+- [x] Suporte a arrastar e reordenar
