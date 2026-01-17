@@ -1,11 +1,26 @@
-// Contexto de Sincronização Offline
+// Contexto de Sincronização Offline - Sistema Completo
 // App Síndico - Plataforma Digital para Condomínios
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { offlineDB, SyncQueueItem } from '@/lib/offlineDB';
+import { offlineDB, SyncQueueItem, STORES } from '@/lib/offlineDB';
 import { toast } from 'sonner';
 
-// Tipos
+// Tipos de módulos
+type ModuleName = 'operacional' | 'comunicacao' | 'financeiro' | 'cadastros' | 'documentos' | 'reservas' | 'ocorrencias';
+
+// Estatísticas por módulo
+interface ModuleStats {
+  operacional: { timelines: number; ordensServico: number; manutencoes: number; comentarios: number };
+  comunicacao: { avisos: number; enquetes: number; comunicados: number; mensagens: number };
+  financeiro: { boletos: number; prestacaoContas: number; despesas: number; receitas: number };
+  cadastros: { moradores: number; funcionarios: number; fornecedores: number; veiculos: number; unidades: number; condominios: number };
+  documentos: { atas: number; regulamentos: number; contratos: number; arquivos: number };
+  reservas: { areasComuns: number; reservas: number };
+  ocorrencias: { ocorrencias: number };
+  sistema: { syncQueue: number; metadata: number; cache: number };
+}
+
+// Interface do contexto
 interface OfflineContextType {
   isOnline: boolean;
   isSyncing: boolean;
@@ -13,32 +28,112 @@ interface OfflineContextType {
   lastSyncTime: Date | null;
   syncError: string | null;
   
-  // Ações
+  // Ações gerais
   syncNow: () => Promise<void>;
   clearOfflineData: () => Promise<void>;
+  clearModuleData: (module: ModuleName) => Promise<void>;
   
-  // Funções de dados offline
-  saveOfflineTimeline: (timeline: any) => Promise<void>;
-  saveOfflineOrdemServico: (ordem: any) => Promise<void>;
-  saveOfflineManutencao: (manutencao: any) => Promise<void>;
-  saveOfflineComentario: (comentario: any) => Promise<void>;
+  // Estatísticas
+  getOfflineStats: () => Promise<ModuleStats>;
   
-  // Funções de leitura offline
+  // Backup
+  exportOfflineData: () => Promise<string>;
+  importOfflineData: (jsonData: string) => Promise<void>;
+  
+  // ==================== OPERACIONAL ====================
+  saveOfflineTimeline: (data: any) => Promise<void>;
+  saveOfflineOrdemServico: (data: any) => Promise<void>;
+  saveOfflineManutencao: (data: any) => Promise<void>;
+  saveOfflineComentario: (data: any) => Promise<void>;
   getOfflineTimelines: (condominioId?: number) => Promise<any[]>;
   getOfflineOrdensServico: (condominioId?: number) => Promise<any[]>;
   getOfflineManutencoes: (condominioId?: number) => Promise<any[]>;
   
-  // Estatísticas
-  getOfflineStats: () => Promise<{
-    timelines: number;
-    ordensServico: number;
-    manutencoes: number;
-    comentarios: number;
-    syncQueue: number;
-  }>;
+  // ==================== COMUNICAÇÃO ====================
+  saveOfflineAviso: (data: any) => Promise<void>;
+  saveOfflineEnquete: (data: any) => Promise<void>;
+  saveOfflineComunicado: (data: any) => Promise<void>;
+  saveOfflineMensagem: (data: any) => Promise<void>;
+  getOfflineAvisos: (condominioId?: number) => Promise<any[]>;
+  getOfflineEnquetes: (condominioId?: number) => Promise<any[]>;
+  getOfflineComunicados: (condominioId?: number) => Promise<any[]>;
+  getOfflineMensagens: (condominioId?: number) => Promise<any[]>;
+  
+  // ==================== FINANCEIRO ====================
+  saveOfflineBoleto: (data: any) => Promise<void>;
+  saveOfflinePrestacaoContas: (data: any) => Promise<void>;
+  saveOfflineDespesa: (data: any) => Promise<void>;
+  saveOfflineReceita: (data: any) => Promise<void>;
+  getOfflineBoletos: (condominioId?: number) => Promise<any[]>;
+  getOfflinePrestacaoContas: (condominioId?: number) => Promise<any[]>;
+  getOfflineDespesas: (condominioId?: number) => Promise<any[]>;
+  getOfflineReceitas: (condominioId?: number) => Promise<any[]>;
+  
+  // ==================== CADASTROS ====================
+  saveOfflineMorador: (data: any) => Promise<void>;
+  saveOfflineFuncionario: (data: any) => Promise<void>;
+  saveOfflineFornecedor: (data: any) => Promise<void>;
+  saveOfflineVeiculo: (data: any) => Promise<void>;
+  saveOfflineUnidade: (data: any) => Promise<void>;
+  saveOfflineCondominio: (data: any) => Promise<void>;
+  getOfflineMoradores: (condominioId?: number) => Promise<any[]>;
+  getOfflineFuncionarios: (condominioId?: number) => Promise<any[]>;
+  getOfflineFornecedores: (condominioId?: number) => Promise<any[]>;
+  getOfflineVeiculos: (condominioId?: number) => Promise<any[]>;
+  getOfflineUnidades: (condominioId?: number) => Promise<any[]>;
+  getOfflineCondominios: () => Promise<any[]>;
+  
+  // ==================== DOCUMENTOS ====================
+  saveOfflineAta: (data: any) => Promise<void>;
+  saveOfflineRegulamento: (data: any) => Promise<void>;
+  saveOfflineContrato: (data: any) => Promise<void>;
+  saveOfflineArquivo: (data: any) => Promise<void>;
+  getOfflineAtas: (condominioId?: number) => Promise<any[]>;
+  getOfflineRegulamentos: (condominioId?: number) => Promise<any[]>;
+  getOfflineContratos: (condominioId?: number) => Promise<any[]>;
+  getOfflineArquivos: (condominioId?: number) => Promise<any[]>;
+  
+  // ==================== RESERVAS ====================
+  saveOfflineAreaComum: (data: any) => Promise<void>;
+  saveOfflineReserva: (data: any) => Promise<void>;
+  getOfflineAreasComuns: (condominioId?: number) => Promise<any[]>;
+  getOfflineReservas: (condominioId?: number) => Promise<any[]>;
+  
+  // ==================== OCORRÊNCIAS ====================
+  saveOfflineOcorrencia: (data: any) => Promise<void>;
+  getOfflineOcorrencias: (condominioId?: number) => Promise<any[]>;
 }
 
 const OfflineContext = createContext<OfflineContextType | null>(null);
+
+// Mapeamento de stores para endpoints
+const STORE_ENDPOINTS: Record<string, string> = {
+  timelines: '/api/trpc/timeline.criar',
+  ordensServico: '/api/trpc/ordemServico.criar',
+  manutencoes: '/api/trpc/manutencao.criar',
+  comentarios: '/api/trpc/timeline.criarComentario',
+  avisos: '/api/trpc/aviso.criar',
+  enquetes: '/api/trpc/enquete.criar',
+  comunicados: '/api/trpc/comunicado.criar',
+  mensagens: '/api/trpc/mensagem.criar',
+  boletos: '/api/trpc/boleto.criar',
+  prestacaoContas: '/api/trpc/prestacaoContas.criar',
+  despesas: '/api/trpc/despesa.criar',
+  receitas: '/api/trpc/receita.criar',
+  moradores: '/api/trpc/morador.criar',
+  funcionarios: '/api/trpc/funcionario.criar',
+  fornecedores: '/api/trpc/fornecedor.criar',
+  veiculos: '/api/trpc/veiculo.criar',
+  unidades: '/api/trpc/unidade.criar',
+  condominios: '/api/trpc/condominio.criar',
+  atas: '/api/trpc/ata.criar',
+  regulamentos: '/api/trpc/regulamento.criar',
+  contratos: '/api/trpc/contrato.criar',
+  arquivos: '/api/trpc/arquivo.criar',
+  areasComuns: '/api/trpc/areaComum.criar',
+  reservas: '/api/trpc/reserva.criar',
+  ocorrencias: '/api/trpc/ocorrencia.criar',
+};
 
 // Provider
 export function OfflineProvider({ children }: { children: React.ReactNode }) {
@@ -62,13 +157,15 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         const count = await offlineDB.getSyncQueueCount();
         setSyncQueueCount(count);
         
-        // Recuperar último sync
         const lastSync = await offlineDB.getMetadata('lastSyncTime');
         if (lastSync) {
           setLastSyncTime(new Date(lastSync));
         }
         
-        console.log('[Offline] Banco inicializado');
+        // Limpar cache expirado
+        await offlineDB.clearExpiredCache();
+        
+        console.log('[Offline] Banco inicializado com todas as funções');
       } catch (error) {
         console.error('[Offline] Erro ao inicializar:', error);
       }
@@ -85,8 +182,6 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         description: 'Sincronizando dados offline...',
         duration: 3000,
       });
-      
-      // Sincronizar automaticamente quando voltar online
       syncNow();
     };
     
@@ -114,7 +209,6 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         .then((registration) => {
           console.log('[Offline] Service Worker registrado:', registration.scope);
           
-          // Escutar mensagens do Service Worker
           navigator.serviceWorker.addEventListener('message', (event) => {
             if (event.data.type === 'SYNC_STARTED') {
               setIsSyncing(true);
@@ -122,9 +216,6 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
             if (event.data.type === 'SYNC_COMPLETED') {
               setIsSyncing(false);
               updateSyncQueueCount();
-            }
-            if (event.data.type === 'SYNC_DATA_TYPE') {
-              console.log('[Offline] Sincronizando:', event.data.dataType);
             }
           });
         })
@@ -134,10 +225,9 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Sincronização periódica quando online
+  // Sincronização periódica
   useEffect(() => {
     if (isOnline && syncQueueCount > 0) {
-      // Sincronizar a cada 30 segundos se houver itens na fila
       syncIntervalRef.current = setInterval(() => {
         syncNow();
       }, 30000);
@@ -150,7 +240,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isOnline, syncQueueCount]);
 
-  // Atualizar contagem da fila de sync
+  // Atualizar contagem da fila
   const updateSyncQueueCount = useCallback(async () => {
     try {
       const count = await offlineDB.getSyncQueueCount();
@@ -159,6 +249,22 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       console.error('[Offline] Erro ao atualizar contagem:', error);
     }
   }, []);
+
+  // Processar item da fila
+  const processSyncItem = async (item: SyncQueueItem): Promise<void> => {
+    const { store, operation, data } = item;
+    const endpoint = STORE_ENDPOINTS[store] || '/api/trpc/sync';
+    
+    const response = await fetch(endpoint, {
+      method: operation === 'delete' ? 'DELETE' : operation === 'create' ? 'POST' : 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Erro ${response.status}: ${response.statusText}`);
+    }
+  };
 
   // Sincronizar dados
   const syncNow = useCallback(async () => {
@@ -188,12 +294,10 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         } catch (error: any) {
           console.error('[Offline] Erro ao sincronizar item:', error);
           
-          // Incrementar retries
           item.retries++;
           item.lastError = error.message;
           
           if (item.retries >= 3) {
-            // Remover após 3 tentativas
             await offlineDB.removeSyncQueueItem(item.id);
             errorCount++;
           } else {
@@ -202,11 +306,9 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      // Atualizar último sync
       const now = new Date();
       setLastSyncTime(now);
       await offlineDB.setMetadata('lastSyncTime', now.getTime());
-      
       await updateSyncQueueCount();
       
       if (successCount > 0) {
@@ -219,47 +321,13 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       console.error('[Offline] Erro na sincronização:', error);
       setSyncError(error.message);
-      toast.error('Erro na sincronização', {
-        description: error.message,
-      });
+      toast.error('Erro na sincronização', { description: error.message });
     } finally {
       setIsSyncing(false);
     }
   }, [isOnline, isSyncing, updateSyncQueueCount]);
 
-  // Processar item da fila de sync
-  const processSyncItem = async (item: SyncQueueItem): Promise<void> => {
-    const { store, operation, data } = item;
-    
-    // Aqui você faria a chamada real para a API
-    // Por enquanto, simulamos o sucesso
-    const endpoint = getEndpointForStore(store);
-    
-    const response = await fetch(endpoint, {
-      method: operation === 'delete' ? 'DELETE' : operation === 'create' ? 'POST' : 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${response.statusText}`);
-    }
-  };
-
-  // Obter endpoint para cada store
-  const getEndpointForStore = (store: string): string => {
-    const endpoints: Record<string, string> = {
-      timelines: '/api/trpc/timeline.criar',
-      ordensServico: '/api/trpc/ordemServico.criar',
-      manutencoes: '/api/trpc/manutencao.criar',
-      comentarios: '/api/trpc/timeline.criarComentario',
-    };
-    return endpoints[store] || '/api/trpc/sync';
-  };
-
-  // Limpar dados offline
+  // Limpar todos os dados offline
   const clearOfflineData = useCallback(async () => {
     try {
       await offlineDB.clearAll();
@@ -272,118 +340,180 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // ==================== FUNÇÕES DE SALVAMENTO OFFLINE ====================
-
-  const saveOfflineTimeline = useCallback(async (timeline: any) => {
+  // Limpar dados de um módulo específico
+  const clearModuleData = useCallback(async (module: ModuleName) => {
     try {
-      await offlineDB.saveTimeline(timeline, !isOnline);
-      
-      if (!isOnline) {
-        await offlineDB.addToSyncQueue('timelines', timeline.id ? 'update' : 'create', timeline);
-        await updateSyncQueueCount();
-      }
-    } catch (error) {
-      console.error('[Offline] Erro ao salvar timeline:', error);
-      throw error;
+      await offlineDB.clearModule(module);
+      await updateSyncQueueCount();
+      toast.success(`Dados de ${module} limpos!`);
+    } catch (error: any) {
+      console.error('[Offline] Erro ao limpar módulo:', error);
+      toast.error(`Erro ao limpar dados de ${module}`);
     }
-  }, [isOnline, updateSyncQueueCount]);
+  }, [updateSyncQueueCount]);
 
-  const saveOfflineOrdemServico = useCallback(async (ordem: any) => {
+  // Obter estatísticas
+  const getOfflineStats = useCallback(async (): Promise<ModuleStats> => {
     try {
-      await offlineDB.saveOrdemServico(ordem, !isOnline);
-      
-      if (!isOnline) {
-        await offlineDB.addToSyncQueue('ordensServico', ordem.id ? 'update' : 'create', ordem);
-        await updateSyncQueueCount();
-      }
-    } catch (error) {
-      console.error('[Offline] Erro ao salvar ordem de serviço:', error);
-      throw error;
-    }
-  }, [isOnline, updateSyncQueueCount]);
-
-  const saveOfflineManutencao = useCallback(async (manutencao: any) => {
-    try {
-      await offlineDB.saveManutencao(manutencao, !isOnline);
-      
-      if (!isOnline) {
-        await offlineDB.addToSyncQueue('manutencoes', manutencao.id ? 'update' : 'create', manutencao);
-        await updateSyncQueueCount();
-      }
-    } catch (error) {
-      console.error('[Offline] Erro ao salvar manutenção:', error);
-      throw error;
-    }
-  }, [isOnline, updateSyncQueueCount]);
-
-  const saveOfflineComentario = useCallback(async (comentario: any) => {
-    try {
-      await offlineDB.saveComentario(comentario, !isOnline);
-      
-      if (!isOnline) {
-        await offlineDB.addToSyncQueue('comentarios', 'create', comentario);
-        await updateSyncQueueCount();
-      }
-    } catch (error) {
-      console.error('[Offline] Erro ao salvar comentário:', error);
-      throw error;
-    }
-  }, [isOnline, updateSyncQueueCount]);
-
-  // ==================== FUNÇÕES DE LEITURA OFFLINE ====================
-
-  const getOfflineTimelines = useCallback(async (condominioId?: number) => {
-    try {
-      if (condominioId) {
-        return await offlineDB.getTimelinesByCondominio(condominioId);
-      }
-      return await offlineDB.getAllTimelines();
-    } catch (error) {
-      console.error('[Offline] Erro ao obter timelines:', error);
-      return [];
-    }
-  }, []);
-
-  const getOfflineOrdensServico = useCallback(async (condominioId?: number) => {
-    try {
-      if (condominioId) {
-        return await offlineDB.getOrdensServicoByCondominio(condominioId);
-      }
-      return await offlineDB.getAllOrdensServico();
-    } catch (error) {
-      console.error('[Offline] Erro ao obter ordens de serviço:', error);
-      return [];
-    }
-  }, []);
-
-  const getOfflineManutencoes = useCallback(async (condominioId?: number) => {
-    try {
-      if (condominioId) {
-        return await offlineDB.getManutencoesByCondominio(condominioId);
-      }
-      return await offlineDB.getAllManutencoes();
-    } catch (error) {
-      console.error('[Offline] Erro ao obter manutenções:', error);
-      return [];
-    }
-  }, []);
-
-  // ==================== ESTATÍSTICAS ====================
-
-  const getOfflineStats = useCallback(async () => {
-    try {
-      return await offlineDB.getStats();
+      return await offlineDB.getStatsByModule();
     } catch (error) {
       console.error('[Offline] Erro ao obter estatísticas:', error);
       return {
-        timelines: 0,
-        ordensServico: 0,
-        manutencoes: 0,
-        comentarios: 0,
-        syncQueue: 0,
+        operacional: { timelines: 0, ordensServico: 0, manutencoes: 0, comentarios: 0 },
+        comunicacao: { avisos: 0, enquetes: 0, comunicados: 0, mensagens: 0 },
+        financeiro: { boletos: 0, prestacaoContas: 0, despesas: 0, receitas: 0 },
+        cadastros: { moradores: 0, funcionarios: 0, fornecedores: 0, veiculos: 0, unidades: 0, condominios: 0 },
+        documentos: { atas: 0, regulamentos: 0, contratos: 0, arquivos: 0 },
+        reservas: { areasComuns: 0, reservas: 0 },
+        ocorrencias: { ocorrencias: 0 },
+        sistema: { syncQueue: 0, metadata: 0, cache: 0 },
       };
     }
   }, []);
+
+  // Exportar dados para backup
+  const exportOfflineData = useCallback(async (): Promise<string> => {
+    try {
+      const data = await offlineDB.exportData();
+      return JSON.stringify(data, null, 2);
+    } catch (error) {
+      console.error('[Offline] Erro ao exportar dados:', error);
+      throw error;
+    }
+  }, []);
+
+  // Importar dados de backup
+  const importOfflineData = useCallback(async (jsonData: string): Promise<void> => {
+    try {
+      const data = JSON.parse(jsonData);
+      await offlineDB.importData(data);
+      await updateSyncQueueCount();
+      toast.success('Dados importados com sucesso!');
+    } catch (error) {
+      console.error('[Offline] Erro ao importar dados:', error);
+      toast.error('Erro ao importar dados');
+      throw error;
+    }
+  }, [updateSyncQueueCount]);
+
+  // Helper genérico para salvar dados offline
+  const createSaveFunction = (saveFn: (data: any, isOffline: boolean) => Promise<void>, storeName: string) => {
+    return async (data: any) => {
+      try {
+        await saveFn(data, !isOnline);
+        if (!isOnline) {
+          await offlineDB.addToSyncQueue(storeName, data.id ? 'update' : 'create', data);
+          await updateSyncQueueCount();
+        }
+      } catch (error) {
+        console.error(`[Offline] Erro ao salvar ${storeName}:`, error);
+        throw error;
+      }
+    };
+  };
+
+  // Helper genérico para obter dados offline
+  const createGetFunction = (getAllFn: () => Promise<any[]>, getByCondominioFn: (id: number) => Promise<any[]>) => {
+    return async (condominioId?: number) => {
+      try {
+        if (condominioId) {
+          return await getByCondominioFn(condominioId);
+        }
+        return await getAllFn();
+      } catch (error) {
+        console.error('[Offline] Erro ao obter dados:', error);
+        return [];
+      }
+    };
+  };
+
+  // ==================== FUNÇÕES DE SALVAMENTO ====================
+  
+  // Operacional
+  const saveOfflineTimeline = createSaveFunction(offlineDB.saveTimeline.bind(offlineDB), 'timelines');
+  const saveOfflineOrdemServico = createSaveFunction(offlineDB.saveOrdemServico.bind(offlineDB), 'ordensServico');
+  const saveOfflineManutencao = createSaveFunction(offlineDB.saveManutencao.bind(offlineDB), 'manutencoes');
+  const saveOfflineComentario = createSaveFunction(offlineDB.saveComentario.bind(offlineDB), 'comentarios');
+  
+  // Comunicação
+  const saveOfflineAviso = createSaveFunction(offlineDB.saveAviso.bind(offlineDB), 'avisos');
+  const saveOfflineEnquete = createSaveFunction(offlineDB.saveEnquete.bind(offlineDB), 'enquetes');
+  const saveOfflineComunicado = createSaveFunction(offlineDB.saveComunicado.bind(offlineDB), 'comunicados');
+  const saveOfflineMensagem = createSaveFunction(offlineDB.saveMensagem.bind(offlineDB), 'mensagens');
+  
+  // Financeiro
+  const saveOfflineBoleto = createSaveFunction(offlineDB.saveBoleto.bind(offlineDB), 'boletos');
+  const saveOfflinePrestacaoContas = createSaveFunction(offlineDB.savePrestacaoContas.bind(offlineDB), 'prestacaoContas');
+  const saveOfflineDespesa = createSaveFunction(offlineDB.saveDespesa.bind(offlineDB), 'despesas');
+  const saveOfflineReceita = createSaveFunction(offlineDB.saveReceita.bind(offlineDB), 'receitas');
+  
+  // Cadastros
+  const saveOfflineMorador = createSaveFunction(offlineDB.saveMorador.bind(offlineDB), 'moradores');
+  const saveOfflineFuncionario = createSaveFunction(offlineDB.saveFuncionario.bind(offlineDB), 'funcionarios');
+  const saveOfflineFornecedor = createSaveFunction(offlineDB.saveFornecedor.bind(offlineDB), 'fornecedores');
+  const saveOfflineVeiculo = createSaveFunction(offlineDB.saveVeiculo.bind(offlineDB), 'veiculos');
+  const saveOfflineUnidade = createSaveFunction(offlineDB.saveUnidade.bind(offlineDB), 'unidades');
+  const saveOfflineCondominio = createSaveFunction(offlineDB.saveCondominio.bind(offlineDB), 'condominios');
+  
+  // Documentos
+  const saveOfflineAta = createSaveFunction(offlineDB.saveAta.bind(offlineDB), 'atas');
+  const saveOfflineRegulamento = createSaveFunction(offlineDB.saveRegulamento.bind(offlineDB), 'regulamentos');
+  const saveOfflineContrato = createSaveFunction(offlineDB.saveContrato.bind(offlineDB), 'contratos');
+  const saveOfflineArquivo = createSaveFunction(offlineDB.saveArquivo.bind(offlineDB), 'arquivos');
+  
+  // Reservas
+  const saveOfflineAreaComum = createSaveFunction(offlineDB.saveAreaComum.bind(offlineDB), 'areasComuns');
+  const saveOfflineReserva = createSaveFunction(offlineDB.saveReserva.bind(offlineDB), 'reservas');
+  
+  // Ocorrências
+  const saveOfflineOcorrencia = createSaveFunction(offlineDB.saveOcorrencia.bind(offlineDB), 'ocorrencias');
+
+  // ==================== FUNÇÕES DE LEITURA ====================
+  
+  // Operacional
+  const getOfflineTimelines = createGetFunction(offlineDB.getAllTimelines.bind(offlineDB), offlineDB.getTimelinesByCondominio.bind(offlineDB));
+  const getOfflineOrdensServico = createGetFunction(offlineDB.getAllOrdensServico.bind(offlineDB), offlineDB.getOrdensServicoByCondominio.bind(offlineDB));
+  const getOfflineManutencoes = createGetFunction(offlineDB.getAllManutencoes.bind(offlineDB), offlineDB.getManutencoesByCondominio.bind(offlineDB));
+  
+  // Comunicação
+  const getOfflineAvisos = createGetFunction(offlineDB.getAllAvisos.bind(offlineDB), offlineDB.getAvisosByCondominio.bind(offlineDB));
+  const getOfflineEnquetes = createGetFunction(offlineDB.getAllEnquetes.bind(offlineDB), offlineDB.getEnquetesByCondominio.bind(offlineDB));
+  const getOfflineComunicados = createGetFunction(offlineDB.getAllComunicados.bind(offlineDB), offlineDB.getComunicadosByCondominio.bind(offlineDB));
+  const getOfflineMensagens = createGetFunction(offlineDB.getAllMensagens.bind(offlineDB), offlineDB.getMensagensByCondominio.bind(offlineDB));
+  
+  // Financeiro
+  const getOfflineBoletos = createGetFunction(offlineDB.getAllBoletos.bind(offlineDB), offlineDB.getBoletosByCondominio.bind(offlineDB));
+  const getOfflinePrestacaoContas = createGetFunction(offlineDB.getAllPrestacaoContas.bind(offlineDB), offlineDB.getPrestacaoContasByCondominio.bind(offlineDB));
+  const getOfflineDespesas = createGetFunction(offlineDB.getAllDespesas.bind(offlineDB), offlineDB.getDespesasByCondominio.bind(offlineDB));
+  const getOfflineReceitas = createGetFunction(offlineDB.getAllReceitas.bind(offlineDB), offlineDB.getReceitasByCondominio.bind(offlineDB));
+  
+  // Cadastros
+  const getOfflineMoradores = createGetFunction(offlineDB.getAllMoradores.bind(offlineDB), offlineDB.getMoradoresByCondominio.bind(offlineDB));
+  const getOfflineFuncionarios = createGetFunction(offlineDB.getAllFuncionarios.bind(offlineDB), offlineDB.getFuncionariosByCondominio.bind(offlineDB));
+  const getOfflineFornecedores = createGetFunction(offlineDB.getAllFornecedores.bind(offlineDB), offlineDB.getFornecedoresByCondominio.bind(offlineDB));
+  const getOfflineVeiculos = createGetFunction(offlineDB.getAllVeiculos.bind(offlineDB), offlineDB.getVeiculosByCondominio.bind(offlineDB));
+  const getOfflineUnidades = createGetFunction(offlineDB.getAllUnidades.bind(offlineDB), offlineDB.getUnidadesByCondominio.bind(offlineDB));
+  const getOfflineCondominios = useCallback(async () => {
+    try {
+      return await offlineDB.getAllCondominios();
+    } catch (error) {
+      console.error('[Offline] Erro ao obter condomínios:', error);
+      return [];
+    }
+  }, []);
+  
+  // Documentos
+  const getOfflineAtas = createGetFunction(offlineDB.getAllAtas.bind(offlineDB), offlineDB.getAtasByCondominio.bind(offlineDB));
+  const getOfflineRegulamentos = createGetFunction(offlineDB.getAllRegulamentos.bind(offlineDB), offlineDB.getRegulamentosByCondominio.bind(offlineDB));
+  const getOfflineContratos = createGetFunction(offlineDB.getAllContratos.bind(offlineDB), offlineDB.getContratosByCondominio.bind(offlineDB));
+  const getOfflineArquivos = createGetFunction(offlineDB.getAllArquivos.bind(offlineDB), offlineDB.getArquivosByCondominio.bind(offlineDB));
+  
+  // Reservas
+  const getOfflineAreasComuns = createGetFunction(offlineDB.getAllAreasComuns.bind(offlineDB), offlineDB.getAreasComunsByCondominio.bind(offlineDB));
+  const getOfflineReservas = createGetFunction(offlineDB.getAllReservas.bind(offlineDB), offlineDB.getReservasByCondominio.bind(offlineDB));
+  
+  // Ocorrências
+  const getOfflineOcorrencias = createGetFunction(offlineDB.getAllOcorrencias.bind(offlineDB), offlineDB.getOcorrenciasByCondominio.bind(offlineDB));
 
   const value: OfflineContextType = {
     isOnline,
@@ -393,6 +523,12 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     syncError,
     syncNow,
     clearOfflineData,
+    clearModuleData,
+    getOfflineStats,
+    exportOfflineData,
+    importOfflineData,
+    
+    // Operacional
     saveOfflineTimeline,
     saveOfflineOrdemServico,
     saveOfflineManutencao,
@@ -400,7 +536,60 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     getOfflineTimelines,
     getOfflineOrdensServico,
     getOfflineManutencoes,
-    getOfflineStats,
+    
+    // Comunicação
+    saveOfflineAviso,
+    saveOfflineEnquete,
+    saveOfflineComunicado,
+    saveOfflineMensagem,
+    getOfflineAvisos,
+    getOfflineEnquetes,
+    getOfflineComunicados,
+    getOfflineMensagens,
+    
+    // Financeiro
+    saveOfflineBoleto,
+    saveOfflinePrestacaoContas,
+    saveOfflineDespesa,
+    saveOfflineReceita,
+    getOfflineBoletos,
+    getOfflinePrestacaoContas,
+    getOfflineDespesas,
+    getOfflineReceitas,
+    
+    // Cadastros
+    saveOfflineMorador,
+    saveOfflineFuncionario,
+    saveOfflineFornecedor,
+    saveOfflineVeiculo,
+    saveOfflineUnidade,
+    saveOfflineCondominio,
+    getOfflineMoradores,
+    getOfflineFuncionarios,
+    getOfflineFornecedores,
+    getOfflineVeiculos,
+    getOfflineUnidades,
+    getOfflineCondominios,
+    
+    // Documentos
+    saveOfflineAta,
+    saveOfflineRegulamento,
+    saveOfflineContrato,
+    saveOfflineArquivo,
+    getOfflineAtas,
+    getOfflineRegulamentos,
+    getOfflineContratos,
+    getOfflineArquivos,
+    
+    // Reservas
+    saveOfflineAreaComum,
+    saveOfflineReserva,
+    getOfflineAreasComuns,
+    getOfflineReservas,
+    
+    // Ocorrências
+    saveOfflineOcorrencia,
+    getOfflineOcorrencias,
   };
 
   return (
@@ -410,7 +599,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Hook para usar o contexto
+// Hook principal
 export function useOffline() {
   const context = useContext(OfflineContext);
   if (!context) {
@@ -419,14 +608,120 @@ export function useOffline() {
   return context;
 }
 
-// Hook para verificar se está online
+// Hooks auxiliares
 export function useIsOnline() {
   const { isOnline } = useOffline();
   return isOnline;
 }
 
-// Hook para sincronização
 export function useSync() {
   const { isSyncing, syncQueueCount, lastSyncTime, syncNow, syncError } = useOffline();
   return { isSyncing, syncQueueCount, lastSyncTime, syncNow, syncError };
+}
+
+// Hook para módulo específico
+export function useOfflineModule(module: ModuleName) {
+  const offline = useOffline();
+  
+  const moduleMap = {
+    operacional: {
+      save: {
+        timeline: offline.saveOfflineTimeline,
+        ordemServico: offline.saveOfflineOrdemServico,
+        manutencao: offline.saveOfflineManutencao,
+        comentario: offline.saveOfflineComentario,
+      },
+      get: {
+        timelines: offline.getOfflineTimelines,
+        ordensServico: offline.getOfflineOrdensServico,
+        manutencoes: offline.getOfflineManutencoes,
+      },
+    },
+    comunicacao: {
+      save: {
+        aviso: offline.saveOfflineAviso,
+        enquete: offline.saveOfflineEnquete,
+        comunicado: offline.saveOfflineComunicado,
+        mensagem: offline.saveOfflineMensagem,
+      },
+      get: {
+        avisos: offline.getOfflineAvisos,
+        enquetes: offline.getOfflineEnquetes,
+        comunicados: offline.getOfflineComunicados,
+        mensagens: offline.getOfflineMensagens,
+      },
+    },
+    financeiro: {
+      save: {
+        boleto: offline.saveOfflineBoleto,
+        prestacaoContas: offline.saveOfflinePrestacaoContas,
+        despesa: offline.saveOfflineDespesa,
+        receita: offline.saveOfflineReceita,
+      },
+      get: {
+        boletos: offline.getOfflineBoletos,
+        prestacaoContas: offline.getOfflinePrestacaoContas,
+        despesas: offline.getOfflineDespesas,
+        receitas: offline.getOfflineReceitas,
+      },
+    },
+    cadastros: {
+      save: {
+        morador: offline.saveOfflineMorador,
+        funcionario: offline.saveOfflineFuncionario,
+        fornecedor: offline.saveOfflineFornecedor,
+        veiculo: offline.saveOfflineVeiculo,
+        unidade: offline.saveOfflineUnidade,
+        condominio: offline.saveOfflineCondominio,
+      },
+      get: {
+        moradores: offline.getOfflineMoradores,
+        funcionarios: offline.getOfflineFuncionarios,
+        fornecedores: offline.getOfflineFornecedores,
+        veiculos: offline.getOfflineVeiculos,
+        unidades: offline.getOfflineUnidades,
+        condominios: offline.getOfflineCondominios,
+      },
+    },
+    documentos: {
+      save: {
+        ata: offline.saveOfflineAta,
+        regulamento: offline.saveOfflineRegulamento,
+        contrato: offline.saveOfflineContrato,
+        arquivo: offline.saveOfflineArquivo,
+      },
+      get: {
+        atas: offline.getOfflineAtas,
+        regulamentos: offline.getOfflineRegulamentos,
+        contratos: offline.getOfflineContratos,
+        arquivos: offline.getOfflineArquivos,
+      },
+    },
+    reservas: {
+      save: {
+        areaComum: offline.saveOfflineAreaComum,
+        reserva: offline.saveOfflineReserva,
+      },
+      get: {
+        areasComuns: offline.getOfflineAreasComuns,
+        reservas: offline.getOfflineReservas,
+      },
+    },
+    ocorrencias: {
+      save: {
+        ocorrencia: offline.saveOfflineOcorrencia,
+      },
+      get: {
+        ocorrencias: offline.getOfflineOcorrencias,
+      },
+    },
+  };
+  
+  return {
+    isOnline: offline.isOnline,
+    isSyncing: offline.isSyncing,
+    syncQueueCount: offline.syncQueueCount,
+    clearData: () => offline.clearModuleData(module),
+    ...moduleMap[module],
+  };
 }

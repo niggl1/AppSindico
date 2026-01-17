@@ -1,7 +1,7 @@
-// Service Worker para App Síndico - Modo Offline + Push Notifications
+// Service Worker para App Síndico - Modo Offline Completo + Push Notifications
 // Plataforma Digital para Condomínios
 
-const CACHE_NAME = 'app-sindico-v2';
+const CACHE_NAME = 'app-sindico-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Recursos para cache estático
@@ -12,17 +12,88 @@ const STATIC_CACHE = [
   '/logo.png',
 ];
 
-// Padrões de URLs que devem ser cacheadas para uso offline
+// Padrões de URLs que devem ser cacheadas para uso offline - TODAS AS FUNÇÕES
 const CACHEABLE_PATTERNS = [
+  // ==================== OPERACIONAL ====================
   /\/api\/trpc\/timeline\./,
   /\/api\/trpc\/ordemServico\./,
   /\/api\/trpc\/manutencao\./,
+  
+  // ==================== COMUNICAÇÃO ====================
+  /\/api\/trpc\/aviso\./,
+  /\/api\/trpc\/enquete\./,
+  /\/api\/trpc\/comunicado\./,
+  /\/api\/trpc\/mensagem\./,
+  
+  // ==================== FINANCEIRO ====================
+  /\/api\/trpc\/boleto\./,
+  /\/api\/trpc\/prestacaoContas\./,
+  /\/api\/trpc\/despesa\./,
+  /\/api\/trpc\/receita\./,
+  /\/api\/trpc\/financeiro\./,
+  
+  // ==================== CADASTROS ====================
+  /\/api\/trpc\/morador\./,
+  /\/api\/trpc\/funcionario\./,
+  /\/api\/trpc\/fornecedor\./,
+  /\/api\/trpc\/veiculo\./,
+  /\/api\/trpc\/unidade\./,
   /\/api\/trpc\/condominio\./,
+  
+  // ==================== DOCUMENTOS ====================
+  /\/api\/trpc\/ata\./,
+  /\/api\/trpc\/regulamento\./,
+  /\/api\/trpc\/contrato\./,
+  /\/api\/trpc\/arquivo\./,
+  /\/api\/trpc\/documento\./,
+  
+  // ==================== RESERVAS ====================
+  /\/api\/trpc\/areaComum\./,
+  /\/api\/trpc\/reserva\./,
+  
+  // ==================== OCORRÊNCIAS ====================
+  /\/api\/trpc\/ocorrencia\./,
+  
+  // ==================== SISTEMA ====================
+  /\/api\/trpc\/auth\./,
+  /\/api\/trpc\/notificacao\./,
+  /\/api\/trpc\/configuracao\./,
+];
+
+// Padrões de páginas para cache
+const PAGE_PATTERNS = [
+  /^\/dashboard/,
+  /^\/timeline/,
+  /^\/ordem-servico/,
+  /^\/manutencao/,
+  /^\/aviso/,
+  /^\/enquete/,
+  /^\/comunicado/,
+  /^\/mensagem/,
+  /^\/boleto/,
+  /^\/prestacao-contas/,
+  /^\/despesa/,
+  /^\/receita/,
+  /^\/morador/,
+  /^\/funcionario/,
+  /^\/fornecedor/,
+  /^\/veiculo/,
+  /^\/unidade/,
+  /^\/condominio/,
+  /^\/ata/,
+  /^\/regulamento/,
+  /^\/contrato/,
+  /^\/arquivo/,
+  /^\/area-comum/,
+  /^\/reserva/,
+  /^\/ocorrencia/,
+  /^\/configuracao/,
+  /^\/perfil/,
 ];
 
 // ==================== INSTALAÇÃO ====================
 self.addEventListener('install', (event) => {
-  console.log('[SW] Service Worker instalado');
+  console.log('[SW] Service Worker instalado - Versão completa com todas as funções');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Cache aberto');
@@ -50,6 +121,11 @@ self.addEventListener('activate', (event) => {
     }).then(() => clients.claim())
   );
 });
+
+// Verificar se URL corresponde a padrões de página
+function matchesPagePattern(pathname) {
+  return PAGE_PATTERNS.some(pattern => pattern.test(pathname));
+}
 
 // ==================== FETCH (CACHE STRATEGIES) ====================
 self.addEventListener('fetch', (event) => {
@@ -80,13 +156,13 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Para assets estáticos - Cache First
-  if (url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico)$/)) {
+  if (url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|webp|mp4|webm|pdf)$/)) {
     event.respondWith(cacheFirstStrategy(request));
     return;
   }
 
   // Para navegação (páginas HTML) - Network First com fallback offline
-  if (request.mode === 'navigate') {
+  if (request.mode === 'navigate' || matchesPagePattern(url.pathname)) {
     event.respondWith(networkFirstWithOfflineFallback(request));
     return;
   }
@@ -214,7 +290,7 @@ async function networkFirstWithOfflineFallback(request) {
         <title>Offline - App Síndico</title>
         <style>
           body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-          .container { text-align: center; padding: 2rem; background: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 400px; margin: 1rem; }
+          .container { text-align: center; padding: 2rem; background: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 500px; margin: 1rem; }
           .icon { font-size: 4rem; margin-bottom: 1rem; }
           h1 { color: #1f2937; margin-bottom: 0.5rem; font-size: 1.5rem; }
           p { color: #6b7280; margin-bottom: 1.5rem; line-height: 1.6; }
@@ -224,8 +300,10 @@ async function networkFirstWithOfflineFallback(request) {
           button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(102,126,234,0.5); }
           .features { text-align: left; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; }
           .features h3 { font-size: 0.875rem; color: #374151; margin-bottom: 0.75rem; }
-          .features ul { margin: 0; padding-left: 1.25rem; }
-          .features li { color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem; }
+          .module { margin-bottom: 1rem; }
+          .module h4 { font-size: 0.8rem; color: #667eea; margin-bottom: 0.25rem; font-weight: 600; }
+          .module ul { margin: 0; padding-left: 1.25rem; }
+          .module li { color: #6b7280; font-size: 0.8rem; margin-bottom: 0.25rem; }
         </style>
       </head>
       <body>
@@ -234,17 +312,62 @@ async function networkFirstWithOfflineFallback(request) {
           <h1>Você está offline</h1>
           <p>Não foi possível conectar ao servidor. Verifique sua conexão com a internet.</p>
           <div class="info">
-            <p>💡 Seus dados salvos localmente estão seguros e serão sincronizados automaticamente.</p>
+            <p>💡 Seus dados salvos localmente estão seguros e serão sincronizados automaticamente quando a conexão retornar.</p>
           </div>
           <button onclick="window.location.reload()">Tentar novamente</button>
           <div class="features">
             <h3>Disponível offline:</h3>
-            <ul>
-              <li>Visualizar timelines salvas</li>
-              <li>Ver ordens de serviço</li>
-              <li>Consultar manutenções</li>
-              <li>Criar rascunhos (sincroniza depois)</li>
-            </ul>
+            <div class="module">
+              <h4>📋 Operacional</h4>
+              <ul>
+                <li>Timelines e comentários</li>
+                <li>Ordens de serviço</li>
+                <li>Manutenções</li>
+              </ul>
+            </div>
+            <div class="module">
+              <h4>📢 Comunicação</h4>
+              <ul>
+                <li>Avisos e comunicados</li>
+                <li>Enquetes</li>
+                <li>Mensagens</li>
+              </ul>
+            </div>
+            <div class="module">
+              <h4>💰 Financeiro</h4>
+              <ul>
+                <li>Boletos e prestação de contas</li>
+                <li>Despesas e receitas</li>
+              </ul>
+            </div>
+            <div class="module">
+              <h4>👥 Cadastros</h4>
+              <ul>
+                <li>Moradores e funcionários</li>
+                <li>Fornecedores e veículos</li>
+                <li>Unidades e condomínios</li>
+              </ul>
+            </div>
+            <div class="module">
+              <h4>📄 Documentos</h4>
+              <ul>
+                <li>Atas e regulamentos</li>
+                <li>Contratos e arquivos</li>
+              </ul>
+            </div>
+            <div class="module">
+              <h4>🏊 Reservas</h4>
+              <ul>
+                <li>Áreas comuns</li>
+                <li>Agendamentos</li>
+              </ul>
+            </div>
+            <div class="module">
+              <h4>⚠️ Ocorrências</h4>
+              <ul>
+                <li>Registros e acompanhamentos</li>
+              </ul>
+            </div>
           </div>
         </div>
       </body>
@@ -265,16 +388,20 @@ self.addEventListener('sync', (event) => {
     event.waitUntil(syncOfflineData());
   }
   
-  if (event.tag === 'sync-timelines') {
-    event.waitUntil(notifyClientsToSync('timelines'));
-  }
+  // Sync por módulo
+  const syncTags = [
+    'sync-timelines', 'sync-ordens-servico', 'sync-manutencoes',
+    'sync-avisos', 'sync-enquetes', 'sync-comunicados', 'sync-mensagens',
+    'sync-boletos', 'sync-prestacao-contas', 'sync-despesas', 'sync-receitas',
+    'sync-moradores', 'sync-funcionarios', 'sync-fornecedores', 'sync-veiculos', 'sync-unidades',
+    'sync-atas', 'sync-regulamentos', 'sync-contratos', 'sync-arquivos',
+    'sync-areas-comuns', 'sync-reservas',
+    'sync-ocorrencias'
+  ];
   
-  if (event.tag === 'sync-ordens-servico') {
-    event.waitUntil(notifyClientsToSync('ordensServico'));
-  }
-  
-  if (event.tag === 'sync-manutencoes') {
-    event.waitUntil(notifyClientsToSync('manutencoes'));
+  if (syncTags.includes(event.tag)) {
+    const dataType = event.tag.replace('sync-', '');
+    event.waitUntil(notifyClientsToSync(dataType));
   }
 });
 
@@ -323,6 +450,14 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     caches.delete(CACHE_NAME).then(() => {
       console.log('[SW] Cache limpo');
+      event.source.postMessage({ type: 'CACHE_CLEARED' });
+    });
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_MODULE_CACHE') {
+    const module = event.data.module;
+    clearModuleCache(module).then(() => {
+      event.source.postMessage({ type: 'MODULE_CACHE_CLEARED', module });
     });
   }
   
@@ -334,7 +469,41 @@ self.addEventListener('message', (event) => {
       });
     });
   }
+  
+  if (event.data && event.data.type === 'GET_CACHE_STATS') {
+    getCacheStats().then(stats => {
+      event.source.postMessage({
+        type: 'CACHE_STATS',
+        stats: stats
+      });
+    });
+  }
 });
+
+// Limpar cache de módulo específico
+async function clearModuleCache(module) {
+  const cache = await caches.open(CACHE_NAME);
+  const keys = await cache.keys();
+  
+  const modulePatterns = {
+    operacional: [/timeline/, /ordemServico/, /manutencao/],
+    comunicacao: [/aviso/, /enquete/, /comunicado/, /mensagem/],
+    financeiro: [/boleto/, /prestacaoContas/, /despesa/, /receita/, /financeiro/],
+    cadastros: [/morador/, /funcionario/, /fornecedor/, /veiculo/, /unidade/, /condominio/],
+    documentos: [/ata/, /regulamento/, /contrato/, /arquivo/, /documento/],
+    reservas: [/areaComum/, /reserva/],
+    ocorrencias: [/ocorrencia/],
+  };
+  
+  const patterns = modulePatterns[module] || [];
+  
+  for (const request of keys) {
+    const url = request.url;
+    if (patterns.some(pattern => pattern.test(url))) {
+      await cache.delete(request);
+    }
+  }
+}
 
 // Calcular tamanho do cache
 async function getCacheSize() {
@@ -351,6 +520,63 @@ async function getCacheSize() {
   }
   
   return totalSize;
+}
+
+// Obter estatísticas do cache por módulo
+async function getCacheStats() {
+  const cache = await caches.open(CACHE_NAME);
+  const keys = await cache.keys();
+  
+  const stats = {
+    total: { count: 0, size: 0 },
+    operacional: { count: 0, size: 0 },
+    comunicacao: { count: 0, size: 0 },
+    financeiro: { count: 0, size: 0 },
+    cadastros: { count: 0, size: 0 },
+    documentos: { count: 0, size: 0 },
+    reservas: { count: 0, size: 0 },
+    ocorrencias: { count: 0, size: 0 },
+    outros: { count: 0, size: 0 },
+  };
+  
+  const modulePatterns = {
+    operacional: [/timeline/, /ordemServico/, /manutencao/],
+    comunicacao: [/aviso/, /enquete/, /comunicado/, /mensagem/],
+    financeiro: [/boleto/, /prestacaoContas/, /despesa/, /receita/, /financeiro/],
+    cadastros: [/morador/, /funcionario/, /fornecedor/, /veiculo/, /unidade/, /condominio/],
+    documentos: [/ata/, /regulamento/, /contrato/, /arquivo/, /documento/],
+    reservas: [/areaComum/, /reserva/],
+    ocorrencias: [/ocorrencia/],
+  };
+  
+  for (const request of keys) {
+    const response = await cache.match(request);
+    if (response) {
+      const blob = await response.blob();
+      const size = blob.size;
+      const url = request.url;
+      
+      stats.total.count++;
+      stats.total.size += size;
+      
+      let matched = false;
+      for (const [module, patterns] of Object.entries(modulePatterns)) {
+        if (patterns.some(pattern => pattern.test(url))) {
+          stats[module].count++;
+          stats[module].size += size;
+          matched = true;
+          break;
+        }
+      }
+      
+      if (!matched) {
+        stats.outros.count++;
+        stats.outros.size += size;
+      }
+    }
+  }
+  
+  return stats;
 }
 
 // ==================== PUSH NOTIFICATIONS ====================
@@ -437,3 +663,14 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('notificationclose', (event) => {
   console.log('[SW] Notificação fechada:', event);
 });
+
+// Periodic Background Sync (se suportado)
+self.addEventListener('periodicsync', (event) => {
+  console.log('[SW] Periodic sync:', event.tag);
+  
+  if (event.tag === 'sync-all-data') {
+    event.waitUntil(syncOfflineData());
+  }
+});
+
+console.log('[SW] Service Worker carregado - Modo Offline Completo');

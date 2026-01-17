@@ -515,3 +515,46 @@
 - [x] Suporte offline para Manutenções
 - [x] Indicador de status de conexão na interface
 - [x] Sincronização automática quando conexão retornar
+
+
+## Modo Offline Completo - Todas as Funções (17/01/2026)
+
+### Comunicação
+- [x] Avisos offline
+- [x] Enquetes offline
+- [x] Comunicados offline
+- [x] Mensagens offline
+
+### Financeiro
+- [x] Boletos offline
+- [x] Prestação de contas offline
+- [x] Despesas offline
+- [x] Receitas offline
+
+### Cadastros
+- [x] Moradores offline
+- [x] Funcionários offline
+- [x] Fornecedores offline
+- [x] Veículos offline
+- [x] Unidades offline
+
+### Documentos
+- [x] Atas offline
+- [x] Regulamentos offline
+- [x] Contratos offline
+- [x] Arquivos gerais offline
+
+### Reservas
+- [x] Áreas comuns offline
+- [x] Agendamentos offline
+- [x] Calendário offline
+
+### Ocorrências
+- [x] Registros offline
+- [x] Acompanhamentos offline
+
+### Infraestrutura
+- [x] Expandir IndexedDB com stores para todas as funções
+- [x] Atualizar contexto offline com funções de todas as áreas
+- [x] Atualizar Service Worker com padrões de cache expandidos
+- [x] Criar componentes de status offline por módulo

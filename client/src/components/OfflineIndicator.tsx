@@ -1,29 +1,42 @@
-// Indicador de Status de Conexão Offline
+// Indicador de Status Offline - Sistema Completo
 // App Síndico - Plataforma Digital para Condomínios
 
+import { useState, useEffect } from 'react';
 import { useOffline } from '@/contexts/OfflineContext';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import {
   Wifi,
   WifiOff,
   RefreshCw,
   Cloud,
   CloudOff,
-  Database,
   Trash2,
-  CheckCircle,
+  Download,
+  Upload,
+  HardDrive,
   AlertCircle,
   Clock,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+
+interface ModuleStats {
+  operacional: { timelines: number; ordensServico: number; manutencoes: number; comentarios: number };
+  comunicacao: { avisos: number; enquetes: number; comunicados: number; mensagens: number };
+  financeiro: { boletos: number; prestacaoContas: number; despesas: number; receitas: number };
+  cadastros: { moradores: number; funcionarios: number; fornecedores: number; veiculos: number; unidades: number; condominios: number };
+  documentos: { atas: number; regulamentos: number; contratos: number; arquivos: number };
+  reservas: { areasComuns: number; reservas: number };
+  ocorrencias: { ocorrencias: number };
+  sistema: { syncQueue: number; metadata: number; cache: number };
+}
 
 export function OfflineIndicator() {
   const {
@@ -31,305 +44,271 @@ export function OfflineIndicator() {
     isSyncing,
     syncQueueCount,
     lastSyncTime,
-    syncError,
     syncNow,
     clearOfflineData,
+    clearModuleData,
     getOfflineStats,
+    exportOfflineData,
+    importOfflineData,
   } = useOffline();
 
-  const [stats, setStats] = useState({
-    timelines: 0,
-    ordensServico: 0,
-    manutencoes: 0,
-    comentarios: 0,
-    syncQueue: 0,
-  });
-  const [isOpen, setIsOpen] = useState(false);
+  const [stats, setStats] = useState<ModuleStats | null>(null);
+  const [expandedModule, setExpandedModule] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
-  // Atualizar estatísticas quando abrir o popover
   useEffect(() => {
-    if (isOpen) {
-      getOfflineStats().then(setStats);
-    }
-  }, [isOpen, getOfflineStats]);
+    const loadStats = async () => {
+      const data = await getOfflineStats();
+      setStats(data);
+    };
+    loadStats();
+    const interval = setInterval(loadStats, 30000);
+    return () => clearInterval(interval);
+  }, [getOfflineStats]);
 
-  // Formatar tempo desde último sync
-  const formatLastSync = () => {
-    if (!lastSyncTime) return 'Nunca';
-    
-    const diff = Date.now() - lastSyncTime.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    
-    if (days > 0) return `${days}d atrás`;
-    if (hours > 0) return `${hours}h atrás`;
-    if (minutes > 0) return `${minutes}min atrás`;
-    return 'Agora';
+  const formatDate = (date: Date | null) => {
+    if (!date) return 'Nunca';
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   };
 
-  // Handler para limpar dados
-  const handleClearData = async () => {
-    if (confirm('Tem certeza que deseja limpar todos os dados offline? Esta ação não pode ser desfeita.')) {
-      await clearOfflineData();
-      setStats({
-        timelines: 0,
-        ordensServico: 0,
-        manutencoes: 0,
-        comentarios: 0,
-        syncQueue: 0,
-      });
+  const getTotalItems = () => {
+    if (!stats) return 0;
+    let total = 0;
+    Object.entries(stats).forEach(([key, value]) => {
+      if (key !== 'sistema') {
+        Object.values(value).forEach((count) => {
+          total += count as number;
+        });
+      }
+    });
+    return total;
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const data = await exportOfflineData();
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `app-sindico-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Backup exportado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao exportar backup');
+    } finally {
+      setIsExporting(false);
     }
   };
 
-  // Calcular total de itens offline
-  const totalOffline = stats.timelines + stats.ordensServico + stats.manutencoes + stats.comentarios;
+  const handleImport = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      setIsImporting(true);
+      try {
+        const text = await file.text();
+        await importOfflineData(text);
+        const newStats = await getOfflineStats();
+        setStats(newStats);
+      } catch (error) {
+        toast.error('Erro ao importar backup');
+      } finally {
+        setIsImporting(false);
+      }
+    };
+    input.click();
+  };
+
+  const handleClearModule = async (module: string) => {
+    if (confirm(`Tem certeza que deseja limpar os dados offline de ${module}?`)) {
+      await clearModuleData(module as any);
+      const newStats = await getOfflineStats();
+      setStats(newStats);
+    }
+  };
+
+  const modules = [
+    { key: 'operacional', label: 'Operacional', icon: '📋' },
+    { key: 'comunicacao', label: 'Comunicação', icon: '📢' },
+    { key: 'financeiro', label: 'Financeiro', icon: '💰' },
+    { key: 'cadastros', label: 'Cadastros', icon: '👥' },
+    { key: 'documentos', label: 'Documentos', icon: '📄' },
+    { key: 'reservas', label: 'Reservas', icon: '🏊' },
+    { key: 'ocorrencias', label: 'Ocorrências', icon: '⚠️' },
+  ];
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
-          className={`relative gap-2 ${
-            isOnline 
-              ? 'text-green-600 hover:text-green-700 hover:bg-green-50' 
-              : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50'
-          }`}
+          className={`relative gap-2 ${isOnline ? 'text-green-600' : 'text-red-500'}`}
         >
-          {isOnline ? (
-            <Wifi className="w-4 h-4" />
-          ) : (
-            <WifiOff className="w-4 h-4 animate-pulse" />
-          )}
-          
-          {/* Badge de itens pendentes */}
+          {isOnline ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4 animate-pulse" />}
           {syncQueueCount > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
-            >
-              {syncQueueCount > 9 ? '9+' : syncQueueCount}
+            <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+              {syncQueueCount > 99 ? '99+' : syncQueueCount}
             </Badge>
           )}
-          
-          <span className="hidden sm:inline text-xs">
-            {isOnline ? 'Online' : 'Offline'}
-          </span>
+          <span className="hidden sm:inline text-xs">{isOnline ? 'Online' : 'Offline'}</span>
         </Button>
       </PopoverTrigger>
-      
-      <PopoverContent className="w-80" align="end">
-        <div className="space-y-4">
-          {/* Header */}
+      <PopoverContent className="w-80 p-0" align="end">
+        <div className={`p-4 ${isOnline ? 'bg-green-50' : 'bg-red-50'} border-b`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {isOnline ? (
-                <Cloud className="w-5 h-5 text-green-600" />
-              ) : (
-                <CloudOff className="w-5 h-5 text-amber-600" />
-              )}
+              {isOnline ? <Cloud className="h-5 w-5 text-green-600" /> : <CloudOff className="h-5 w-5 text-red-500" />}
               <div>
-                <h4 className="font-semibold text-sm">
-                  {isOnline ? 'Conectado' : 'Modo Offline'}
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  Último sync: {formatLastSync()}
+                <p className={`font-medium ${isOnline ? 'text-green-700' : 'text-red-700'}`}>
+                  {isOnline ? 'Conectado' : 'Sem conexão'}
                 </p>
+                <p className="text-xs text-muted-foreground">{getTotalItems()} itens salvos offline</p>
               </div>
             </div>
-            
-            {isOnline && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={syncNow}
-                disabled={isSyncing}
-                className="h-8"
-              >
-                <RefreshCw className={`w-3 h-3 mr-1 ${isSyncing ? 'animate-spin' : ''}`} />
-                {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
-              </Button>
+            <Button size="sm" variant="outline" onClick={syncNow} disabled={!isOnline || isSyncing} className="gap-1">
+              <RefreshCw className={`h-3 w-3 ${isSyncing ? 'animate-spin' : ''}`} />
+              Sync
+            </Button>
+          </div>
+          <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              <span>Última sync: {formatDate(lastSyncTime)}</span>
+            </div>
+            {syncQueueCount > 0 && (
+              <div className="flex items-center gap-1 text-amber-600">
+                <AlertCircle className="h-3 w-3" />
+                <span>{syncQueueCount} pendente(s)</span>
+              </div>
             )}
           </div>
-
-          {/* Status de sincronização */}
-          {isSyncing && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-blue-600">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Sincronizando dados...</span>
+        </div>
+        <div className="max-h-64 overflow-y-auto">
+          {modules.map((module) => {
+            const moduleStats = stats?.[module.key as keyof ModuleStats];
+            const totalItems = moduleStats ? Object.values(moduleStats).reduce((a, b) => a + (b as number), 0) : 0;
+            const isExpanded = expandedModule === module.key;
+            return (
+              <div key={module.key} className="border-b last:border-b-0">
+                <button
+                  className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                  onClick={() => setExpandedModule(isExpanded ? null : module.key)}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{module.icon}</span>
+                    <span className="text-sm font-medium">{module.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">{totalItems}</Badge>
+                    {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                </button>
+                {isExpanded && moduleStats && (
+                  <div className="px-3 pb-3 bg-muted/30">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {Object.entries(moduleStats).map(([key, value]) => (
+                        <div key={key} className="flex justify-between">
+                          <span className="text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                          <span className="font-medium">{value as number}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full mt-2 text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => handleClearModule(module.key)}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Limpar {module.label}
+                    </Button>
+                  </div>
+                )}
               </div>
-              <Progress value={33} className="h-1" />
-            </div>
-          )}
-
-          {/* Erro de sincronização */}
-          {syncError && (
-            <div className="flex items-start gap-2 p-2 bg-red-50 rounded-lg text-sm text-red-600">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              <span>{syncError}</span>
-            </div>
-          )}
-
-          {/* Fila de sincronização */}
-          {syncQueueCount > 0 && (
-            <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
-              <Clock className="w-4 h-4 text-amber-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-amber-700">
-                  {syncQueueCount} item(s) aguardando sincronização
-                </p>
-                <p className="text-xs text-amber-600">
-                  {isOnline ? 'Será sincronizado automaticamente' : 'Será sincronizado quando conectar'}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Estatísticas de dados offline */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Database className="w-4 h-4" />
-              <span>Dados Salvos Localmente</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <span className="text-muted-foreground">Timelines</span>
-                <Badge variant="secondary">{stats.timelines}</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <span className="text-muted-foreground">Ordens de Serviço</span>
-                <Badge variant="secondary">{stats.ordensServico}</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <span className="text-muted-foreground">Manutenções</span>
-                <Badge variant="secondary">{stats.manutencoes}</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <span className="text-muted-foreground">Comentários</span>
-                <Badge variant="secondary">{stats.comentarios}</Badge>
-              </div>
-            </div>
+            );
+          })}
+        </div>
+        <div className="p-3 border-t bg-muted/30">
+          <div className="grid grid-cols-2 gap-2">
+            <Button size="sm" variant="outline" onClick={handleExport} disabled={isExporting} className="text-xs">
+              <Download className={`h-3 w-3 mr-1 ${isExporting ? 'animate-pulse' : ''}`} />
+              Exportar
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleImport} disabled={isImporting} className="text-xs">
+              <Upload className={`h-3 w-3 mr-1 ${isImporting ? 'animate-pulse' : ''}`} />
+              Importar
+            </Button>
           </div>
-
-          {/* Informações do modo offline */}
-          {!isOnline && (
-            <div className="p-3 bg-blue-50 rounded-lg space-y-2">
-              <h5 className="text-sm font-medium text-blue-700">Disponível offline:</h5>
-              <ul className="text-xs text-blue-600 space-y-1">
-                <li className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Visualizar timelines salvas
-                </li>
-                <li className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Ver ordens de serviço
-                </li>
-                <li className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Consultar manutenções
-                </li>
-                <li className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Criar rascunhos (sincroniza depois)
-                </li>
-              </ul>
-            </div>
-          )}
-
-          {/* Ações */}
-          {totalOffline > 0 && (
-            <div className="pt-2 border-t">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearData}
-                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Limpar dados offline
-              </Button>
-            </div>
-          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full mt-2 text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
+            onClick={() => {
+              if (confirm('Tem certeza que deseja limpar TODOS os dados offline?')) {
+                clearOfflineData();
+              }
+            }}
+          >
+            <Trash2 className="h-3 w-3 mr-1" />
+            Limpar todos os dados offline
+          </Button>
+        </div>
+        <div className="p-2 bg-blue-50 border-t">
+          <p className="text-xs text-blue-600 text-center flex items-center justify-center gap-1">
+            <HardDrive className="h-3 w-3" />
+            Dados armazenados localmente no seu dispositivo
+          </p>
         </div>
       </PopoverContent>
     </Popover>
   );
 }
 
-// Componente de banner offline (para exibir no topo da página)
-export function OfflineBanner() {
-  const { isOnline, isSyncing, syncQueueCount, syncNow } = useOffline();
-  
-  if (isOnline && syncQueueCount === 0) return null;
-  
+export function OfflineIndicatorCompact() {
+  const { isOnline, syncQueueCount, isSyncing, syncNow } = useOffline();
   return (
-    <div className={`px-4 py-2 text-sm flex items-center justify-between ${
-      isOnline 
-        ? 'bg-blue-50 text-blue-700 border-b border-blue-200' 
-        : 'bg-amber-50 text-amber-700 border-b border-amber-200'
-    }`}>
-      <div className="flex items-center gap-2">
-        {isOnline ? (
-          <>
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>
-              {isSyncing 
-                ? 'Sincronizando dados...' 
-                : `${syncQueueCount} item(s) aguardando sincronização`
-              }
-            </span>
-          </>
-        ) : (
-          <>
-            <WifiOff className="w-4 h-4" />
-            <span>Você está offline. Os dados serão salvos localmente.</span>
-          </>
-        )}
-      </div>
-      
-      {isOnline && !isSyncing && syncQueueCount > 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={syncNow}
-          className="h-7 text-blue-700 hover:text-blue-800 hover:bg-blue-100"
-        >
-          Sincronizar agora
-        </Button>
-      )}
+    <div className="flex items-center gap-1">
+      <button
+        onClick={syncNow}
+        disabled={!isOnline || isSyncing}
+        className={`p-1 rounded transition-colors ${isOnline ? 'text-green-600 hover:bg-green-50' : 'text-red-500 hover:bg-red-50'}`}
+        title={isOnline ? 'Online - Clique para sincronizar' : 'Offline'}
+      >
+        {isSyncing ? <RefreshCw className="h-4 w-4 animate-spin" /> : isOnline ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4 animate-pulse" />}
+      </button>
+      {syncQueueCount > 0 && <Badge variant="destructive" className="text-xs px-1 py-0">{syncQueueCount}</Badge>}
     </div>
   );
 }
 
-// Badge simples de status offline
-export function OfflineStatusBadge() {
+export function OfflineBanner() {
   const { isOnline, syncQueueCount } = useOffline();
-  
-  if (isOnline && syncQueueCount === 0) return null;
-  
+  if (isOnline) return null;
   return (
-    <Badge 
-      variant={isOnline ? "default" : "secondary"}
-      className={`${
-        isOnline 
-          ? 'bg-blue-100 text-blue-700' 
-          : 'bg-amber-100 text-amber-700'
-      }`}
-    >
-      {isOnline ? (
-        <>
-          <RefreshCw className="w-3 h-3 mr-1" />
-          {syncQueueCount} pendente(s)
-        </>
-      ) : (
-        <>
-          <WifiOff className="w-3 h-3 mr-1" />
-          Offline
-        </>
-      )}
-    </Badge>
+    <div className="bg-amber-50 border-b border-amber-200 px-4 py-2">
+      <div className="flex items-center justify-between max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 text-amber-800">
+          <WifiOff className="h-4 w-4" />
+          <span className="text-sm font-medium">Você está offline</span>
+          {syncQueueCount > 0 && <span className="text-xs text-amber-600">({syncQueueCount} alterações pendentes)</span>}
+        </div>
+        <p className="text-xs text-amber-600">Os dados serão sincronizados automaticamente quando a conexão retornar</p>
+      </div>
+    </div>
   );
 }
+
+export default OfflineIndicator;
