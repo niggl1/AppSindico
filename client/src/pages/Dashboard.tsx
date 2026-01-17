@@ -199,6 +199,49 @@ const menuSections = [
     ]
   },
   {
+    id: "comunicacao",
+    label: "Comunicação",
+    icon: MessageSquare,
+    items: [
+      { id: "avisos", label: "Avisos", icon: Bell, funcaoId: "avisos" },
+      { id: "comunicados", label: "Comunicados", icon: FileText, funcaoId: "comunicados" },
+      { id: "notificacoes", label: "Notificações", icon: BellRing, funcaoId: "notificacoes" },
+      { id: "lembretes", label: "Lembretes Agendados", icon: Clock, funcaoId: "lembretes" },
+      { id: "notificar-morador", label: "Notificar o Morador", icon: Send, funcaoId: "notificar-morador" },
+    ]
+  },
+  {
+    id: "eventos-agenda",
+    label: "Eventos e Agenda",
+    icon: Calendar,
+    items: [
+      { id: "eventos", label: "Eventos", icon: Calendar, funcaoId: "eventos" },
+      { id: "reservas", label: "Reservas", icon: CalendarCheck, funcaoId: "reservas" },
+    ]
+  },
+  {
+    id: "comunidade",
+    label: "Interativo / Comunidade",
+    icon: Users,
+    items: [
+      { id: "votacoes", label: "Votações e Enquetes", icon: Vote, funcaoId: "votacoes" },
+      { id: "classificados", label: "Classificados", icon: ShoppingBag, funcaoId: "classificados" },
+      { id: "achados-perdidos", label: "Achados e Perdidos", icon: Search, funcaoId: "achados-perdidos" },
+      { id: "caronas", label: "Caronas", icon: CarFront, funcaoId: "caronas" },
+    ]
+  },
+  {
+    id: "documentacao",
+    label: "Documentação e Regras",
+    icon: BookOpen,
+    items: [
+      { id: "regras", label: "Regras e Normas", icon: BookOpen, funcaoId: "regras" },
+      { id: "seguranca", label: "Dicas de Segurança", icon: Shield, funcaoId: "seguranca" },
+      { id: "links", label: "Links Úteis", icon: LinkIcon, funcaoId: "links" },
+      { id: "telefones", label: "Telefones Úteis", icon: Phone, funcaoId: "telefones" },
+    ]
+  },
+  {
     id: "galeria-midia",
     label: "Galeria e Mídia",
     icon: Image,
@@ -207,6 +250,48 @@ const menuSections = [
       { id: "realizacoes", label: "Realizações", icon: Award, funcaoId: "realizacoes" },
       { id: "melhorias", label: "Melhorias", icon: TrendingUp, funcaoId: "melhorias" },
       { id: "aquisicoes", label: "Aquisições", icon: Package, funcaoId: "aquisicoes" },
+    ]
+  },
+  {
+    id: "publicidade",
+    label: "Publicidade",
+    icon: Newspaper,
+    items: [
+      { id: "publicidade", label: "Anunciantes", icon: Building2, funcaoId: "publicidade" },
+      { id: "campanhas", label: "Campanhas", icon: Newspaper, funcaoId: "campanhas" },
+    ]
+  },
+  {
+    id: "revista",
+    label: "Revista Digital",
+    icon: BookMarked,
+    items: [
+      { id: "revistas", label: "Minhas Revistas", icon: BookMarked, funcaoId: "revistas" },
+      { id: "templates", label: "Templates Visuais", icon: Palette, funcaoId: "templates" },
+      { id: "efeitos", label: "Efeitos de Transição", icon: Sparkles, funcaoId: "efeitos" },
+      { id: "exportar-pdf", label: "Exportar PDF", icon: FileDown, funcaoId: "exportar-pdf" },
+    ]
+  },
+  {
+    id: "relatorios",
+    label: "Relatórios e Painel",
+    icon: BarChart3,
+    items: [
+      { id: "painel-controlo", label: "Painel de Controlo", icon: BarChart3, funcaoId: "painel-controlo" },
+      { id: "estatisticas", label: "Estatísticas Gerais", icon: PieChart, funcaoId: "estatisticas" },
+      { id: "historico-atividades", label: "Histórico de Atividades", icon: History, funcaoId: "historico-atividades" },
+      { id: "exportar-relatorios", label: "Exportar Relatórios", icon: Download, funcaoId: "exportar-relatorios" },
+    ]
+  },
+  {
+    id: "configuracoes",
+    label: "Configurações",
+    icon: Settings,
+    items: [
+      { id: "perfil", label: "Perfil do Usuário", icon: Users, funcaoId: "perfil" },
+      { id: "config-notificacoes", label: "Config. Notificações", icon: BellRing, funcaoId: "config-notificacoes" },
+      { id: "preferencias", label: "Preferências", icon: Sliders, funcaoId: "preferencias" },
+      { id: "construtor-app", label: "Construtor de App", icon: Sparkles, funcaoId: "construtor-app" },
     ]
   },
 

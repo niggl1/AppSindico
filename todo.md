@@ -414,3 +414,7 @@
 - [ ] Remover código antigo duplicado
 - [ ] Testar todas as funcionalidades
 - [ ] Checkpoint final
+
+## Menu - Notificar o Morador (17/01/2026)
+
+- [ ] Adicionar "Notificar o Morador" no menu lateral do Dashboard

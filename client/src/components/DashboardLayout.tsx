@@ -169,30 +169,8 @@ const menuSections = [
       { icon: CalendarCheck, iconName: "CalendarCheck", label: "Reservas", path: "/dashboard/reservas", funcaoId: "reservas" },
     ]
   },
-  {
-    id: "operacional",
-    label: "Operacional / Manutenção",
-    icon: Wrench,
-    iconName: "Wrench",
-    items: [
-      { icon: ClipboardCheck, iconName: "ClipboardCheck", label: "Vistorias", path: "/dashboard/vistorias", funcaoId: "vistorias" },
-      { icon: Wrench, iconName: "Wrench", label: "Manutenções", path: "/dashboard/manutencoes", funcaoId: "manutencoes" },
-      { icon: AlertTriangle, iconName: "AlertTriangle", label: "Ocorrências", path: "/dashboard/ocorrencias", funcaoId: "ocorrencias" },
-      { icon: CheckSquare, iconName: "CheckSquare", label: "Checklists", path: "/dashboard/checklists", funcaoId: "checklists" },
-      { icon: ArrowLeftRight, iconName: "ArrowLeftRight", label: "Antes e Depois", path: "/dashboard/antes-depois", funcaoId: "antes-depois" },
-    ]
-  },
-  {
-    id: "ordens-servico",
-    label: "Ordens de Serviço",
-    icon: ClipboardList,
-    iconName: "ClipboardList",
-    items: [
-      { icon: ClipboardList, iconName: "ClipboardList", label: "Todas as OS", path: "/dashboard/ordens-servico", funcaoId: "ordens-servico" },
-      { icon: Plus, iconName: "Plus", label: "Nova OS", path: "/dashboard/ordens-servico?nova=true", funcaoId: "nova-os" },
-      { icon: Settings, iconName: "Settings", label: "Configurações", path: "/dashboard/ordens-servico/configuracoes", funcaoId: "config-os" },
-    ]
-  },
+
+
   {
     id: "comunidade",
     label: "Interativo / Comunidade",
