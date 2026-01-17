@@ -216,7 +216,6 @@ const menuSections = [
     icon: Calendar,
     items: [
       { id: "eventos", label: "Eventos", icon: Calendar, funcaoId: "eventos" },
-      { id: "reservas", label: "Reservas", icon: CalendarCheck, funcaoId: "reservas" },
     ]
   },
   {

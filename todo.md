@@ -435,3 +435,6 @@
 
 ## Modificar Botão VISÃO GERAL (17/01/2026)
 - [x] Remover link, palavra "CRIAR" e ícone de + do botão "VISÃO GERAL / CRIAR"
+
+## Remover Reservas do Menu (17/01/2026)
+- [x] Remover item "Reservas" do menu lateral (não tem funcionalidade)
