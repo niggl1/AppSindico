@@ -579,3 +579,20 @@
 - [x] Opção de sincronização automática por módulo
 - [x] Prioridade de sincronização configurável
 - [x] Agendamento de sincronização por horário
+
+
+## Modo Escuro e PWA (17/01/2026)
+
+### Modo Escuro Automático
+- [x] Detectar preferência do sistema (prefers-color-scheme)
+- [x] Alternar tema automaticamente baseado na preferência
+- [x] Persistir escolha manual do usuário
+- [x] Transição suave entre temas
+
+### PWA Completo
+- [x] Criar manifest.json com metadados do app
+- [x] Gerar ícones em múltiplos tamanhos (72, 96, 128, 144, 152, 192, 384, 512)
+- [x] Configurar splash screens
+- [x] Atualizar Service Worker para instalação
+- [x] Adicionar meta tags para iOS
+- [x] Configurar tema de cor da barra de status

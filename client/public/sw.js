@@ -1,15 +1,30 @@
-// Service Worker para App Síndico - Modo Offline Completo + Push Notifications
+// Service Worker para App Síndico - PWA Completo + Modo Offline + Push Notifications
 // Plataforma Digital para Condomínios
 
-const CACHE_NAME = 'app-sindico-v3';
+const CACHE_NAME = 'app-sindico-v4';
+const APP_VERSION = '1.0.0';
 const OFFLINE_URL = '/offline.html';
 
-// Recursos para cache estático
+// Recursos para cache estático - PWA
 const STATIC_CACHE = [
   '/',
   '/offline.html',
   '/manifest.json',
   '/logo.png',
+  '/logo-appsindico.png',
+  // Ícones PWA
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-128x128.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-152x152.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-384x384.png',
+  '/icons/icon-512x512.png',
+  // Ícones de atalho
+  '/icons/shortcut-dashboard.png',
+  '/icons/shortcut-timeline.png',
+  '/icons/shortcut-os.png',
 ];
 
 // Padrões de URLs que devem ser cacheadas para uso offline - TODAS AS FUNÇÕES
@@ -93,7 +108,7 @@ const PAGE_PATTERNS = [
 
 // ==================== INSTALAÇÃO ====================
 self.addEventListener('install', (event) => {
-  console.log('[SW] Service Worker instalado - Versão completa com todas as funções');
+  console.log(`[SW] Service Worker instalado - PWA v${APP_VERSION}`);
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Cache aberto');
@@ -673,4 +688,101 @@ self.addEventListener('periodicsync', (event) => {
   }
 });
 
-console.log('[SW] Service Worker carregado - Modo Offline Completo');
+// ==================== MENSAGENS DO CLIENTE ====================
+self.addEventListener('message', (event) => {
+  console.log('[SW] Mensagem recebida:', event.data);
+  
+  const { type, payload } = event.data || {};
+  
+  switch (type) {
+    case 'SKIP_WAITING':
+      self.skipWaiting();
+      break;
+      
+    case 'GET_VERSION':
+      event.ports[0]?.postMessage({ version: APP_VERSION, cache: CACHE_NAME });
+      break;
+      
+    case 'CLEAR_CACHE':
+      caches.delete(CACHE_NAME).then(() => {
+        event.ports[0]?.postMessage({ success: true });
+      });
+      break;
+      
+    case 'CACHE_URLS':
+      if (payload?.urls) {
+        caches.open(CACHE_NAME).then(cache => {
+          cache.addAll(payload.urls).then(() => {
+            event.ports[0]?.postMessage({ success: true });
+          });
+        });
+      }
+      break;
+      
+    case 'GET_CACHE_SIZE':
+      getCacheSize().then(size => {
+        event.ports[0]?.postMessage({ size });
+      });
+      break;
+  }
+});
+
+// Calcular tamanho do cache
+async function getCacheSize() {
+  const cache = await caches.open(CACHE_NAME);
+  const keys = await cache.keys();
+  let totalSize = 0;
+  
+  for (const request of keys) {
+    const response = await cache.match(request);
+    if (response) {
+      const blob = await response.clone().blob();
+      totalSize += blob.size;
+    }
+  }
+  
+  return totalSize;
+}
+
+// ==================== SHARE TARGET (PWA) ====================
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Handle share target
+  if (url.pathname === '/share' && event.request.method === 'POST') {
+    event.respondWith((async () => {
+      const formData = await event.request.formData();
+      const title = formData.get('title') || '';
+      const text = formData.get('text') || '';
+      const shareUrl = formData.get('url') || '';
+      const files = formData.getAll('files');
+      
+      // Redirecionar para página de compartilhamento com dados
+      const redirectUrl = new URL('/dashboard', self.location.origin);
+      redirectUrl.searchParams.set('shared', 'true');
+      if (title) redirectUrl.searchParams.set('title', title);
+      if (text) redirectUrl.searchParams.set('text', text);
+      if (shareUrl) redirectUrl.searchParams.set('url', shareUrl);
+      
+      // Se houver arquivos, armazenar temporariamente
+      if (files.length > 0) {
+        // Notificar clientes sobre arquivos compartilhados
+        const clients = await self.clients.matchAll({ type: 'window' });
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'SHARED_FILES',
+            files: files.map(f => ({
+              name: f.name,
+              type: f.type,
+              size: f.size
+            }))
+          });
+        });
+      }
+      
+      return Response.redirect(redirectUrl.toString(), 303);
+    })());
+  }
+});
+
+console.log(`[SW] Service Worker PWA carregado - v${APP_VERSION}`);
