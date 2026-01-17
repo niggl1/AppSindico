@@ -14,6 +14,7 @@ import {
   timelineTitulos,
   timelineComentarios,
   timelineComentarioReacoes,
+  timelineComentarioHistorico,
   users,
   membrosEquipe,
 } from "../../drizzle/schema";
@@ -879,6 +880,24 @@ export const timelineRouter = router({
         throw new Error("Você não pode editar este comentário");
       }
 
+      // Contar versões anteriores para determinar o número da versão
+      const historicoAnterior = await db.select({ count: sql<number>`count(*)` })
+        .from(timelineComentarioHistorico)
+        .where(eq(timelineComentarioHistorico.comentarioId, input.id));
+      const versaoAtual = (historicoAnterior[0]?.count || 0) + 1;
+
+      // Salvar versão anterior no histórico
+      await db.insert(timelineComentarioHistorico).values({
+        comentarioId: input.id,
+        textoAnterior: comentario.texto,
+        imagensUrlsAnterior: comentario.imagensUrls as string[] | null,
+        arquivosUrlsAnterior: comentario.arquivosUrls as any,
+        mencoesAnterior: comentario.mencoes as any,
+        editadoPorId: ctx.user?.id,
+        editadoPorNome: ctx.user?.name || "Usuário",
+        versao: versaoAtual,
+      });
+
       await db.update(timelineComentarios)
         .set({
           texto: input.texto,
@@ -983,6 +1002,122 @@ export const timelineRouter = router({
           eq(membrosEquipe.ativo, true)
         ))
         .orderBy(membrosEquipe.nome);
+    }),
+
+  // ==================== TIMELINE - HISTÓRICO DE EDIÇÕES ====================
+  
+  // Listar histórico de edições de um comentário
+  listarHistoricoComentario: protectedProcedure
+    .input(z.object({ comentarioId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      return db.select()
+        .from(timelineComentarioHistorico)
+        .where(eq(timelineComentarioHistorico.comentarioId, input.comentarioId))
+        .orderBy(desc(timelineComentarioHistorico.versao));
+    }),
+
+  // ==================== TIMELINE - FILTROS DE COMENTÁRIOS ====================
+  
+  // Listar comentários com filtros avançados
+  listarComentariosFiltrados: protectedProcedure
+    .input(z.object({
+      timelineId: z.number(),
+      filtroAutor: z.string().optional(),
+      filtroDataInicio: z.date().optional(),
+      filtroDataFim: z.date().optional(),
+      filtroTipoAnexo: z.enum(["imagem", "arquivo", "todos", "nenhum"]).optional(),
+      apenasComMencoes: z.boolean().optional(),
+      apenasRespostas: z.boolean().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { comentarios: [], total: 0 };
+
+      // Construir condições de filtro
+      const conditions = [
+        eq(timelineComentarios.timelineId, input.timelineId),
+        eq(timelineComentarios.excluido, false),
+      ];
+
+      // Filtro por autor
+      if (input.filtroAutor) {
+        conditions.push(like(timelineComentarios.autorNome, `%${input.filtroAutor}%`));
+      }
+
+      // Filtro por data
+      if (input.filtroDataInicio) {
+        conditions.push(gte(timelineComentarios.createdAt, input.filtroDataInicio));
+      }
+      if (input.filtroDataFim) {
+        conditions.push(lte(timelineComentarios.createdAt, input.filtroDataFim));
+      }
+
+      // Filtro por tipo de anexo
+      if (input.filtroTipoAnexo === "imagem") {
+        conditions.push(sql`JSON_LENGTH(${timelineComentarios.imagensUrls}) > 0`);
+      } else if (input.filtroTipoAnexo === "arquivo") {
+        conditions.push(sql`JSON_LENGTH(${timelineComentarios.arquivosUrls}) > 0`);
+      } else if (input.filtroTipoAnexo === "nenhum") {
+        conditions.push(sql`(JSON_LENGTH(${timelineComentarios.imagensUrls}) = 0 OR ${timelineComentarios.imagensUrls} IS NULL)`);
+        conditions.push(sql`(JSON_LENGTH(${timelineComentarios.arquivosUrls}) = 0 OR ${timelineComentarios.arquivosUrls} IS NULL)`);
+      }
+
+      // Filtro por menções
+      if (input.apenasComMencoes) {
+        conditions.push(sql`JSON_LENGTH(${timelineComentarios.mencoes}) > 0`);
+      }
+
+      // Filtro por respostas (apenas comentários que são respostas)
+      if (input.apenasRespostas) {
+        conditions.push(sql`${timelineComentarios.comentarioPaiId} IS NOT NULL`);
+      }
+
+      // Buscar comentários com filtros
+      const comentarios = await db.select()
+        .from(timelineComentarios)
+        .where(and(...conditions))
+        .orderBy(desc(timelineComentarios.createdAt));
+
+      // Buscar reações para cada comentário
+      const comentariosComReacoes = await Promise.all(
+        comentarios.map(async (c) => {
+          const reacoes = await db.select()
+            .from(timelineComentarioReacoes)
+            .where(eq(timelineComentarioReacoes.comentarioId, c.id));
+          
+          // Buscar respostas (comentários filhos)
+          const respostas = await db.select()
+            .from(timelineComentarios)
+            .where(and(
+              eq(timelineComentarios.comentarioPaiId, c.id),
+              eq(timelineComentarios.excluido, false)
+            ))
+            .orderBy(timelineComentarios.createdAt);
+          
+          // Buscar reações das respostas
+          const respostasComReacoes = await Promise.all(
+            respostas.map(async (r) => {
+              const reacoesResposta = await db.select()
+                .from(timelineComentarioReacoes)
+                .where(eq(timelineComentarioReacoes.comentarioId, r.id));
+              return { ...r, reacoes: reacoesResposta };
+            })
+          );
+          
+          return { ...c, reacoes, respostas: respostasComReacoes };
+        })
+      );
+
+      // Filtrar apenas comentários de nível raiz (sem pai) para evitar duplicação
+      const comentariosRaiz = comentariosComReacoes.filter(c => !c.comentarioPaiId);
+
+      return {
+        comentarios: comentariosRaiz,
+        total: comentariosRaiz.length,
+      };
     }),
 
   // ==================== TIMELINE - CONFIGURAÇÕES DE NOTIFICAÇÕES ====================

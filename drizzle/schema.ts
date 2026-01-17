@@ -2225,3 +2225,25 @@ export const timelineComentarioReacoes = mysqlTable("timeline_comentario_reacoes
 
 export type TimelineComentarioReacao = typeof timelineComentarioReacoes.$inferSelect;
 export type InsertTimelineComentarioReacao = typeof timelineComentarioReacoes.$inferInsert;
+
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - HISTÓRICO DE EDIÇÕES ====================
+
+export const timelineComentarioHistorico = mysqlTable("timeline_comentario_historico", {
+  id: int("id").autoincrement().primaryKey(),
+  comentarioId: int("comentarioId").notNull(),
+  // Conteúdo anterior
+  textoAnterior: text("textoAnterior").notNull(),
+  imagensUrlsAnterior: json("imagensUrlsAnterior").$type<string[]>(),
+  arquivosUrlsAnterior: json("arquivosUrlsAnterior").$type<ArquivoAnexo[]>(),
+  mencoesAnterior: json("mencoesAnterior").$type<Mencao[]>(),
+  // Quem editou
+  editadoPorId: int("editadoPorId").references(() => users.id),
+  editadoPorNome: varchar("editadoPorNome", { length: 255 }),
+  // Metadados
+  versao: int("versao").default(1),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineComentarioHistorico = typeof timelineComentarioHistorico.$inferSelect;
+export type InsertTimelineComentarioHistorico = typeof timelineComentarioHistorico.$inferInsert;

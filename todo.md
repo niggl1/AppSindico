@@ -475,3 +475,10 @@
 - [x] Sistema de menções de usuários com @ nos comentários
 - [x] Permitir anexar arquivos (PDFs, documentos) além de imagens nos comentários
 - [x] Atualizar interface com as novas funcionalidades
+
+
+## Melhorias Avançadas Timeline Completa (17/01/2026)
+
+- [x] Filtros de comentários por autor, data ou tipo de anexo
+- [x] Respostas em thread com visualização aninhada
+- [x] Histórico de edições dos comentários (versões anteriores)

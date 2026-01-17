@@ -64,6 +64,11 @@ import {
   FileImage,
   Download,
   AtSign,
+  Filter,
+  Calendar,
+  ChevronDown,
+  ChevronRight,
+  RotateCcw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -71,6 +76,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useLocation } from "wouter";
 
 interface TimelineCompletaPageProps {
@@ -92,22 +102,41 @@ interface Mencao {
   nome: string;
 }
 
-// Componente de Comentário Individual
+// Tipo para histórico de edição
+interface HistoricoEdicao {
+  id: number;
+  comentarioId: number;
+  textoAnterior: string;
+  imagensUrlsAnterior?: string[];
+  arquivosUrlsAnterior?: ArquivoAnexo[];
+  mencoesAnterior?: Mencao[];
+  editadoPorId?: number;
+  editadoPorNome?: string;
+  versao: number;
+  createdAt: Date;
+}
+
+// Componente de Comentário Individual com Thread
 function ComentarioItem({
   comentario,
   onReply,
   onEdit,
   onDelete,
   onReact,
+  onViewHistory,
   currentUserId,
+  nivel = 0,
 }: {
   comentario: any;
   onReply: (id: number) => void;
   onEdit: (comentario: any) => void;
   onDelete: (id: number) => void;
   onReact: (comentarioId: number, tipo: string) => void;
+  onViewHistory: (comentarioId: number) => void;
   currentUserId?: number;
+  nivel?: number;
 }) {
+  const [expandirRespostas, setExpandirRespostas] = useState(true);
   const isOwner = comentario.usuarioId === currentUserId;
   const reacaoTipos = [
     { tipo: "like", icon: ThumbsUp, label: "Curtir" },
@@ -152,123 +181,385 @@ function ComentarioItem({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const hasRespostas = comentario.respostas && comentario.respostas.length > 0;
+
   return (
-    <div className="bg-white border rounded-lg p-4 space-y-3">
-      {/* Header do comentário */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={comentario.autorAvatar} />
-            <AvatarFallback className="bg-orange-100 text-orange-600">
-              {comentario.autorNome?.charAt(0)?.toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium text-gray-900">{comentario.autorNome}</p>
-            <p className="text-xs text-gray-500">
-              {new Date(comentario.createdAt).toLocaleString("pt-BR")}
-              {comentario.editado && (
-                <span className="ml-2 text-gray-400">(editado)</span>
-              )}
-            </p>
+    <div className={`${nivel > 0 ? 'ml-8 border-l-2 border-blue-200 pl-4' : ''}`}>
+      <div className="bg-white border rounded-lg p-4 space-y-3">
+        {/* Header do comentário */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={comentario.autorAvatar} />
+              <AvatarFallback className="bg-orange-100 text-orange-600">
+                {comentario.autorNome?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-gray-900">{comentario.autorNome}</p>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>{new Date(comentario.createdAt).toLocaleString("pt-BR")}</span>
+                {comentario.editado && (
+                  <button
+                    onClick={() => onViewHistory(comentario.id)}
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                  >
+                    <History className="h-3 w-3" />
+                    (editado - ver histórico)
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
+          {isOwner && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit(comentario)}>
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete(comentario.id)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
-        {isOwner && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(comentario)}>
-                <Edit2 className="h-4 w-4 mr-2" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(comentario.id)}
-                className="text-red-600"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Excluir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
 
-      {/* Conteúdo do comentário com menções */}
-      <p className="text-gray-700 whitespace-pre-wrap">
-        {renderTextoComMencoes(comentario.texto, comentario.mencoes)}
-      </p>
+        {/* Conteúdo do comentário com menções */}
+        <p className="text-gray-700 whitespace-pre-wrap">
+          {renderTextoComMencoes(comentario.texto, comentario.mencoes)}
+        </p>
 
-      {/* Imagens do comentário */}
-      {comentario.imagensUrls && comentario.imagensUrls.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {comentario.imagensUrls.map((url: string, idx: number) => (
-            <img
-              key={idx}
-              src={url}
-              alt={`Imagem ${idx + 1}`}
-              className="h-20 w-20 object-cover rounded-lg cursor-pointer hover:opacity-80"
-              onClick={() => window.open(url, "_blank")}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Arquivos anexados */}
-      {comentario.arquivosUrls && comentario.arquivosUrls.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {comentario.arquivosUrls.map((arquivo: ArquivoAnexo, idx: number) => {
-            const FileIcon = getFileIcon(arquivo.tipo);
-            return (
-              <a
+        {/* Imagens do comentário */}
+        {comentario.imagensUrls && comentario.imagensUrls.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {comentario.imagensUrls.map((url: string, idx: number) => (
+              <img
                 key={idx}
-                href={arquivo.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 text-sm transition-colors"
-              >
-                <FileIcon className="h-4 w-4 text-blue-600" />
-                <div className="flex flex-col">
-                  <span className="text-gray-700 truncate max-w-[150px]">{arquivo.nome}</span>
-                  <span className="text-xs text-gray-500">{formatFileSize(arquivo.tamanho)}</span>
-                </div>
-                <Download className="h-4 w-4 text-gray-400" />
-              </a>
-            );
-          })}
-        </div>
-      )}
+                src={url}
+                alt={`Imagem ${idx + 1}`}
+                className="h-20 w-20 object-cover rounded-lg cursor-pointer hover:opacity-80"
+                onClick={() => window.open(url, "_blank")}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Reações e ações */}
-      <div className="flex items-center justify-between pt-2 border-t">
-        <div className="flex items-center gap-1">
-          {reacoesPorTipo.map((r) => (
-            <Button
-              key={r.tipo}
-              variant="ghost"
-              size="sm"
-              className={`h-8 px-2 ${r.count > 0 ? "text-orange-600" : "text-gray-500"}`}
-              onClick={() => onReact(comentario.id, r.tipo)}
-            >
-              <r.icon className="h-4 w-4 mr-1" />
-              {r.count > 0 && <span className="text-xs">{r.count}</span>}
-            </Button>
-          ))}
+        {/* Arquivos anexados */}
+        {comentario.arquivosUrls && comentario.arquivosUrls.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {comentario.arquivosUrls.map((arquivo: ArquivoAnexo, idx: number) => {
+              const FileIcon = getFileIcon(arquivo.tipo);
+              return (
+                <a
+                  key={idx}
+                  href={arquivo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 text-sm transition-colors"
+                >
+                  <FileIcon className="h-4 w-4 text-blue-600" />
+                  <div className="flex flex-col">
+                    <span className="text-gray-700 truncate max-w-[150px]">{arquivo.nome}</span>
+                    <span className="text-xs text-gray-500">{formatFileSize(arquivo.tamanho)}</span>
+                  </div>
+                  <Download className="h-4 w-4 text-gray-400" />
+                </a>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Reações e ações */}
+        <div className="flex items-center justify-between pt-2 border-t">
+          <div className="flex items-center gap-1">
+            {reacoesPorTipo.map((r) => (
+              <Button
+                key={r.tipo}
+                variant="ghost"
+                size="sm"
+                className={`h-8 px-2 ${r.count > 0 ? "text-orange-600" : "text-gray-500"}`}
+                onClick={() => onReact(comentario.id, r.tipo)}
+              >
+                <r.icon className="h-4 w-4 mr-1" />
+                {r.count > 0 && <span className="text-xs">{r.count}</span>}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-500"
+            onClick={() => onReply(comentario.id)}
+          >
+            <Reply className="h-4 w-4 mr-1" />
+            Responder
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-500"
-          onClick={() => onReply(comentario.id)}
-        >
-          <Reply className="h-4 w-4 mr-1" />
-          Responder
-        </Button>
       </div>
+
+      {/* Respostas (Thread) */}
+      {hasRespostas && (
+        <Collapsible open={expandirRespostas} onOpenChange={setExpandirRespostas}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="mt-2 text-blue-600">
+              {expandirRespostas ? (
+                <ChevronDown className="h-4 w-4 mr-1" />
+              ) : (
+                <ChevronRight className="h-4 w-4 mr-1" />
+              )}
+              {comentario.respostas.length} resposta{comentario.respostas.length > 1 ? 's' : ''}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 space-y-2">
+            {comentario.respostas.map((resposta: any) => (
+              <ComentarioItem
+                key={resposta.id}
+                comentario={resposta}
+                onReply={onReply}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onReact={onReact}
+                onViewHistory={onViewHistory}
+                currentUserId={currentUserId}
+                nivel={nivel + 1}
+              />
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
+  );
+}
+
+// Componente de Filtros de Comentários
+function FiltrosComentarios({
+  filtros,
+  setFiltros,
+  autores,
+  onLimpar,
+}: {
+  filtros: {
+    autor: string;
+    dataInicio: string;
+    dataFim: string;
+    tipoAnexo: string;
+    apenasComMencoes: boolean;
+    apenasRespostas: boolean;
+  };
+  setFiltros: (filtros: any) => void;
+  autores: string[];
+  onLimpar: () => void;
+}) {
+  const [expandido, setExpandido] = useState(false);
+  
+  const temFiltrosAtivos = filtros.autor || filtros.dataInicio || filtros.dataFim || 
+    filtros.tipoAnexo !== "todos" || filtros.apenasComMencoes || filtros.apenasRespostas;
+
+  return (
+    <div className="bg-gray-50 rounded-lg p-4 mb-4">
+      <Collapsible open={expandido} onOpenChange={setExpandido}>
+        <div className="flex items-center justify-between">
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filtros
+              {temFiltrosAtivos && (
+                <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
+                  Ativos
+                </Badge>
+              )}
+              {expandido ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          {temFiltrosAtivos && (
+            <Button variant="ghost" size="sm" onClick={onLimpar} className="text-gray-500">
+              <RotateCcw className="h-4 w-4 mr-1" />
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+        
+        <CollapsibleContent className="mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Filtro por autor */}
+            <div>
+              <Label className="text-sm text-gray-600">Autor</Label>
+              <Select
+                value={filtros.autor}
+                onValueChange={(value) => setFiltros({ ...filtros, autor: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos os autores" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos os autores</SelectItem>
+                  {autores.map((autor) => (
+                    <SelectItem key={autor} value={autor}>
+                      {autor}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro por data início */}
+            <div>
+              <Label className="text-sm text-gray-600">Data início</Label>
+              <Input
+                type="date"
+                value={filtros.dataInicio}
+                onChange={(e) => setFiltros({ ...filtros, dataInicio: e.target.value })}
+              />
+            </div>
+
+            {/* Filtro por data fim */}
+            <div>
+              <Label className="text-sm text-gray-600">Data fim</Label>
+              <Input
+                type="date"
+                value={filtros.dataFim}
+                onChange={(e) => setFiltros({ ...filtros, dataFim: e.target.value })}
+              />
+            </div>
+
+            {/* Filtro por tipo de anexo */}
+            <div>
+              <Label className="text-sm text-gray-600">Tipo de anexo</Label>
+              <Select
+                value={filtros.tipoAnexo}
+                onValueChange={(value) => setFiltros({ ...filtros, tipoAnexo: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="imagem">Com imagens</SelectItem>
+                  <SelectItem value="arquivo">Com arquivos</SelectItem>
+                  <SelectItem value="nenhum">Sem anexos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtros booleanos */}
+            <div className="flex items-center gap-4 col-span-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filtros.apenasComMencoes}
+                  onChange={(e) => setFiltros({ ...filtros, apenasComMencoes: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-600">Apenas com menções</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filtros.apenasRespostas}
+                  onChange={(e) => setFiltros({ ...filtros, apenasRespostas: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-600">Apenas respostas</span>
+              </label>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}
+
+// Modal de Histórico de Edições
+function HistoricoModal({
+  open,
+  onClose,
+  comentarioId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  comentarioId: number | null;
+}) {
+  const { data: historico, isLoading } = trpc.timeline.listarHistoricoComentario.useQuery(
+    { comentarioId: comentarioId || 0 },
+    { enabled: !!comentarioId && open }
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <History className="h-5 w-5 text-blue-600" />
+            Histórico de Edições
+          </DialogTitle>
+          <DialogDescription>
+            Veja todas as versões anteriores deste comentário
+          </DialogDescription>
+        </DialogHeader>
+        
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : historico && historico.length > 0 ? (
+          <div className="space-y-4">
+            {historico.map((versao: HistoricoEdicao, index: number) => (
+              <div
+                key={versao.id}
+                className="border rounded-lg p-4 bg-gray-50"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                    Versão {versao.versao}
+                  </Badge>
+                  <span className="text-xs text-gray-500">
+                    Editado por {versao.editadoPorNome} em{" "}
+                    {new Date(versao.createdAt).toLocaleString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-gray-700 whitespace-pre-wrap bg-white p-3 rounded border">
+                  {versao.textoAnterior}
+                </p>
+                {versao.imagensUrlsAnterior && versao.imagensUrlsAnterior.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {versao.imagensUrlsAnterior.map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt={`Imagem ${idx + 1}`}
+                        className="h-16 w-16 object-cover rounded"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Nenhum histórico de edição encontrado</p>
+          </div>
+        )}
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Fechar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -297,6 +588,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const [showAddPrioridade, setShowAddPrioridade] = useState(false);
   const [showAddTitulo, setShowAddTitulo] = useState(false);
   const [showCompartilhar, setShowCompartilhar] = useState(false);
+  const [showHistorico, setShowHistorico] = useState(false);
+  const [historicoComentarioId, setHistoricoComentarioId] = useState<number | null>(null);
 
   // Estados dos formulários de adicionar
   const [novoResponsavel, setNovoResponsavel] = useState({ nome: "", cargo: "", email: "", telefone: "" });
@@ -323,6 +616,16 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const [cursorPosition, setCursorPosition] = useState(0);
   const [uploadingFiles, setUploadingFiles] = useState(false);
 
+  // Estados de filtros
+  const [filtros, setFiltros] = useState({
+    autor: "",
+    dataInicio: "",
+    dataFim: "",
+    tipoAnexo: "todos",
+    apenasComMencoes: false,
+    apenasRespostas: false,
+  });
+
   // Queries para listas
   const { data: responsaveis = [] } = trpc.timeline.listarResponsaveis.useQuery({ condominioId });
   const { data: locais = [] } = trpc.timeline.listarLocais.useQuery({ condominioId });
@@ -332,10 +635,26 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const { data: membrosEquipe = [] } = trpc.membroEquipe.list.useQuery({ condominioId });
   const { data: usuarios = [] } = trpc.user.list.useQuery({});
 
-  // Query de comentários (só quando timeline criada)
-  const { data: comentariosData, refetch: refetchComentarios } = trpc.timeline.listarComentarios.useQuery(
-    { timelineId: timelineCriada?.id || 0 },
+  // Query de comentários com filtros
+  const temFiltrosAtivos = filtros.autor || filtros.dataInicio || filtros.dataFim || 
+    filtros.tipoAnexo !== "todos" || filtros.apenasComMencoes || filtros.apenasRespostas;
+
+  const { data: comentariosData, refetch: refetchComentarios } = trpc.timeline.listarComentariosFiltrados.useQuery(
+    { 
+      timelineId: timelineCriada?.id || 0,
+      filtroAutor: filtros.autor && filtros.autor !== "todos" ? filtros.autor : undefined,
+      filtroDataInicio: filtros.dataInicio ? new Date(filtros.dataInicio) : undefined,
+      filtroDataFim: filtros.dataFim ? new Date(filtros.dataFim) : undefined,
+      filtroTipoAnexo: filtros.tipoAnexo as any,
+      apenasComMencoes: filtros.apenasComMencoes || undefined,
+      apenasRespostas: filtros.apenasRespostas || undefined,
+    },
     { enabled: !!timelineCriada?.id }
+  );
+
+  // Lista de autores únicos para o filtro
+  const autoresUnicos = Array.from(
+    new Set(comentariosData?.comentarios?.map((c: any) => c.autorNome) || [])
   );
 
   // Lista de pessoas para menções (membros da equipe + usuários)
@@ -777,6 +1096,23 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     });
   };
 
+  const handleViewHistory = (comentarioId: number) => {
+    setHistoricoComentarioId(comentarioId);
+    setShowHistorico(true);
+  };
+
+  // Limpar filtros
+  const handleLimparFiltros = () => {
+    setFiltros({
+      autor: "",
+      dataInicio: "",
+      dataFim: "",
+      tipoAnexo: "todos",
+      apenasComMencoes: false,
+      apenasRespostas: false,
+    });
+  };
+
   // Limpar formulário
   const handleLimpar = () => {
     setResponsavelId("");
@@ -1210,9 +1546,22 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               <CardTitle className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5" />
                 Comentários da Equipe
+                {comentariosData?.total && comentariosData.total > 0 && (
+                  <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
+                    {comentariosData.total}
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
+              {/* Filtros de comentários */}
+              <FiltrosComentarios
+                filtros={filtros}
+                setFiltros={setFiltros}
+                autores={autoresUnicos}
+                onLimpar={handleLimparFiltros}
+              />
+
               {/* Área de novo comentário */}
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 {comentarioPaiId && (
@@ -1392,8 +1741,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                 </div>
               </div>
 
-              {/* Lista de comentários */}
-              <ScrollArea className="h-[400px]">
+              {/* Lista de comentários com threads */}
+              <ScrollArea className="h-[500px]">
                 <div className="space-y-4">
                   {comentariosData?.comentarios && comentariosData.comentarios.length > 0 ? (
                     comentariosData.comentarios.map((comentario: any) => (
@@ -1404,14 +1753,19 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                         onEdit={handleEditarComentario}
                         onDelete={handleExcluirComentario}
                         onReact={handleReagirComentario}
+                        onViewHistory={handleViewHistory}
                         currentUserId={user?.id}
                       />
                     ))
                   ) : (
                     <div className="text-center py-12 text-gray-500">
                       <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Nenhum comentário ainda</p>
-                      <p className="text-sm">Seja o primeiro a comentar!</p>
+                      <p>Nenhum comentário encontrado</p>
+                      {temFiltrosAtivos ? (
+                        <p className="text-sm">Tente ajustar os filtros</p>
+                      ) : (
+                        <p className="text-sm">Seja o primeiro a comentar!</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1439,6 +1793,16 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modal de Histórico de Edições */}
+      <HistoricoModal
+        open={showHistorico}
+        onClose={() => {
+          setShowHistorico(false);
+          setHistoricoComentarioId(null);
+        }}
+        comentarioId={historicoComentarioId}
+      />
 
       {/* Modal Adicionar Responsável */}
       <Dialog open={showAddResponsavel} onOpenChange={setShowAddResponsavel}>
