@@ -2164,6 +2164,21 @@ export type InsertTimelineCompartilhamento = typeof timelineCompartilhamentos.$i
 
 // ==================== TIMELINE/LIVRO DE MANUTENÇÃO - COMENTÁRIOS ====================
 
+// Tipo para arquivos anexados
+export type ArquivoAnexo = {
+  url: string;
+  nome: string;
+  tipo: string;
+  tamanho: number;
+};
+
+// Tipo para menções
+export type Mencao = {
+  usuarioId?: number;
+  membroEquipeId?: number;
+  nome: string;
+};
+
 export const timelineComentarios = mysqlTable("timeline_comentarios", {
   id: int("id").autoincrement().primaryKey(),
   timelineId: int("timelineId").notNull(),
@@ -2177,6 +2192,10 @@ export const timelineComentarios = mysqlTable("timeline_comentarios", {
   texto: text("texto").notNull(),
   // Imagens anexadas ao comentário
   imagensUrls: json("imagensUrls").$type<string[]>(),
+  // Arquivos anexados ao comentário (PDFs, documentos, etc.)
+  arquivosUrls: json("arquivosUrls").$type<ArquivoAnexo[]>(),
+  // Menções de usuários (@)
+  mencoes: json("mencoes").$type<Mencao[]>(),
   // Comentário pai (para respostas/threads)
   comentarioPaiId: int("comentarioPaiId"),
   // Status do comentário

@@ -19,6 +19,7 @@ import {
 } from "../../drizzle/schema";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../_core/email";
+import { notifyOwner } from "../_core/notification";
 
 // ==================== TIMELINE ROUTER ====================
 export const timelineRouter = router({
@@ -763,17 +764,35 @@ export const timelineRouter = router({
       timelineId: z.number(),
       texto: z.string().min(1),
       imagensUrls: z.array(z.string()).optional(),
+      arquivosUrls: z.array(z.object({
+        url: z.string(),
+        nome: z.string(),
+        tipo: z.string(),
+        tamanho: z.number(),
+      })).optional(),
       comentarioPaiId: z.number().optional(),
       membroEquipeId: z.number().optional(),
+      mencoes: z.array(z.object({
+        usuarioId: z.number().optional(),
+        membroEquipeId: z.number().optional(),
+        nome: z.string(),
+      })).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
+      // Buscar informações da timeline
+      const [timeline] = await db.select()
+        .from(timelines)
+        .where(eq(timelines.id, input.timelineId));
+
       const result = await db.insert(timelineComentarios).values({
         timelineId: input.timelineId,
         texto: input.texto,
         imagensUrls: input.imagensUrls || [],
+        arquivosUrls: input.arquivosUrls || [],
+        mencoes: input.mencoes || [],
         comentarioPaiId: input.comentarioPaiId,
         membroEquipeId: input.membroEquipeId,
         usuarioId: ctx.user?.id,
@@ -790,6 +809,51 @@ export const timelineRouter = router({
         usuarioId: ctx.user?.id,
         usuarioNome: ctx.user?.name || "Sistema",
       });
+
+      // Enviar notificação ao dono da timeline (se não for o mesmo usuário)
+      if (timeline && timeline.criadoPor !== ctx.user?.id) {
+        try {
+          await notifyOwner({
+            title: `Novo comentário na Timeline: ${timeline.titulo}`,
+            content: `${ctx.user?.name || "Usuário"} comentou: "${input.texto.substring(0, 100)}${input.texto.length > 100 ? "..." : ""}"`,
+          });
+        } catch (e) {
+          console.error("Erro ao enviar notificação:", e);
+        }
+      }
+
+      // Enviar notificações para usuários mencionados
+      if (input.mencoes && input.mencoes.length > 0) {
+        for (const mencao of input.mencoes) {
+          if (mencao.usuarioId && mencao.usuarioId !== ctx.user?.id) {
+            // Buscar email do usuário mencionado
+            const [usuarioMencionado] = await db.select()
+              .from(users)
+              .where(eq(users.id, mencao.usuarioId));
+            
+            if (usuarioMencionado?.email) {
+              try {
+                await sendEmail({
+                  to: usuarioMencionado.email,
+                  subject: `Você foi mencionado em um comentário - Timeline: ${timeline?.titulo || "Sem título"}`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                      <h2 style="color: #3b82f6;">Você foi mencionado!</h2>
+                      <p><strong>${ctx.user?.name || "Usuário"}</strong> mencionou você em um comentário:</p>
+                      <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <p style="margin: 0;">${input.texto}</p>
+                      </div>
+                      <p style="color: #6b7280; font-size: 14px;">Timeline: ${timeline?.titulo || "Sem título"}</p>
+                    </div>
+                  `,
+                });
+              } catch (e) {
+                console.error("Erro ao enviar email de menção:", e);
+              }
+            }
+          }
+        }
+      }
 
       return { id: result[0].insertId };
     }),

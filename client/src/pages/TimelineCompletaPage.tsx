@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { toast } from "sonner";
 import {
   Plus,
@@ -54,6 +59,11 @@ import {
   History,
   Eye,
   ArrowLeft,
+  Paperclip,
+  File,
+  FileImage,
+  Download,
+  AtSign,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -65,6 +75,21 @@ import { useLocation } from "wouter";
 
 interface TimelineCompletaPageProps {
   condominioId: number;
+}
+
+// Tipo para arquivos anexados
+interface ArquivoAnexo {
+  url: string;
+  nome: string;
+  tipo: string;
+  tamanho: number;
+}
+
+// Tipo para menções
+interface Mencao {
+  usuarioId?: number;
+  membroEquipeId?: number;
+  nome: string;
 }
 
 // Componente de Comentário Individual
@@ -97,6 +122,35 @@ function ComentarioItem({
     ...r,
     count: comentario.reacoes?.filter((re: any) => re.tipo === r.tipo).length || 0,
   }));
+
+  // Função para renderizar texto com menções destacadas
+  const renderTextoComMencoes = (texto: string, mencoes?: Mencao[]) => {
+    if (!mencoes || mencoes.length === 0) return texto;
+    
+    let textoFormatado = texto;
+    mencoes.forEach((mencao) => {
+      const regex = new RegExp(`@${mencao.nome}`, 'g');
+      textoFormatado = textoFormatado.replace(
+        regex,
+        `<span class="text-blue-600 font-medium bg-blue-50 px-1 rounded">@${mencao.nome}</span>`
+      );
+    });
+    
+    return <span dangerouslySetInnerHTML={{ __html: textoFormatado }} />;
+  };
+
+  // Função para obter ícone do arquivo
+  const getFileIcon = (tipo: string) => {
+    if (tipo.startsWith("image/")) return FileImage;
+    return File;
+  };
+
+  // Função para formatar tamanho do arquivo
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   return (
     <div className="bg-white border rounded-lg p-4 space-y-3">
@@ -143,8 +197,10 @@ function ComentarioItem({
         )}
       </div>
 
-      {/* Conteúdo do comentário */}
-      <p className="text-gray-700 whitespace-pre-wrap">{comentario.texto}</p>
+      {/* Conteúdo do comentário com menções */}
+      <p className="text-gray-700 whitespace-pre-wrap">
+        {renderTextoComMencoes(comentario.texto, comentario.mencoes)}
+      </p>
 
       {/* Imagens do comentário */}
       {comentario.imagensUrls && comentario.imagensUrls.length > 0 && (
@@ -158,6 +214,31 @@ function ComentarioItem({
               onClick={() => window.open(url, "_blank")}
             />
           ))}
+        </div>
+      )}
+
+      {/* Arquivos anexados */}
+      {comentario.arquivosUrls && comentario.arquivosUrls.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {comentario.arquivosUrls.map((arquivo: ArquivoAnexo, idx: number) => {
+            const FileIcon = getFileIcon(arquivo.tipo);
+            return (
+              <a
+                key={idx}
+                href={arquivo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 text-sm transition-colors"
+              >
+                <FileIcon className="h-4 w-4 text-blue-600" />
+                <div className="flex flex-col">
+                  <span className="text-gray-700 truncate max-w-[150px]">{arquivo.nome}</span>
+                  <span className="text-xs text-gray-500">{formatFileSize(arquivo.tamanho)}</span>
+                </div>
+                <Download className="h-4 w-4 text-gray-400" />
+              </a>
+            );
+          })}
         </div>
       )}
 
@@ -196,6 +277,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const utils = trpc.useUtils();
   const [, setLocation] = useLocation();
   const comentarioInputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Estados do formulário
   const [responsavelId, setResponsavelId] = useState<string>("");
@@ -229,9 +311,17 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   // Estados de comentários
   const [novoComentario, setNovoComentario] = useState("");
   const [comentarioImagens, setComentarioImagens] = useState<string[]>([]);
+  const [comentarioArquivos, setComentarioArquivos] = useState<ArquivoAnexo[]>([]);
   const [comentarioPaiId, setComentarioPaiId] = useState<number | null>(null);
   const [editandoComentario, setEditandoComentario] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("formulario");
+  
+  // Estados para menções
+  const [showMencoes, setShowMencoes] = useState(false);
+  const [mencoesSelecionadas, setMencoesSelecionadas] = useState<Mencao[]>([]);
+  const [filtroMencao, setFiltroMencao] = useState("");
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
 
   // Queries para listas
   const { data: responsaveis = [] } = trpc.timeline.listarResponsaveis.useQuery({ condominioId });
@@ -240,11 +330,35 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const { data: prioridades = [] } = trpc.timeline.listarPrioridades.useQuery({ condominioId });
   const { data: titulos = [] } = trpc.timeline.listarTitulos.useQuery({ condominioId });
   const { data: membrosEquipe = [] } = trpc.membroEquipe.list.useQuery({ condominioId });
+  const { data: usuarios = [] } = trpc.user.list.useQuery({});
 
   // Query de comentários (só quando timeline criada)
   const { data: comentariosData, refetch: refetchComentarios } = trpc.timeline.listarComentarios.useQuery(
     { timelineId: timelineCriada?.id || 0 },
     { enabled: !!timelineCriada?.id }
+  );
+
+  // Lista de pessoas para menções (membros da equipe + usuários)
+  const pessoasParaMencao = [
+    ...membrosEquipe.map((m: any) => ({
+      id: m.id,
+      nome: m.nome,
+      tipo: "membro" as const,
+      membroEquipeId: m.id,
+    })),
+    ...usuarios.map((u: any) => ({
+      id: u.id,
+      nome: u.name || u.email || "Usuário",
+      tipo: "usuario" as const,
+      usuarioId: u.id,
+    })),
+  ].filter((p, index, self) => 
+    index === self.findIndex((t) => t.nome === p.nome)
+  );
+
+  // Filtrar pessoas para menção
+  const pessoasFiltradas = pessoasParaMencao.filter((p) =>
+    p.nome.toLowerCase().includes(filtroMencao.toLowerCase())
   );
 
   // Mutations para criar configurações
@@ -321,6 +435,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     onSuccess: () => {
       setNovoComentario("");
       setComentarioImagens([]);
+      setComentarioArquivos([]);
+      setMencoesSelecionadas([]);
       setComentarioPaiId(null);
       refetchComentarios();
       toast.success("Comentário adicionado!");
@@ -332,6 +448,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     onSuccess: () => {
       setEditandoComentario(null);
       setNovoComentario("");
+      setComentarioArquivos([]);
+      setMencoesSelecionadas([]);
       refetchComentarios();
       toast.success("Comentário editado!");
     },
@@ -356,7 +474,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   // Atualizar título quando selecionar título predefinido
   useEffect(() => {
     if (tituloPredefId) {
-      const tituloSelecionado = titulos.find(t => t.id === Number(tituloPredefId));
+      const tituloSelecionado = titulos.find((t: any) => t.id === Number(tituloPredefId));
       if (tituloSelecionado) {
         setTitulo(tituloSelecionado.titulo);
         if (tituloSelecionado.descricaoPadrao) {
@@ -365,6 +483,55 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
       }
     }
   }, [tituloPredefId, titulos]);
+
+  // Detectar @ para menções
+  const handleComentarioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const position = e.target.selectionStart || 0;
+    setNovoComentario(value);
+    setCursorPosition(position);
+
+    // Verificar se o usuário digitou @
+    const textBeforeCursor = value.substring(0, position);
+    const lastAtIndex = textBeforeCursor.lastIndexOf("@");
+    
+    if (lastAtIndex !== -1) {
+      const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
+      // Se não tem espaço depois do @, mostrar sugestões
+      if (!textAfterAt.includes(" ")) {
+        setFiltroMencao(textAfterAt);
+        setShowMencoes(true);
+      } else {
+        setShowMencoes(false);
+      }
+    } else {
+      setShowMencoes(false);
+    }
+  };
+
+  // Selecionar pessoa para menção
+  const handleSelecionarMencao = (pessoa: typeof pessoasParaMencao[0]) => {
+    const textBeforeCursor = novoComentario.substring(0, cursorPosition);
+    const lastAtIndex = textBeforeCursor.lastIndexOf("@");
+    const textAfterCursor = novoComentario.substring(cursorPosition);
+    
+    const novoTexto = textBeforeCursor.substring(0, lastAtIndex) + `@${pessoa.nome} ` + textAfterCursor;
+    setNovoComentario(novoTexto);
+    
+    // Adicionar à lista de menções
+    const novaMencao: Mencao = {
+      nome: pessoa.nome,
+      ...(pessoa.tipo === "usuario" ? { usuarioId: pessoa.id } : { membroEquipeId: pessoa.id }),
+    };
+    
+    if (!mencoesSelecionadas.find(m => m.nome === pessoa.nome)) {
+      setMencoesSelecionadas([...mencoesSelecionadas, novaMencao]);
+    }
+    
+    setShowMencoes(false);
+    setFiltroMencao("");
+    comentarioInputRef.current?.focus();
+  };
 
   // Upload de imagens
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -381,8 +548,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
           continue;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-          toast.error(`Arquivo ${file.name} excede o limite de 10MB`);
+        if (file.size > 100 * 1024 * 1024) {
+          toast.error(`Arquivo ${file.name} excede o limite de 100MB`);
           continue;
         }
 
@@ -407,6 +574,46 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
       toast.error("Erro ao carregar imagens");
     } finally {
       setUploadingImages(false);
+    }
+  };
+
+  // Upload de arquivos para comentários
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingFiles(true);
+    try {
+      const novosArquivos: ArquivoAnexo[] = [];
+      
+      for (const file of Array.from(files)) {
+        // Limite de 100MB
+        if (file.size > 100 * 1024 * 1024) {
+          toast.error(`Arquivo ${file.name} excede o limite de 100MB`);
+          continue;
+        }
+
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        
+        novosArquivos.push({
+          url: base64,
+          nome: file.name,
+          tipo: file.type,
+          tamanho: file.size,
+        });
+      }
+
+      setComentarioArquivos([...comentarioArquivos, ...novosArquivos]);
+      toast.success(`${novosArquivos.length} arquivo(s) anexado(s)`);
+    } catch (error) {
+      toast.error("Erro ao carregar arquivos");
+    } finally {
+      setUploadingFiles(false);
     }
   };
 
@@ -457,77 +664,62 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     setImagens(imagens.filter((_, i) => i !== index));
   };
 
-  // Salvar rascunho
-  const handleSalvarRascunho = async () => {
-    if (!responsavelId || !titulo.trim()) {
-      toast.error("Responsável e Título são obrigatórios");
+  // Remover arquivo
+  const handleRemoveArquivo = (index: number) => {
+    setComentarioArquivos(comentarioArquivos.filter((_, i) => i !== index));
+  };
+
+  // Salvar e continuar depois (rascunho)
+  const handleSalvarRascunho = () => {
+    if (!titulo.trim()) {
+      toast.error("Preencha pelo menos o título");
       return;
     }
 
     criarTimelineMutation.mutate({
       condominioId,
-      responsavelId: Number(responsavelId),
-      titulo: titulo.trim(),
+      responsavelId: responsavelId ? Number(responsavelId) : undefined,
       localId: localId ? Number(localId) : undefined,
       statusId: statusId ? Number(statusId) : undefined,
       prioridadeId: prioridadeId ? Number(prioridadeId) : undefined,
-      descricao: descricao.trim() || undefined,
-      estado: "rascunho",
-      imagens: imagens.map(img => ({ url: img.url, legenda: img.legenda })),
+      titulo,
+      descricao: descricao || undefined,
+      imagens: imagens.map((img) => ({ url: img.url, legenda: img.legenda })),
+      rascunho: true,
     });
+    toast.success("Rascunho salvo! Você pode continuar depois.");
   };
 
   // Enviar timeline
-  const handleEnviar = async () => {
-    if (!responsavelId || !titulo.trim()) {
-      toast.error("Responsável e Título são obrigatórios");
+  const handleEnviar = () => {
+    if (!titulo.trim()) {
+      toast.error("Preencha pelo menos o título");
       return;
     }
 
     criarTimelineMutation.mutate({
       condominioId,
-      responsavelId: Number(responsavelId),
-      titulo: titulo.trim(),
+      responsavelId: responsavelId ? Number(responsavelId) : undefined,
       localId: localId ? Number(localId) : undefined,
       statusId: statusId ? Number(statusId) : undefined,
       prioridadeId: prioridadeId ? Number(prioridadeId) : undefined,
-      descricao: descricao.trim() || undefined,
-      estado: "enviado",
-      imagens: imagens.map(img => ({ url: img.url, legenda: img.legenda })),
+      titulo,
+      descricao: descricao || undefined,
+      imagens: imagens.map((img) => ({ url: img.url, legenda: img.legenda })),
     });
   };
 
-  // Compartilhar com equipe
-  const handleCompartilhar = () => {
-    if (!timelineCriada) {
-      handleEnviar();
-    }
-    setShowCompartilhar(true);
-  };
-
-  // Enviar compartilhamento
-  const handleEnviarCompartilhamento = async (membro: any, canal: "email" | "whatsapp" | "ambos") => {
+  // Compartilhar
+  const handleCompartilhar = (canal: "whatsapp" | "email") => {
     if (!timelineCriada) return;
 
-    if (canal === "whatsapp" || canal === "ambos") {
-      const linkVisualizacao = `${window.location.origin}/timeline/${timelineCriada.tokenPublico}`;
-      const mensagem = encodeURIComponent(
-        `*Timeline Compartilhada*\n\n` +
-        `Protocolo: ${timelineCriada.protocolo}\n` +
-        `Título: ${titulo}\n\n` +
-        `Visualize em: ${linkVisualizacao}`
-      );
-      const telefone = membro.telefone?.replace(/\D/g, "") || "";
-      window.open(`https://wa.me/${telefone}?text=${mensagem}`, "_blank");
-    }
-
-    if (canal === "email" || canal === "ambos") {
+    const membro = membrosEquipe[0];
+    if (membro) {
       compartilharMutation.mutate({
         timelineId: timelineCriada.id,
-        membroEquipeId: membro.id,
-        membroNome: membro.nome,
-        membroEmail: membro.email,
-        membroTelefone: membro.telefone,
+        destinatarioNome: membro.nome,
+        destinatarioEmail: membro.email || undefined,
+        destinatarioTelefone: membro.telefone || undefined,
         canalEnvio: canal,
       });
     }
@@ -551,6 +743,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
         timelineId: timelineCriada.id,
         texto: novoComentario.trim(),
         imagensUrls: comentarioImagens.length > 0 ? comentarioImagens : undefined,
+        arquivosUrls: comentarioArquivos.length > 0 ? comentarioArquivos : undefined,
+        mencoes: mencoesSelecionadas.length > 0 ? mencoesSelecionadas : undefined,
         comentarioPaiId: comentarioPaiId || undefined,
       });
     }
@@ -565,6 +759,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     setEditandoComentario(comentario);
     setNovoComentario(comentario.texto);
     setComentarioImagens(comentario.imagensUrls || []);
+    setComentarioArquivos(comentario.arquivosUrls || []);
+    setMencoesSelecionadas(comentario.mencoes || []);
     comentarioInputRef.current?.focus();
   };
 
@@ -595,6 +791,13 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     setActiveTab("formulario");
   };
 
+  // Formatar tamanho do arquivo
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -622,21 +825,26 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="formulario" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100">
+          <TabsTrigger value="formulario" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <FileText className="w-4 h-4 mr-2" />
             Dados
           </TabsTrigger>
-          <TabsTrigger value="comentarios" className="flex items-center gap-2" disabled={!timelineCriada}>
-            <MessageCircle className="w-4 h-4" />
+          <TabsTrigger 
+            value="comentarios" 
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            disabled={!timelineCriada}
+          >
+            <MessageCircle className="w-4 h-4 mr-2" />
             Comentários
-            {comentariosData?.total ? (
-              <Badge variant="secondary" className="ml-1">{comentariosData.total}</Badge>
-            ) : null}
           </TabsTrigger>
-          <TabsTrigger value="historico" className="flex items-center gap-2" disabled={!timelineCriada}>
-            <History className="w-4 h-4" />
+          <TabsTrigger 
+            value="historico" 
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            disabled={!timelineCriada}
+          >
+            <History className="w-4 h-4 mr-2" />
             Histórico
           </TabsTrigger>
         </TabsList>
@@ -647,15 +855,15 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Dados da Timeline Completa
+                Dados da Timeline
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {/* Responsável (obrigatório) */}
+              {/* Responsável */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <User className="w-4 h-4 text-blue-500" />
-                  Responsável <span className="text-red-500">*</span>
+                  Responsável
                 </Label>
                 <div className="flex gap-2">
                   <Select value={responsavelId} onValueChange={setResponsavelId}>
@@ -663,7 +871,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                       <SelectValue placeholder="Selecione o responsável" />
                     </SelectTrigger>
                     <SelectContent>
-                      {responsaveis.map((r) => (
+                      {responsaveis.map((r: any) => (
                         <SelectItem key={r.id} value={String(r.id)}>
                           {r.nome} {r.cargo && `(${r.cargo})`}
                         </SelectItem>
@@ -691,10 +899,10 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                 <div className="flex gap-2">
                   <Select value={localId} onValueChange={setLocalId}>
                     <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Selecione o local" />
+                      <SelectValue placeholder="Selecione o local ou item" />
                     </SelectTrigger>
                     <SelectContent>
-                      {locais.map((l) => (
+                      {locais.map((l: any) => (
                         <SelectItem key={l.id} value={String(l.id)}>
                           {l.nome}
                         </SelectItem>
@@ -716,7 +924,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               {/* Status */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-500" />
+                  <CheckCircle className="w-4 h-4 text-blue-500" />
                   Status
                 </Label>
                 <div className="flex gap-2">
@@ -725,7 +933,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {statusList.map((s) => (
+                      {statusList.map((s: any) => (
                         <SelectItem key={s.id} value={String(s.id)}>
                           <div className="flex items-center gap-2">
                             <div
@@ -762,7 +970,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                       <SelectValue placeholder="Selecione a prioridade" />
                     </SelectTrigger>
                     <SelectContent>
-                      {prioridades.map((p) => (
+                      {prioridades.map((p: any) => (
                         <SelectItem key={p.id} value={String(p.id)}>
                           <div className="flex items-center gap-2">
                             <div
@@ -799,7 +1007,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                       <SelectValue placeholder="Título predefinido" />
                     </SelectTrigger>
                     <SelectContent>
-                      {titulos.map((t) => (
+                      {titulos.map((t: any) => (
                         <SelectItem key={t.id} value={String(t.id)}>
                           {t.titulo}
                         </SelectItem>
@@ -898,68 +1106,70 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                 <p className="text-sm text-gray-500 mb-2">Informações registadas automaticamente:</p>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-400">Data:</span>
-                    <span className="ml-2 font-medium">{new Date().toLocaleDateString("pt-BR")}</span>
+                    <span className="text-gray-400">Data/Hora:</span>
+                    <p className="font-medium">{new Date().toLocaleString("pt-BR")}</p>
                   </div>
                   <div>
-                    <span className="text-gray-400">Hora:</span>
-                    <span className="ml-2 font-medium">{new Date().toLocaleTimeString("pt-BR")}</span>
+                    <span className="text-gray-400">Registrado por:</span>
+                    <p className="font-medium">{user?.name || "Usuário"}</p>
                   </div>
                   <div>
-                    <span className="text-gray-400">Criado por:</span>
-                    <span className="ml-2 font-medium">{user?.name || "Sistema"}</span>
+                    <span className="text-gray-400">Protocolo:</span>
+                    <p className="font-medium">{timelineCriada?.protocolo || "Será gerado"}</p>
                   </div>
                 </div>
               </div>
 
               {/* Botões de ação */}
-              <div className="flex flex-wrap gap-3 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={handleSalvarRascunho}
-                  disabled={criarTimelineMutation.isPending}
-                  className="flex-1 min-w-[150px]"
-                >
-                  {criarTimelineMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
+              <div className="flex justify-between pt-4 border-t">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleSalvarRascunho}
+                    disabled={criarTimelineMutation.isPending}
+                    className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                  >
                     <Save className="w-4 h-4 mr-2" />
+                    Salvar e Continuar Depois
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  {timelineCriada && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCompartilhar(true)}
+                      className="border-green-300 text-green-700"
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Compartilhar com Equipe
+                    </Button>
                   )}
-                  Salvar e Continuar Depois
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={handleCompartilhar}
-                  disabled={criarTimelineMutation.isPending}
-                  className="flex-1 min-w-[150px] border-green-200 text-green-600"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Compartilhar com Equipe
-                </Button>
-                
-                <Button
-                  onClick={handleEnviar}
-                  disabled={criarTimelineMutation.isPending}
-                  className="flex-1 min-w-[150px] bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-                >
-                  {criarTimelineMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-2" />
-                  )}
-                  Enviar
-                </Button>
+                  <Button
+                    onClick={handleEnviar}
+                    disabled={criarTimelineMutation.isPending || !titulo.trim()}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {criarTimelineMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Send className="w-4 h-4 mr-2" />
+                    )}
+                    Criar Timeline
+                  </Button>
+                </div>
               </div>
 
-              {/* Link da Timeline criada */}
+              {/* Mensagem de sucesso */}
               {timelineCriada && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-                  <h4 className="font-medium text-green-800 mb-2">Timeline Criada com Sucesso!</h4>
-                  <p className="text-sm text-green-600 mb-3">
-                    Protocolo: <strong>{timelineCriada.protocolo}</strong>
+                  <p className="text-green-700 font-medium flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Timeline criada com sucesso!
                   </p>
-                  <div className="flex gap-2">
+                  <p className="text-green-600 text-sm mt-1">
+                    Protocolo: {timelineCriada.protocolo}
+                  </p>
+                  <div className="flex gap-2 mt-3">
                     <Button
                       variant="outline"
                       size="sm"
@@ -1029,6 +1239,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                       onClick={() => {
                         setEditandoComentario(null);
                         setNovoComentario("");
+                        setComentarioArquivos([]);
+                        setMencoesSelecionadas([]);
                       }}
                       className="h-6 px-2"
                     >
@@ -1036,6 +1248,25 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                     </Button>
                   </div>
                 )}
+                
+                {/* Menções selecionadas */}
+                {mencoesSelecionadas.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {mencoesSelecionadas.map((mencao, idx) => (
+                      <Badge key={idx} variant="secondary" className="bg-blue-100 text-blue-700">
+                        <AtSign className="w-3 h-3 mr-1" />
+                        {mencao.nome}
+                        <button
+                          onClick={() => setMencoesSelecionadas(mencoesSelecionadas.filter((_, i) => i !== idx))}
+                          className="ml-1 hover:text-blue-900"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
                 <div className="flex gap-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={user?.avatarUrl || undefined} />
@@ -1044,19 +1275,104 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-2">
-                    <Textarea
-                      ref={comentarioInputRef}
-                      value={novoComentario}
-                      onChange={(e) => setNovoComentario(e.target.value)}
-                      placeholder="Adicione um comentário..."
-                      rows={3}
-                      className="resize-none"
-                    />
+                    <div className="relative">
+                      <Textarea
+                        ref={comentarioInputRef}
+                        value={novoComentario}
+                        onChange={handleComentarioChange}
+                        placeholder="Adicione um comentário... Use @ para mencionar alguém"
+                        rows={3}
+                        className="resize-none"
+                      />
+                      
+                      {/* Popover de menções */}
+                      {showMencoes && pessoasFiltradas.length > 0 && (
+                        <div className="absolute bottom-full left-0 w-64 bg-white border rounded-lg shadow-lg mb-1 max-h-48 overflow-y-auto z-50">
+                          <div className="p-2 border-b text-xs text-gray-500 font-medium">
+                            Mencionar pessoa
+                          </div>
+                          {pessoasFiltradas.slice(0, 5).map((pessoa) => (
+                            <button
+                              key={`${pessoa.tipo}-${pessoa.id}`}
+                              onClick={() => handleSelecionarMencao(pessoa)}
+                              className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                            >
+                              <Avatar className="h-6 w-6">
+                                <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                                  {pessoa.nome.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-sm font-medium">{pessoa.nome}</p>
+                                <p className="text-xs text-gray-500">
+                                  {pessoa.tipo === "membro" ? "Membro da equipe" : "Usuário"}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Arquivos anexados */}
+                    {comentarioArquivos.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {comentarioArquivos.map((arquivo, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2 text-sm"
+                          >
+                            <File className="h-4 w-4 text-blue-600" />
+                            <span className="truncate max-w-[150px]">{arquivo.nome}</span>
+                            <span className="text-xs text-gray-500">{formatFileSize(arquivo.tamanho)}</span>
+                            <button
+                              onClick={() => handleRemoveArquivo(idx)}
+                              className="text-gray-400 hover:text-red-500"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center">
-                      <Button variant="ghost" size="sm" className="text-gray-500">
-                        <ImageIcon className="w-4 h-4 mr-1" />
-                        Anexar imagem
-                      </Button>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          multiple
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,image/*"
+                        />
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-500"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadingFiles}
+                        >
+                          {uploadingFiles ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          ) : (
+                            <Paperclip className="w-4 h-4 mr-1" />
+                          )}
+                          Anexar arquivo
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-500"
+                          onClick={() => {
+                            setShowMencoes(true);
+                            setFiltroMencao("");
+                          }}
+                        >
+                          <AtSign className="w-4 h-4 mr-1" />
+                          Mencionar
+                        </Button>
+                      </div>
                       <Button
                         onClick={handleEnviarComentario}
                         disabled={!novoComentario.trim() || criarComentarioMutation.isPending}
@@ -1199,7 +1515,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               <Input
                 value={novoLocal.nome}
                 onChange={(e) => setNovoLocal({ ...novoLocal, nome: e.target.value })}
-                placeholder="Ex: Hall de Entrada, Piscina"
+                placeholder="Ex: Piscina, Elevador 1"
               />
             </div>
             <div>
@@ -1207,7 +1523,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               <Textarea
                 value={novoLocal.descricao}
                 onChange={(e) => setNovoLocal({ ...novoLocal, descricao: e.target.value })}
-                placeholder="Descrição do local"
+                placeholder="Descrição opcional"
               />
             </div>
           </div>
@@ -1220,7 +1536,11 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               disabled={!novoLocal.nome || criarLocalMutation.isPending}
               className="bg-blue-600"
             >
-              {criarLocalMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+              {criarLocalMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Adicionar"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1238,7 +1558,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               <Input
                 value={novoStatus.nome}
                 onChange={(e) => setNovoStatus({ ...novoStatus, nome: e.target.value })}
-                placeholder="Ex: Em Andamento, Concluído"
+                placeholder="Ex: Em andamento, Concluído"
               />
             </div>
             <div>
@@ -1253,7 +1573,8 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                 <Input
                   value={novoStatus.cor}
                   onChange={(e) => setNovoStatus({ ...novoStatus, cor: e.target.value })}
-                  placeholder="#3b82f6"
+                  placeholder="#f97316"
+                  className="flex-1"
                 />
               </div>
             </div>
@@ -1267,7 +1588,11 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               disabled={!novoStatus.nome || criarStatusMutation.isPending}
               className="bg-blue-600"
             >
-              {criarStatusMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+              {criarStatusMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Adicionar"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1285,7 +1610,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               <Input
                 value={novaPrioridade.nome}
                 onChange={(e) => setNovaPrioridade({ ...novaPrioridade, nome: e.target.value })}
-                placeholder="Ex: Urgente, Normal, Baixa"
+                placeholder="Ex: Alta, Média, Baixa"
               />
             </div>
             <div>
@@ -1300,15 +1625,17 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
                 <Input
                   value={novaPrioridade.cor}
                   onChange={(e) => setNovaPrioridade({ ...novaPrioridade, cor: e.target.value })}
-                  placeholder="#3b82f6"
+                  placeholder="#f97316"
+                  className="flex-1"
                 />
               </div>
             </div>
             <div>
-              <Label>Nível (1 = mais urgente)</Label>
+              <Label>Nível (1-5)</Label>
               <Input
                 type="number"
                 min={1}
+                max={5}
                 value={novaPrioridade.nivel}
                 onChange={(e) => setNovaPrioridade({ ...novaPrioridade, nivel: Number(e.target.value) })}
               />
@@ -1323,7 +1650,11 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               disabled={!novaPrioridade.nome || criarPrioridadeMutation.isPending}
               className="bg-blue-600"
             >
-              {criarPrioridadeMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+              {criarPrioridadeMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Adicionar"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1341,7 +1672,7 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               <Input
                 value={novoTitulo.titulo}
                 onChange={(e) => setNovoTitulo({ ...novoTitulo, titulo: e.target.value })}
-                placeholder="Ex: Manutenção Preventiva, Limpeza"
+                placeholder="Ex: Manutenção preventiva"
               />
             </div>
             <div>
@@ -1362,68 +1693,62 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
               disabled={!novoTitulo.titulo || criarTituloMutation.isPending}
               className="bg-blue-600"
             >
-              {criarTituloMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+              {criarTituloMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Adicionar"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Modal Compartilhar com Equipe */}
+      {/* Modal Compartilhar */}
       <Dialog open={showCompartilhar} onOpenChange={setShowCompartilhar}>
-        <DialogContent className="max-w-lg">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Compartilhar com Equipe</DialogTitle>
+            <DialogTitle>Compartilhar Timeline</DialogTitle>
             <DialogDescription>
-              Selecione os membros da equipe para compartilhar esta timeline
+              Escolha como deseja compartilhar esta timeline com a equipe
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
-            {membrosEquipe.filter((m: any) => m.email || m.telefone).map((membro: any) => (
-              <div
-                key={membro.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div>
-                  <p className="font-medium">{membro.nome}</p>
-                  <p className="text-sm text-gray-500">
-                    {membro.email && <span>{membro.email}</span>}
-                    {membro.email && membro.telefone && <span> • </span>}
-                    {membro.telefone && <span>{membro.telefone}</span>}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {membro.telefone && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEnviarCompartilhamento(membro, "whatsapp")}
-                      className="border-green-200 text-green-600"
-                    >
-                      WhatsApp
-                    </Button>
-                  )}
-                  {membro.email && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEnviarCompartilhamento(membro, "email")}
-                      className="border-blue-200 text-blue-600"
-                    >
-                      Email
-                    </Button>
-                  )}
-                </div>
+          <div className="space-y-4">
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 h-14 border-green-200 hover:bg-green-50"
+              onClick={() => {
+                handleCompartilhar("whatsapp");
+                setShowCompartilhar(false);
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                <Send className="w-5 h-5 text-white" />
               </div>
-            ))}
-            {membrosEquipe.filter((m: any) => m.email || m.telefone).length === 0 && (
-              <p className="text-center text-gray-500 py-4">
-                Nenhum membro da equipe com email ou telefone cadastrado
-              </p>
-            )}
+              <div className="text-left">
+                <p className="font-medium">WhatsApp</p>
+                <p className="text-sm text-gray-500">Enviar link via WhatsApp</p>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 h-14 border-blue-200 hover:bg-blue-50"
+              onClick={() => {
+                handleCompartilhar("email");
+                setShowCompartilhar(false);
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium">E-mail</p>
+                <p className="text-sm text-gray-500">Enviar por e-mail</p>
+              </div>
+            </Button>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCompartilhar(false)}>
-              Fechar
+              Cancelar
             </Button>
           </DialogFooter>
         </DialogContent>

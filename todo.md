@@ -467,3 +467,11 @@
 - [x] Botão "Compartilhar com Equipe" funcional
 - [x] Adicionar rota /dashboard/timeline-completa
 - [x] Adicionar item "Timeline Completa" no menu do Dashboard
+
+
+## Melhorias Timeline Completa (17/01/2026)
+
+- [x] Notificações em tempo real quando alguém comenta na timeline
+- [x] Sistema de menções de usuários com @ nos comentários
+- [x] Permitir anexar arquivos (PDFs, documentos) além de imagens nos comentários
+- [x] Atualizar interface com as novas funcionalidades
