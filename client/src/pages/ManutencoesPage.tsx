@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { ShareModal } from "@/components/ShareModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +46,8 @@ import {
   Image,
   CheckSquare,
   Building,
-  Navigation
+  Navigation,
+  Zap
 } from "lucide-react";
 import { generateManutencaoReport, generateListReport, formatStatus, formatDate } from "@/lib/pdfGenerator";
 import { LocationMiniMap } from "@/components/LocationMiniMap";
@@ -70,7 +73,7 @@ interface ManutencoesPageProps {
 export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
-
+  const [showShareModal, setShowShareModal] = useState(false);
   const [selectedManutencao, setSelectedManutencao] = useState<any>(null);
   const [searchProtocolo, setSearchProtocolo] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
@@ -103,7 +106,7 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
 
   const utils = trpc.useUtils();
   
-  // Buscar dados da organização para obter o logo
+  // Buscar dados do condomínio para obter o logo
   const { data: condominio } = trpc.condominio.get.useQuery(
     { id: condominioId },
     { enabled: !!condominioId }
@@ -384,17 +387,18 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
             Manutenções
           </h2>
           <p className="text-muted-foreground">
-            Gerencie as manutenções da organização
+            Gerencie as manutenções do condomínio
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            className="bg-orange-500 text-white hover:bg-orange-600 border-orange-500"
-            onClick={() => setShowManutencaoRapida(true)}
-          >
-            ⚡ Manutenção Rápida
-          </Button>
+          <Link href="/dashboard/tarefas-facil?tipo=manutencao">
+            <Button 
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 font-semibold"
+            >
+              <Zap className="h-4 w-4 mr-1" />
+              Registro Rápido
+            </Button>
+          </Link>
           <Button variant="outline" size="sm" onClick={handleGeneratePDF}>
             <Download className="h-4 w-4 mr-1" />
             PDF
@@ -492,6 +496,10 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
                   deleteMutation.mutate({ id: manutencao.id });
                 }
               }}
+              onShare={() => {
+                setSelectedManutencao(manutencao);
+                setShowShareModal(true);
+              }}
               onPdf={async () => {
                 // Buscar imagens da manutenção
                 const imagens = await utils.manutencao.getImagens.fetch({ manutencaoId: manutencao.id });
@@ -534,7 +542,7 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
 
       {/* Dialog Nova Manutenção */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
           <DialogHeader className="sr-only">
             <DialogTitle>Nova Manutenção</DialogTitle>
           </DialogHeader>
@@ -545,7 +553,7 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
               iconColor="text-orange-600"
               iconBgColor="bg-gradient-to-br from-orange-100 to-amber-100"
               title="Nova Manutenção"
-              subtitle="Registre uma nova manutenção na organização"
+              subtitle="Registre uma nova manutenção no condomínio"
             />
           </div>
 
@@ -553,22 +561,24 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
             {/* Seção: Informações Básicas */}
             <FormSection title="Informações Básicas" icon={FileText} iconColor="text-blue-500">
               <FormFieldGroup columns={1}>
-                <InputWithSave
-                  label="Título *"
-                  value={formData.titulo}
-                  onChange={(v) => setFormData({ ...formData, titulo: v })}
-                  condominioId={condominioId}
-                  tipo="titulo_manutencao"
-                  placeholder="Ex: Reparo no Portão Principal"
-                />
-                <InputWithSave
-                  label="Subtítulo"
-                  value={formData.subtitulo}
-                  onChange={(v) => setFormData({ ...formData, subtitulo: v })}
-                  condominioId={condominioId}
-                  tipo="subtitulo_manutencao"
-                  placeholder="Descrição breve da manutenção"
-                />
+                <div>
+                  <StyledLabel required icon={Wrench}>Título</StyledLabel>
+                  <Input
+                    value={formData.titulo}
+                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                    placeholder="Ex: Reparo no Portão Principal"
+                    className="h-11 border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <StyledLabel>Subtítulo</StyledLabel>
+                  <Input
+                    value={formData.subtitulo}
+                    onChange={(e) => setFormData({ ...formData, subtitulo: e.target.value })}
+                    placeholder="Descrição breve da manutenção"
+                    className="h-11 border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
               </FormFieldGroup>
             </FormSection>
 
@@ -755,26 +765,26 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
             {/* Seção: Detalhes */}
             <FormSection title="Detalhes" icon={AlignLeft} iconColor="text-gray-500">
               <div className="space-y-4">
-                <InputWithSave
-                  label="Descrição"
-                  value={formData.descricao}
-                  onChange={(v) => setFormData({ ...formData, descricao: v })}
-                  condominioId={condominioId}
-                  tipo="descricao_manutencao"
-                  placeholder="Descreva os detalhes da manutenção..."
-                  multiline
-                  rows={3}
-                />
-                <InputWithSave
-                  label="Observações"
-                  value={formData.observacoes}
-                  onChange={(v) => setFormData({ ...formData, observacoes: v })}
-                  condominioId={condominioId}
-                  tipo="observacoes_manutencao"
-                  placeholder="Observações adicionais..."
-                  multiline
-                  rows={2}
-                />
+                <div>
+                  <StyledLabel icon={AlignLeft}>Descrição</StyledLabel>
+                  <Textarea
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Descreva os detalhes da manutenção..."
+                    rows={3}
+                    className="border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                  />
+                </div>
+                <div>
+                  <StyledLabel>Observações</StyledLabel>
+                  <Textarea
+                    value={formData.observacoes}
+                    onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                    placeholder="Observações adicionais..."
+                    rows={2}
+                    className="border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                  />
+                </div>
               </div>
             </FormSection>
 
@@ -909,7 +919,7 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
 
       {/* Dialog Detalhes */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden p-0">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
           <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
@@ -1041,7 +1051,16 @@ export default function ManutencoesPage({ condominioId }: ManutencoesPageProps) 
         </DialogContent>
       </Dialog>
 
-
+      {/* Modal de Compartilhamento */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        tipo="manutencao"
+        itemId={selectedManutencao?.id || 0}
+        itemTitulo={selectedManutencao?.titulo || ""}
+        itemProtocolo={selectedManutencao?.protocolo || ""}
+        condominioId={condominioId}
+      />
     </div>
   );
 }

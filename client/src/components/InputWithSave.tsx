@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -23,21 +22,7 @@ type TipoValor =
   | "tipo_checklist"
   | "tipo_ocorrencia"
   | "fornecedor"
-  | "localizacao"
-  | "titulo_vistoria"
-  | "subtitulo_vistoria"
-  | "descricao_vistoria"
-  | "observacoes_vistoria"
-  | "titulo_manutencao"
-  | "subtitulo_manutencao"
-  | "descricao_manutencao"
-  | "observacoes_manutencao"
-  | "titulo_ocorrencia"
-  | "subtitulo_ocorrencia"
-  | "descricao_ocorrencia"
-  | "observacoes_ocorrencia"
-  | "titulo_antesdepois"
-  | "descricao_antesdepois";
+  | "localizacao";
 
 interface InputWithSaveProps {
   label: string;
@@ -47,8 +32,6 @@ interface InputWithSaveProps {
   tipo: TipoValor;
   placeholder?: string;
   className?: string;
-  multiline?: boolean;
-  rows?: number;
 }
 
 export default function InputWithSave({
@@ -59,8 +42,6 @@ export default function InputWithSave({
   tipo,
   placeholder,
   className = "",
-  multiline = false,
-  rows = 3,
 }: InputWithSaveProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
@@ -133,30 +114,19 @@ export default function InputWithSave({
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <div className="relative flex-1">
-              {multiline ? (
-                <Textarea
-                  value={value}
-                  onChange={(e) => onChange(e.target.value)}
-                  placeholder={placeholder || `Digite ou selecione ${label.toLowerCase()}...`}
-                  className="pr-8 resize-none"
-                  rows={rows}
-                  onFocus={() => setIsOpen(true)}
-                />
-              ) : (
-                <Input
-                  ref={inputRef}
-                  value={value}
-                  onChange={(e) => onChange(e.target.value)}
-                  placeholder={placeholder || `Digite ou selecione ${label.toLowerCase()}...`}
-                  className="pr-8"
-                  onFocus={() => setIsOpen(true)}
-                />
-              )}
+              <Input
+                ref={inputRef}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder || `Digite ou selecione ${label.toLowerCase()}...`}
+                className="pr-8"
+                onFocus={() => setIsOpen(true)}
+              />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className={`absolute right-0 ${multiline ? 'top-1' : 'top-0 h-full'} px-2 hover:bg-transparent`}
+                className="absolute right-0 top-0 h-full px-2 hover:bg-transparent"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />

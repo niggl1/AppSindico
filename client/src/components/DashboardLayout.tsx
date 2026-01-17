@@ -123,15 +123,157 @@ export const CORES_FUNCOES_RAPIDAS = [
   "#64748B", // Slate
 ];
 
-// Estrutura do menu - Manutenção
+// Estrutura do menu com 12 seções (inclui Ordens de Serviço como seção separada)
 const menuSections = [
   {
-    id: "manutencao",
-    label: "Manutenção",
+    id: "visao-geral",
+    label: "VISÃO GERAL/CRIAR PROJETO",
+    icon: LayoutDashboard,
+    iconName: "LayoutDashboard",
+    path: "/dashboard",
+    items: []
+  },
+  {
+    id: "gestao-condominio",
+    label: "Gestão do Condomínio",
+    icon: Building2,
+    iconName: "Building2",
+    items: [
+      { icon: Building2, iconName: "Building2", label: "Cadastro do Condomínio", path: "/dashboard/condominio", funcaoId: "cadastro-condominio" },
+      { icon: Users, iconName: "Users", label: "Moradores", path: "/dashboard/moradores", funcaoId: "moradores" },
+      { icon: UserCog, iconName: "UserCog", label: "Funcionários", path: "/dashboard/funcionarios", funcaoId: "funcionarios" },
+      { icon: Car, iconName: "Car", label: "Vagas de Estacionamento", path: "/dashboard/vagas", funcaoId: "vagas" },
+      { icon: UsersRound, iconName: "UsersRound", label: "Equipe de Gestão", path: "/dashboard/equipe", funcaoId: "equipe" },
+    ]
+  },
+  {
+    id: "comunicacao",
+    label: "Comunicação",
+    icon: Megaphone,
+    iconName: "Megaphone",
+    items: [
+      { icon: Bell, iconName: "Bell", label: "Avisos", path: "/dashboard/avisos", funcaoId: "avisos" },
+      { icon: FileText, iconName: "FileText", label: "Comunicados", path: "/dashboard/comunicados", funcaoId: "comunicados" },
+      { icon: BellRing, iconName: "BellRing", label: "Notificações", path: "/dashboard/notificacoes", funcaoId: "notificacoes" },
+      { icon: Clock, iconName: "Clock", label: "Lembretes Agendados", path: "/dashboard/notificacoes?tab=lembretes", funcaoId: "lembretes" },
+      { icon: Send, iconName: "Send", label: "Notificar Morador", path: "/dashboard/notificacoes?tab=enviar", funcaoId: "notificar-morador" },
+    ]
+  },
+  {
+    id: "eventos-agenda",
+    label: "Eventos e Agenda",
+    icon: Calendar,
+    iconName: "Calendar",
+    items: [
+      { icon: Calendar, iconName: "Calendar", label: "Eventos", path: "/dashboard/eventos", funcaoId: "eventos" },
+      { icon: CalendarCheck, iconName: "CalendarCheck", label: "Reservas", path: "/dashboard/reservas", funcaoId: "reservas" },
+    ]
+  },
+  {
+    id: "operacional",
+    label: "Operacional / Manutenção",
     icon: Wrench,
     iconName: "Wrench",
-    path: "/dashboard/manutencoes",
-    items: []
+    items: [
+      { icon: ClipboardCheck, iconName: "ClipboardCheck", label: "Vistorias", path: "/dashboard/vistorias", funcaoId: "vistorias" },
+      { icon: Wrench, iconName: "Wrench", label: "Manutenções", path: "/dashboard/manutencoes", funcaoId: "manutencoes" },
+      { icon: AlertTriangle, iconName: "AlertTriangle", label: "Ocorrências", path: "/dashboard/ocorrencias", funcaoId: "ocorrencias" },
+      { icon: CheckSquare, iconName: "CheckSquare", label: "Checklists", path: "/dashboard/checklists", funcaoId: "checklists" },
+      { icon: ArrowLeftRight, iconName: "ArrowLeftRight", label: "Antes e Depois", path: "/dashboard/antes-depois", funcaoId: "antes-depois" },
+    ]
+  },
+  {
+    id: "ordens-servico",
+    label: "Ordens de Serviço",
+    icon: ClipboardList,
+    iconName: "ClipboardList",
+    items: [
+      { icon: ClipboardList, iconName: "ClipboardList", label: "Todas as OS", path: "/dashboard/ordens-servico", funcaoId: "ordens-servico" },
+      { icon: Plus, iconName: "Plus", label: "Nova OS", path: "/dashboard/ordens-servico?nova=true", funcaoId: "nova-os" },
+      { icon: Settings, iconName: "Settings", label: "Configurações", path: "/dashboard/ordens-servico/configuracoes", funcaoId: "config-os" },
+    ]
+  },
+  {
+    id: "comunidade",
+    label: "Interativo / Comunidade",
+    icon: Users,
+    iconName: "Users",
+    items: [
+      { icon: Vote, iconName: "Vote", label: "Votações e Enquetes", path: "/dashboard/votacoes", funcaoId: "votacoes" },
+      { icon: ShoppingBag, iconName: "ShoppingBag", label: "Classificados", path: "/dashboard/classificados", funcaoId: "classificados" },
+      { icon: Search, iconName: "Search", label: "Achados e Perdidos", path: "/dashboard/achados-perdidos", funcaoId: "achados-perdidos" },
+      { icon: CarFront, iconName: "CarFront", label: "Caronas", path: "/dashboard/caronas", funcaoId: "caronas" },
+    ]
+  },
+  {
+    id: "documentacao",
+    label: "Documentação e Regras",
+    icon: BookOpen,
+    iconName: "BookOpen",
+    items: [
+      { icon: BookOpen, iconName: "BookOpen", label: "Regras e Normas", path: "/dashboard/regras", funcaoId: "regras" },
+      { icon: Shield, iconName: "Shield", label: "Dicas de Segurança", path: "/dashboard/seguranca", funcaoId: "seguranca" },
+      { icon: Link, iconName: "Link", label: "Links Úteis", path: "/dashboard/links", funcaoId: "links" },
+      { icon: Phone, iconName: "Phone", label: "Telefones Úteis", path: "/dashboard/telefones", funcaoId: "telefones" },
+    ]
+  },
+  {
+    id: "galeria",
+    label: "Galeria e Mídia",
+    icon: Image,
+    iconName: "Image",
+    items: [
+      { icon: Image, iconName: "Image", label: "Galeria de Fotos", path: "/dashboard/galeria", funcaoId: "galeria" },
+      { icon: Award, iconName: "Award", label: "Realizações", path: "/dashboard/realizacoes", funcaoId: "realizacoes" },
+      { icon: TrendingUp, iconName: "TrendingUp", label: "Melhorias", path: "/dashboard/melhorias", funcaoId: "melhorias" },
+      { icon: Package, iconName: "Package", label: "Aquisições", path: "/dashboard/aquisicoes", funcaoId: "aquisicoes" },
+    ]
+  },
+  {
+    id: "publicidade",
+    label: "Publicidade",
+    icon: Newspaper,
+    iconName: "Newspaper",
+    items: [
+      { icon: Building, iconName: "Building", label: "Anunciantes", path: "/dashboard/publicidade", funcaoId: "publicidade" },
+      { icon: Newspaper, iconName: "Newspaper", label: "Campanhas", path: "/dashboard/campanhas", funcaoId: "campanhas" },
+    ]
+  },
+  {
+    id: "revista",
+    label: "Revista Digital",
+    icon: BookMarked,
+    iconName: "BookMarked",
+    items: [
+      { icon: BookMarked, iconName: "BookMarked", label: "Minhas Revistas", path: "/dashboard/revistas", funcaoId: "revistas" },
+      { icon: Palette, iconName: "Palette", label: "Templates Visuais", path: "/dashboard/templates", funcaoId: "templates" },
+      { icon: Sparkles, iconName: "Sparkles", label: "Efeitos de Transição", path: "/dashboard/efeitos", funcaoId: "efeitos" },
+      { icon: FileDown, iconName: "FileDown", label: "Exportar PDF", path: "/dashboard/exportar-pdf", funcaoId: "exportar-pdf" },
+    ]
+  },
+  {
+    id: "relatorios",
+    label: "Relatórios e Painel",
+    icon: BarChart3,
+    iconName: "BarChart3",
+    items: [
+      { icon: BarChart3, iconName: "BarChart3", label: "Painel de Controlo", path: "/dashboard/painel-controlo", funcaoId: "painel-controlo" },
+      { icon: PieChart, iconName: "PieChart", label: "Estatísticas Gerais", path: "/dashboard/estatisticas", funcaoId: "estatisticas" },
+      { icon: History, iconName: "History", label: "Histórico de Atividades", path: "/dashboard/historico", funcaoId: "historico" },
+      { icon: Download, iconName: "Download", label: "Exportar Relatórios", path: "/dashboard/exportar-relatorios", funcaoId: "exportar-relatorios" },
+    ]
+  },
+  {
+    id: "configuracoes",
+    label: "Configurações",
+    icon: Settings,
+    iconName: "Settings",
+    items: [
+      { icon: User, iconName: "User", label: "Perfil do Usuário", path: "/perfil", funcaoId: "perfil" },
+      { icon: BellRing, iconName: "BellRing", label: "Config. Notificações", path: "/dashboard/config-notificacoes", funcaoId: "config-notificacoes" },
+      { icon: Sliders, iconName: "Sliders", label: "Preferências", path: "/dashboard/preferencias", funcaoId: "preferencias" },
+      { icon: Sparkles, iconName: "Sparkles", label: "Construtor de App", path: "/dashboard/construtor-app", funcaoId: "construtor-app" },
+    ]
   },
 ];
 
