@@ -113,6 +113,7 @@ import {
 } from "../drizzle/schema";
 import { tarefaFacilRouter } from "./routers/tarefaFacil";
 import { timelineRouter } from "./routers/timeline";
+import { notificacoesRouter } from "./routers/notificacoes";
 import { eq, and, desc, like, or, sql, gte, lte, inArray, asc } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { storagePut } from "./storage";
@@ -122,6 +123,7 @@ export const appRouter = router({
   tarefaFacil: tarefaFacilRouter,
   timelineLivro: timelineRouter,
   timeline: timelineRouter,
+  notificacoes: notificacoesRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -36,6 +36,13 @@
       "when": 1768652835086,
       "tag": "0004_cultured_machine_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1768653228414,
+      "tag": "0005_typical_switch",
+      "breakpoints": true
     }
   ]
 }

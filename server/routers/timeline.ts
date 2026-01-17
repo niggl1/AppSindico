@@ -1120,6 +1120,130 @@ export const timelineRouter = router({
       };
     }),
 
+  // ==================== TIMELINE - GERAÇÃO DE PDF ====================
+  
+  // Gerar dados para PDF da timeline
+  gerarDadosPdf: protectedProcedure
+    .input(z.object({ timelineId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Buscar timeline com todos os relacionamentos
+      const [timeline] = await db.select()
+        .from(timelines)
+        .where(eq(timelines.id, input.timelineId));
+
+      if (!timeline) throw new Error("Timeline não encontrada");
+
+      // Buscar responsável
+      let responsavel = null;
+      if (timeline.responsavelId) {
+        const [resp] = await db.select()
+          .from(timelineResponsaveis)
+          .where(eq(timelineResponsaveis.id, timeline.responsavelId));
+        responsavel = resp;
+      }
+
+      // Buscar local
+      let local = null;
+      if (timeline.localId) {
+        const [loc] = await db.select()
+          .from(timelineLocais)
+          .where(eq(timelineLocais.id, timeline.localId));
+        local = loc;
+      }
+
+      // Buscar status
+      let status = null;
+      if (timeline.statusId) {
+        const [stat] = await db.select()
+          .from(timelineStatus)
+          .where(eq(timelineStatus.id, timeline.statusId));
+        status = stat;
+      }
+
+      // Buscar prioridade
+      let prioridade = null;
+      if (timeline.prioridadeId) {
+        const [prio] = await db.select()
+          .from(timelinePrioridades)
+          .where(eq(timelinePrioridades.id, timeline.prioridadeId));
+        prioridade = prio;
+      }
+
+      // Buscar imagens
+      const imagensTimeline = await db.select()
+        .from(timelineImagens)
+        .where(eq(timelineImagens.timelineId, input.timelineId));
+
+      // Buscar comentários com reações
+      const comentariosBase = await db.select()
+        .from(timelineComentarios)
+        .where(and(
+          eq(timelineComentarios.timelineId, input.timelineId),
+          eq(timelineComentarios.excluido, false)
+        ))
+        .orderBy(timelineComentarios.createdAt);
+
+      const comentarios = await Promise.all(
+        comentariosBase.map(async (c) => {
+          const reacoes = await db.select()
+            .from(timelineComentarioReacoes)
+            .where(eq(timelineComentarioReacoes.comentarioId, c.id));
+          return { ...c, reacoes };
+        })
+      );
+
+      return {
+        timeline,
+        responsavel,
+        local,
+        status,
+        prioridade,
+        imagens: imagensTimeline,
+        comentarios,
+      };
+    }),
+
+  // ==================== TIMELINE - BUSCA GLOBAL ====================
+  
+  // Buscar comentários por texto
+  buscarComentarios: protectedProcedure
+    .input(z.object({
+      timelineId: z.number(),
+      termo: z.string().min(1),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { comentarios: [], total: 0 };
+
+      // Buscar comentários que contenham o termo
+      const comentarios = await db.select()
+        .from(timelineComentarios)
+        .where(and(
+          eq(timelineComentarios.timelineId, input.timelineId),
+          eq(timelineComentarios.excluido, false),
+          like(timelineComentarios.texto, `%${input.termo}%`)
+        ))
+        .orderBy(desc(timelineComentarios.createdAt));
+
+      // Buscar reações para cada comentário
+      const comentariosComReacoes = await Promise.all(
+        comentarios.map(async (c) => {
+          const reacoes = await db.select()
+            .from(timelineComentarioReacoes)
+            .where(eq(timelineComentarioReacoes.comentarioId, c.id));
+          return { ...c, reacoes };
+        })
+      );
+
+      return {
+        comentarios: comentariosComReacoes,
+        total: comentariosComReacoes.length,
+      };
+    }),
+
   // ==================== TIMELINE - CONFIGURAÇÕES DE NOTIFICAÇÕES ====================
   // TODO: Adicionar tabelas de notificações e implementar endpoints
 });

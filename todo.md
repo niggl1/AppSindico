@@ -482,3 +482,10 @@
 - [x] Filtros de comentários por autor, data ou tipo de anexo
 - [x] Respostas em thread com visualização aninhada
 - [x] Histórico de edições dos comentários (versões anteriores)
+
+
+## Funcionalidades Extras Timeline Completa (17/01/2026)
+
+- [x] Exportar timeline para PDF com todos os comentários
+- [x] Notificações push no navegador para novos comentários
+- [x] Busca global por texto nos comentários da timeline

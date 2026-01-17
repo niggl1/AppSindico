@@ -69,6 +69,11 @@ import {
   ChevronDown,
   ChevronRight,
   RotateCcw,
+  Search,
+  FileDown,
+  Bell,
+  BellOff,
+  Printer,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -626,6 +631,14 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     apenasRespostas: false,
   });
 
+  // Estados de busca global
+  const [termoBusca, setTermoBusca] = useState("");
+  const [buscaAtiva, setBuscaAtiva] = useState(false);
+
+  // Estados de notificações
+  const [notificacoesAtivas, setNotificacoesAtivas] = useState(true);
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+
   // Queries para listas
   const { data: responsaveis = [] } = trpc.timeline.listarResponsaveis.useQuery({ condominioId });
   const { data: locais = [] } = trpc.timeline.listarLocais.useQuery({ condominioId });
@@ -650,6 +663,24 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
       apenasRespostas: filtros.apenasRespostas || undefined,
     },
     { enabled: !!timelineCriada?.id }
+  );
+
+  // Query de busca global
+  const { data: resultadosBusca, isLoading: buscando } = trpc.timeline.buscarComentarios.useQuery(
+    { timelineId: timelineCriada?.id || 0, termo: termoBusca },
+    { enabled: !!timelineCriada?.id && buscaAtiva && termoBusca.length >= 2 }
+  );
+
+  // Query de dados para PDF
+  const { data: dadosPdf, refetch: refetchDadosPdf } = trpc.timeline.gerarDadosPdf.useQuery(
+    { timelineId: timelineCriada?.id || 0 },
+    { enabled: false }
+  );
+
+  // Query de notificações
+  const { data: notificacoes } = trpc.notificacoes.listar.useQuery(
+    { limite: 10, apenasNaoLidas: true },
+    { refetchInterval: 30000 } // Atualizar a cada 30 segundos
   );
 
   // Lista de autores únicos para o filtro
@@ -1127,6 +1158,193 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     setActiveTab("formulario");
   };
 
+  // Handler de busca global
+  const handleBusca = (termo: string) => {
+    setTermoBusca(termo);
+    if (termo.length >= 2) {
+      setBuscaAtiva(true);
+    } else {
+      setBuscaAtiva(false);
+    }
+  };
+
+  // Handler para gerar PDF
+  const handleGerarPdf = async () => {
+    if (!timelineCriada?.id) {
+      toast.error("Crie uma timeline primeiro");
+      return;
+    }
+
+    setGerandoPdf(true);
+    try {
+      const { data } = await refetchDadosPdf();
+      if (!data) {
+        toast.error("Erro ao carregar dados da timeline");
+        return;
+      }
+
+      // Criar conteúdo HTML para o PDF
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Timeline - ${data.timeline.titulo}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
+            .info-box { background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0; }
+            .info-row { display: flex; margin: 8px 0; }
+            .info-label { font-weight: bold; width: 150px; color: #4b5563; }
+            .comentario { border-left: 3px solid #3b82f6; padding-left: 15px; margin: 15px 0; }
+            .comentario-autor { font-weight: bold; color: #1e40af; }
+            .comentario-data { color: #6b7280; font-size: 12px; }
+            .imagem { max-width: 200px; margin: 10px 5px; border-radius: 8px; }
+            .secao { margin-top: 30px; }
+            .secao-titulo { color: #374151; font-size: 18px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
+          </style>
+        </head>
+        <body>
+          <h1>📋 ${data.timeline.titulo}</h1>
+          
+          <div class="info-box">
+            <div class="info-row"><span class="info-label">Protocolo:</span> ${data.timeline.protocolo}</div>
+            <div class="info-row"><span class="info-label">Status:</span> ${data.status?.nome || 'N/A'}</div>
+            <div class="info-row"><span class="info-label">Prioridade:</span> ${data.prioridade?.nome || 'N/A'}</div>
+            <div class="info-row"><span class="info-label">Responsável:</span> ${data.responsavel?.nome || 'N/A'}</div>
+            <div class="info-row"><span class="info-label">Local:</span> ${data.local?.nome || 'N/A'}</div>
+            <div class="info-row"><span class="info-label">Data de Criação:</span> ${new Date(data.timeline.createdAt).toLocaleString('pt-BR')}</div>
+          </div>
+          
+          ${data.timeline.descricao ? `
+          <div class="secao">
+            <h3 class="secao-titulo">Descrição</h3>
+            <p>${data.timeline.descricao}</p>
+          </div>
+          ` : ''}
+          
+          ${data.imagens.length > 0 ? `
+          <div class="secao">
+            <h3 class="secao-titulo">Imagens (${data.imagens.length})</h3>
+            <div>
+              ${data.imagens.map((img: any) => `<img src="${img.url}" class="imagem" alt="${img.legenda || 'Imagem'}" />`).join('')}
+            </div>
+          </div>
+          ` : ''}
+          
+          ${data.comentarios.length > 0 ? `
+          <div class="secao">
+            <h3 class="secao-titulo">Comentários (${data.comentarios.length})</h3>
+            ${data.comentarios.map((c: any) => `
+              <div class="comentario">
+                <div class="comentario-autor">${c.autorNome}</div>
+                <div class="comentario-data">${new Date(c.createdAt).toLocaleString('pt-BR')}</div>
+                <p>${c.texto}</p>
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
+          
+          <div style="margin-top: 40px; text-align: center; color: #9ca3af; font-size: 12px;">
+            Gerado em ${new Date().toLocaleString('pt-BR')} | App Síndico
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Criar blob e download
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `timeline-${data.timeline.protocolo}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("PDF gerado com sucesso! Abra o arquivo HTML no navegador e imprima como PDF.");
+    } catch (error) {
+      toast.error("Erro ao gerar PDF");
+    } finally {
+      setGerandoPdf(false);
+    }
+  };
+
+  // Handler para imprimir diretamente
+  const handleImprimir = async () => {
+    if (!timelineCriada?.id) {
+      toast.error("Crie uma timeline primeiro");
+      return;
+    }
+
+    setGerandoPdf(true);
+    try {
+      const { data } = await refetchDadosPdf();
+      if (!data) {
+        toast.error("Erro ao carregar dados da timeline");
+        return;
+      }
+
+      // Abrir janela de impressão
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Timeline - ${data.timeline.titulo}</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
+              .info-box { background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0; }
+              .info-row { display: flex; margin: 8px 0; }
+              .info-label { font-weight: bold; width: 150px; color: #4b5563; }
+              .comentario { border-left: 3px solid #3b82f6; padding-left: 15px; margin: 15px 0; }
+              .comentario-autor { font-weight: bold; color: #1e40af; }
+              .comentario-data { color: #6b7280; font-size: 12px; }
+              .imagem { max-width: 200px; margin: 10px 5px; border-radius: 8px; }
+              @media print {
+                body { padding: 0; }
+                .no-print { display: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>📋 ${data.timeline.titulo}</h1>
+            <div class="info-box">
+              <div class="info-row"><span class="info-label">Protocolo:</span> ${data.timeline.protocolo}</div>
+              <div class="info-row"><span class="info-label">Status:</span> ${data.status?.nome || 'N/A'}</div>
+              <div class="info-row"><span class="info-label">Prioridade:</span> ${data.prioridade?.nome || 'N/A'}</div>
+              <div class="info-row"><span class="info-label">Responsável:</span> ${data.responsavel?.nome || 'N/A'}</div>
+              <div class="info-row"><span class="info-label">Local:</span> ${data.local?.nome || 'N/A'}</div>
+              <div class="info-row"><span class="info-label">Data:</span> ${new Date(data.timeline.createdAt).toLocaleString('pt-BR')}</div>
+            </div>
+            ${data.timeline.descricao ? `<div><h3>Descrição</h3><p>${data.timeline.descricao}</p></div>` : ''}
+            ${data.comentarios.length > 0 ? `
+              <div><h3>Comentários (${data.comentarios.length})</h3>
+              ${data.comentarios.map((c: any) => `
+                <div class="comentario">
+                  <div class="comentario-autor">${c.autorNome}</div>
+                  <div class="comentario-data">${new Date(c.createdAt).toLocaleString('pt-BR')}</div>
+                  <p>${c.texto}</p>
+                </div>
+              `).join('')}</div>
+            ` : ''}
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    } catch (error) {
+      toast.error("Erro ao imprimir");
+    } finally {
+      setGerandoPdf(false);
+    }
+  };
+
   // Formatar tamanho do arquivo
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -1543,17 +1761,138 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
         <TabsContent value="comentarios">
           <Card className="border-0 shadow-lg">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
-                <MessageCircle className="w-5 h-5" />
-                Comentários da Equipe
-                {comentariosData?.total && comentariosData.total > 0 && (
-                  <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
-                    {comentariosData.total}
-                  </Badge>
-                )}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5" />
+                  Comentários da Equipe
+                  {comentariosData?.total && comentariosData.total > 0 && (
+                    <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
+                      {comentariosData.total}
+                    </Badge>
+                  )}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  {/* Botão de Notificações */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setNotificacoesAtivas(!notificacoesAtivas)}
+                    className="text-white hover:bg-white/20"
+                    title={notificacoesAtivas ? "Desativar notificações" : "Ativar notificações"}
+                  >
+                    {notificacoesAtivas ? (
+                      <Bell className="w-4 h-4" />
+                    ) : (
+                      <BellOff className="w-4 h-4" />
+                    )}
+                    {notificacoes?.naoLidas && notificacoes.naoLidas > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        {notificacoes.naoLidas}
+                      </span>
+                    )}
+                  </Button>
+                  {/* Botão de Imprimir */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleImprimir}
+                    disabled={gerandoPdf || !timelineCriada}
+                    className="text-white hover:bg-white/20"
+                    title="Imprimir timeline"
+                  >
+                    <Printer className="w-4 h-4" />
+                  </Button>
+                  {/* Botão de Exportar PDF */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleGerarPdf}
+                    disabled={gerandoPdf || !timelineCriada}
+                    className="text-white hover:bg-white/20"
+                    title="Exportar para PDF"
+                  >
+                    {gerandoPdf ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <FileDown className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="p-6">
+              {/* Barra de busca global */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Buscar nos comentários..."
+                    value={termoBusca}
+                    onChange={(e) => handleBusca(e.target.value)}
+                    className="pl-10 pr-10"
+                  />
+                  {termoBusca && (
+                    <button
+                      onClick={() => {
+                        setTermoBusca("");
+                        setBuscaAtiva(false);
+                      }}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                {buscaAtiva && termoBusca.length >= 2 && (
+                  <div className="mt-2 text-sm text-gray-500">
+                    {buscando ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Buscando...
+                      </span>
+                    ) : (
+                      <span>
+                        {resultadosBusca?.total || 0} resultado(s) encontrado(s) para "{termoBusca}"
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Resultados da busca */}
+              {buscaAtiva && resultadosBusca?.comentarios && resultadosBusca.comentarios.length > 0 && (
+                <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
+                    <Search className="w-4 h-4" />
+                    Resultados da Busca
+                  </h4>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {resultadosBusca.comentarios.map((comentario: any) => (
+                      <div key={comentario.id} className="bg-white rounded-lg p-3 border border-yellow-100">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Avatar className="h-6 w-6">
+                            <AvatarFallback className="bg-yellow-100 text-yellow-700 text-xs">
+                              {comentario.autorNome?.charAt(0)?.toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium text-sm">{comentario.autorNome}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(comentario.createdAt).toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700">
+                          {comentario.texto.split(new RegExp(`(${termoBusca})`, 'gi')).map((part: string, i: number) => (
+                            part.toLowerCase() === termoBusca.toLowerCase() ? (
+                              <mark key={i} className="bg-yellow-300 px-0.5 rounded">{part}</mark>
+                            ) : part
+                          ))}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Filtros de comentários */}
               <FiltrosComentarios
                 filtros={filtros}

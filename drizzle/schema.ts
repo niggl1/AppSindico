@@ -2247,3 +2247,47 @@ export const timelineComentarioHistorico = mysqlTable("timeline_comentario_histo
 
 export type TimelineComentarioHistorico = typeof timelineComentarioHistorico.$inferSelect;
 export type InsertTimelineComentarioHistorico = typeof timelineComentarioHistorico.$inferInsert;
+
+
+// ==================== NOTIFICAÇÕES PUSH ====================
+export const notificacoesPush = mysqlTable("notificacoes_push", {
+  id: int("id").autoincrement().primaryKey(),
+  usuarioId: int("usuarioId").references(() => users.id),
+  condominioId: int("condominioId").references(() => condominios.id),
+  // Dados da notificação
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  mensagem: text("mensagem").notNull(),
+  tipo: mysqlEnum("tipo", ["comentario", "mencao", "timeline", "sistema"]).default("sistema"),
+  // Referências opcionais
+  timelineId: int("timelineId"),
+  comentarioId: int("comentarioId"),
+  // Status
+  lida: boolean("lida").default(false),
+  dataLeitura: timestamp("dataLeitura"),
+  // Metadados
+  icone: varchar("icone", { length: 50 }),
+  cor: varchar("cor", { length: 20 }),
+  linkAcao: text("linkAcao"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type NotificacaoPush = typeof notificacoesPush.$inferSelect;
+export type InsertNotificacaoPush = typeof notificacoesPush.$inferInsert;
+
+// ==================== CONFIGURAÇÕES DE NOTIFICAÇÕES DO USUÁRIO ====================
+export const configuracoesNotificacoes = mysqlTable("configuracoes_notificacoes", {
+  id: int("id").autoincrement().primaryKey(),
+  usuarioId: int("usuarioId").references(() => users.id).notNull(),
+  // Preferências
+  receberNotificacoesPush: boolean("receberNotificacoesPush").default(true),
+  receberNotificacoesEmail: boolean("receberNotificacoesEmail").default(true),
+  notificarComentarios: boolean("notificarComentarios").default(true),
+  notificarMencoes: boolean("notificarMencoes").default(true),
+  notificarTimelines: boolean("notificarTimelines").default(true),
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ConfiguracaoNotificacao = typeof configuracoesNotificacoes.$inferSelect;
+export type InsertConfiguracaoNotificacao = typeof configuracoesNotificacoes.$inferInsert;
