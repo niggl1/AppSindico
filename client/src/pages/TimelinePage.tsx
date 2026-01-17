@@ -221,7 +221,7 @@ export function TimelinePage() {
                 variant="ghost" 
                 size="icon"
                 className="text-white hover:bg-white/20"
-                onClick={() => setLocation("/modulo/manutencoes")}
+                onClick={() => setLocation("/dashboard")}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>

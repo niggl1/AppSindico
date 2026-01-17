@@ -429,3 +429,6 @@
 ## Trocar Logo (17/01/2026)
 - [x] Trocar logo do App Manutenção pela logo do App Síndico no menu lateral
 - [x] Usar a logo enviada pelo usuário (LogoAppSindico.png) no menu lateral
+
+## Correção Timeline (17/01/2026)
+- [x] Corrigir botão voltar na Timeline para ir para /dashboard ao invés de /modulo/manutencoes
