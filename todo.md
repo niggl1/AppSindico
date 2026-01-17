@@ -447,3 +447,7 @@
 ## Corrigir Agenda de Vencimentos (17/01/2026)
 - [ ] Substituir a página de Agenda de Vencimentos atual pela versão funcional do App Manutenção
 - [ ] Testar botões de cadastro (Contrato, Serviço, Manutenção)
+
+## Correção de Erros TypeScript (17/01/2026)
+- [x] Corrigir erro no TimelineVisualizarPage.tsx - Property 'timeline' does not exist
+- [x] Testar sistema em busca de mais erros
