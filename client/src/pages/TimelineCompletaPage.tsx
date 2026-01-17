@@ -74,6 +74,17 @@ import {
   Bell,
   BellOff,
   Printer,
+  BarChart3,
+  PieChart,
+  TrendingUp,
+  Users,
+  Clock3,
+  Zap,
+  BookTemplate,
+  AlarmClock,
+  CalendarClock,
+  Repeat,
+  Mail,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -639,6 +650,29 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const [notificacoesAtivas, setNotificacoesAtivas] = useState(true);
   const [gerandoPdf, setGerandoPdf] = useState(false);
 
+  // Estados de estatísticas
+  const [showEstatisticas, setShowEstatisticas] = useState(false);
+
+  // Estados de templates
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showAddTemplate, setShowAddTemplate] = useState(false);
+  const [novoTemplate, setNovoTemplate] = useState({ titulo: "", texto: "", categoria: "", publico: false });
+  const [editandoTemplate, setEditandoTemplate] = useState<any>(null);
+
+  // Estados de lembretes
+  const [showLembretes, setShowLembretes] = useState(false);
+  const [showAddLembrete, setShowAddLembrete] = useState(false);
+  const [novoLembrete, setNovoLembrete] = useState({
+    titulo: "",
+    descricao: "",
+    dataLembrete: "",
+    notificarEmail: true,
+    notificarPush: true,
+    recorrente: false,
+    intervaloRecorrencia: "" as "" | "diario" | "semanal" | "mensal",
+  });
+  const [editandoLembrete, setEditandoLembrete] = useState<any>(null);
+
   // Queries para listas
   const { data: responsaveis = [] } = trpc.timeline.listarResponsaveis.useQuery({ condominioId });
   const { data: locais = [] } = trpc.timeline.listarLocais.useQuery({ condominioId });
@@ -681,6 +715,24 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const { data: notificacoes } = trpc.notificacoes.listar.useQuery(
     { limite: 10, apenasNaoLidas: true },
     { refetchInterval: 30000 } // Atualizar a cada 30 segundos
+  );
+
+  // Query de estatísticas
+  const { data: estatisticas, refetch: refetchEstatisticas } = trpc.timeline.obterEstatisticas.useQuery(
+    { timelineId: timelineCriada?.id || 0 },
+    { enabled: !!timelineCriada?.id && showEstatisticas }
+  );
+
+  // Query de templates
+  const { data: templates = [], refetch: refetchTemplates } = trpc.timeline.listarTemplates.useQuery(
+    { condominioId },
+    { enabled: showTemplates }
+  );
+
+  // Query de lembretes
+  const { data: lembretes = [], refetch: refetchLembretes } = trpc.timeline.listarLembretes.useQuery(
+    { timelineId: timelineCriada?.id || 0 },
+    { enabled: !!timelineCriada?.id && showLembretes }
   );
 
   // Lista de autores únicos para o filtro
@@ -817,6 +869,84 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
   const adicionarReacaoMutation = trpc.timeline.adicionarReacao.useMutation({
     onSuccess: () => {
       refetchComentarios();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  // Mutations de templates
+  const criarTemplateMutation = trpc.timeline.criarTemplate.useMutation({
+    onSuccess: () => {
+      setNovoTemplate({ titulo: "", texto: "", categoria: "", publico: false });
+      setShowAddTemplate(false);
+      refetchTemplates();
+      toast.success("Template criado com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const editarTemplateMutation = trpc.timeline.editarTemplate.useMutation({
+    onSuccess: () => {
+      setEditandoTemplate(null);
+      refetchTemplates();
+      toast.success("Template atualizado!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const excluirTemplateMutation = trpc.timeline.excluirTemplate.useMutation({
+    onSuccess: () => {
+      refetchTemplates();
+      toast.success("Template excluído!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const usarTemplateMutation = trpc.timeline.usarTemplate.useMutation({
+    onSuccess: () => {
+      refetchTemplates();
+    },
+  });
+
+  // Mutations de lembretes
+  const criarLembreteMutation = trpc.timeline.criarLembrete.useMutation({
+    onSuccess: () => {
+      setNovoLembrete({
+        titulo: "",
+        descricao: "",
+        dataLembrete: "",
+        notificarEmail: true,
+        notificarPush: true,
+        recorrente: false,
+        intervaloRecorrencia: "",
+      });
+      setShowAddLembrete(false);
+      refetchLembretes();
+      toast.success("Lembrete agendado com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const editarLembreteMutation = trpc.timeline.editarLembrete.useMutation({
+    onSuccess: () => {
+      setEditandoLembrete(null);
+      refetchLembretes();
+      toast.success("Lembrete atualizado!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const cancelarLembreteMutation = trpc.timeline.cancelarLembrete.useMutation({
+    onSuccess: () => {
+      refetchLembretes();
+      toast.success("Lembrete cancelado!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const excluirLembreteMutation = trpc.timeline.excluirLembrete.useMutation({
+    onSuccess: () => {
+      refetchLembretes();
+      toast.success("Lembrete excluído!");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -1352,6 +1482,57 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  // Handler para usar template
+  const handleUsarTemplate = (template: any) => {
+    setNovoComentario(template.texto);
+    usarTemplateMutation.mutate({ id: template.id });
+    setShowTemplates(false);
+    toast.success(`Template "${template.titulo}" aplicado!`);
+  };
+
+  // Handler para criar template
+  const handleCriarTemplate = () => {
+    if (!novoTemplate.titulo.trim() || !novoTemplate.texto.trim()) {
+      toast.error("Preencha título e texto do template");
+      return;
+    }
+    criarTemplateMutation.mutate({
+      condominioId,
+      ...novoTemplate,
+    });
+  };
+
+  // Handler para criar lembrete
+  const handleCriarLembrete = () => {
+    if (!novoLembrete.titulo.trim() || !novoLembrete.dataLembrete) {
+      toast.error("Preencha título e data do lembrete");
+      return;
+    }
+    if (!timelineCriada?.id) {
+      toast.error("Crie uma timeline primeiro");
+      return;
+    }
+    criarLembreteMutation.mutate({
+      timelineId: timelineCriada.id,
+      condominioId,
+      titulo: novoLembrete.titulo,
+      descricao: novoLembrete.descricao || undefined,
+      dataLembrete: novoLembrete.dataLembrete,
+      notificarEmail: novoLembrete.notificarEmail,
+      notificarPush: novoLembrete.notificarPush,
+      recorrente: novoLembrete.recorrente,
+      intervaloRecorrencia: novoLembrete.intervaloRecorrencia || undefined,
+    });
+  };
+
+  // Formatar tempo médio de resposta
+  const formatarTempoMedio = (ms: number) => {
+    if (ms < 60000) return "< 1 min";
+    if (ms < 3600000) return `${Math.round(ms / 60000)} min`;
+    if (ms < 86400000) return `${Math.round(ms / 3600000)} h`;
+    return `${Math.round(ms / 86400000)} dias`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -1370,12 +1551,45 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
             <p className="text-gray-500 mt-1">Registre atividades com comentários da equipe</p>
           </div>
         </div>
-        {timelineCriada && (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
-            <CheckCircle className="w-4 h-4 mr-1" />
-            Protocolo: {timelineCriada.protocolo}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {timelineCriada && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEstatisticas(true)}
+                className="border-purple-300 text-purple-700 hover:bg-purple-50"
+              >
+                <BarChart3 className="w-4 h-4 mr-1" />
+                Estatísticas
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLembretes(true)}
+                className="border-amber-300 text-amber-700 hover:bg-amber-50"
+              >
+                <AlarmClock className="w-4 h-4 mr-1" />
+                Lembretes
+              </Button>
+            </>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowTemplates(true)}
+            className="border-green-300 text-green-700 hover:bg-green-50"
+          >
+            <Zap className="w-4 h-4 mr-1" />
+            Templates
+          </Button>
+          {timelineCriada && (
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
+              <CheckCircle className="w-4 h-4 mr-1" />
+              Protocolo: {timelineCriada.protocolo}
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -2452,6 +2666,501 @@ export default function TimelineCompletaPage({ condominioId }: TimelineCompletaP
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCompartilhar(false)}>
               Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Estatísticas */}
+      <Dialog open={showEstatisticas} onOpenChange={setShowEstatisticas}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+              Estatísticas da Timeline
+            </DialogTitle>
+          </DialogHeader>
+          {estatisticas ? (
+            <div className="space-y-6">
+              {/* Cards de métricas */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <MessageCircle className="w-8 h-8 mx-auto text-blue-600 mb-2" />
+                  <p className="text-2xl font-bold text-blue-700">{estatisticas.totalComentarios}</p>
+                  <p className="text-sm text-blue-600">Comentários</p>
+                </div>
+                <div className="bg-pink-50 rounded-lg p-4 text-center">
+                  <Heart className="w-8 h-8 mx-auto text-pink-600 mb-2" />
+                  <p className="text-2xl font-bold text-pink-700">{estatisticas.totalReacoes}</p>
+                  <p className="text-sm text-pink-600">Reações</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <Clock3 className="w-8 h-8 mx-auto text-green-600 mb-2" />
+                  <p className="text-2xl font-bold text-green-700">{formatarTempoMedio(estatisticas.tempoMedioResposta)}</p>
+                  <p className="text-sm text-green-600">Tempo Médio</p>
+                </div>
+              </div>
+
+              {/* Participação por membro */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Participação por Membro
+                </h4>
+                <div className="space-y-2">
+                  {Object.entries(estatisticas.participacaoPorMembro).map(([nome, count]) => (
+                    <div key={nome} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{nome}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{
+                              width: `${((count as number) / estatisticas.totalComentarios) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 w-8">{count as number}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reações por tipo */}
+              {Object.keys(estatisticas.reacoesPorTipo).length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Reações por Tipo
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {Object.entries(estatisticas.reacoesPorTipo).map(([tipo, count]) => (
+                      <Badge key={tipo} variant="secondary" className="px-3 py-1">
+                        {tipo === "like" && <ThumbsUp className="w-3 h-3 mr-1" />}
+                        {tipo === "love" && <Heart className="w-3 h-3 mr-1" />}
+                        {tipo === "check" && <Check className="w-3 h-3 mr-1" />}
+                        {tipo === "question" && <HelpCircle className="w-3 h-3 mr-1" />}
+                        {tipo === "alert" && <AlertCircleIcon className="w-3 h-3 mr-1" />}
+                        {count as number}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Último comentário */}
+              {estatisticas.ultimoComentario && (
+                <div className="text-sm text-gray-500 text-center">
+                  Último comentário: {new Date(estatisticas.ultimoComentario).toLocaleString("pt-BR")}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400" />
+              <p className="text-gray-500 mt-2">Carregando estatísticas...</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEstatisticas(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Templates */}
+      <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-green-600" />
+              Templates de Comentários
+            </DialogTitle>
+            <DialogDescription>
+              Use templates para agilizar seus comentários frequentes
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Botão adicionar template */}
+            <Button
+              variant="outline"
+              onClick={() => setShowAddTemplate(true)}
+              className="w-full border-dashed border-2 border-green-300 text-green-700 hover:bg-green-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Criar Novo Template
+            </Button>
+
+            {/* Lista de templates */}
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {templates.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum template criado ainda</p>
+                  <p className="text-sm">Crie templates para agilizar seus comentários</p>
+                </div>
+              ) : (
+                templates.map((template: any) => (
+                  <div
+                    key={template.id}
+                    className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer group"
+                    onClick={() => handleUsarTemplate(template)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-gray-900">{template.titulo}</h4>
+                          {template.categoria && (
+                            <Badge variant="secondary" className="text-xs">
+                              {template.categoria}
+                            </Badge>
+                          )}
+                          {template.publico && (
+                            <Badge variant="outline" className="text-xs border-blue-200 text-blue-600">
+                              Público
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{template.texto}</p>
+                        <p className="text-xs text-gray-400 mt-2">
+                          Usado {template.vezesUsado || 0} vez(es)
+                        </p>
+                      </div>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditandoTemplate(template);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            excluirTemplateMutation.mutate({ id: template.id });
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowTemplates(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Template */}
+      <Dialog open={showAddTemplate} onOpenChange={setShowAddTemplate}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Criar Novo Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Título *</Label>
+              <Input
+                value={novoTemplate.titulo}
+                onChange={(e) => setNovoTemplate({ ...novoTemplate, titulo: e.target.value })}
+                placeholder="Ex: Confirmação de recebimento"
+              />
+            </div>
+            <div>
+              <Label>Texto do Template *</Label>
+              <Textarea
+                value={novoTemplate.texto}
+                onChange={(e) => setNovoTemplate({ ...novoTemplate, texto: e.target.value })}
+                placeholder="Texto que será inserido no comentário..."
+                rows={4}
+              />
+            </div>
+            <div>
+              <Label>Categoria</Label>
+              <Input
+                value={novoTemplate.categoria}
+                onChange={(e) => setNovoTemplate({ ...novoTemplate, categoria: e.target.value })}
+                placeholder="Ex: Manutenção, Financeiro, Geral"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="template-publico"
+                checked={novoTemplate.publico}
+                onChange={(e) => setNovoTemplate({ ...novoTemplate, publico: e.target.checked })}
+                className="rounded border-gray-300"
+              />
+              <Label htmlFor="template-publico" className="text-sm">
+                Compartilhar com toda a equipe
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddTemplate(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCriarTemplate}
+              disabled={criarTemplateMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {criarTemplateMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Criar Template"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Lembretes */}
+      <Dialog open={showLembretes} onOpenChange={setShowLembretes}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlarmClock className="w-5 h-5 text-amber-600" />
+              Lembretes da Timeline
+            </DialogTitle>
+            <DialogDescription>
+              Agende lembretes para acompanhamento desta timeline
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Botão adicionar lembrete */}
+            <Button
+              variant="outline"
+              onClick={() => setShowAddLembrete(true)}
+              className="w-full border-dashed border-2 border-amber-300 text-amber-700 hover:bg-amber-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Agendar Novo Lembrete
+            </Button>
+
+            {/* Lista de lembretes */}
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {lembretes.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <AlarmClock className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhum lembrete agendado</p>
+                  <p className="text-sm">Agende lembretes para não esquecer de acompanhar</p>
+                </div>
+              ) : (
+                lembretes.map((lembrete: any) => (
+                  <div
+                    key={lembrete.id}
+                    className={`border rounded-lg p-4 ${
+                      lembrete.status === "cancelado" ? "bg-gray-100 opacity-60" : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-gray-900">{lembrete.titulo}</h4>
+                          <Badge
+                            variant={lembrete.status === "pendente" ? "default" : "secondary"}
+                            className={`text-xs ${
+                              lembrete.status === "pendente"
+                                ? "bg-amber-100 text-amber-700"
+                                : lembrete.status === "enviado"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {lembrete.status === "pendente" && "Pendente"}
+                            {lembrete.status === "enviado" && "Enviado"}
+                            {lembrete.status === "cancelado" && "Cancelado"}
+                          </Badge>
+                          {lembrete.recorrente && (
+                            <Badge variant="outline" className="text-xs border-blue-200 text-blue-600">
+                              <Repeat className="w-3 h-3 mr-1" />
+                              {lembrete.intervaloRecorrencia}
+                            </Badge>
+                          )}
+                        </div>
+                        {lembrete.descricao && (
+                          <p className="text-sm text-gray-600 mt-1">{lembrete.descricao}</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <CalendarClock className="w-3 h-3" />
+                            {new Date(lembrete.dataLembrete).toLocaleString("pt-BR")}
+                          </span>
+                          {lembrete.notificarEmail && (
+                            <span className="flex items-center gap-1">
+                              <Mail className="w-3 h-3" />
+                              Email
+                            </span>
+                          )}
+                          {lembrete.notificarPush && (
+                            <span className="flex items-center gap-1">
+                              <Bell className="w-3 h-3" />
+                              Push
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {lembrete.status === "pendente" && (
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditandoLembrete(lembrete)}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => cancelarLembreteMutation.mutate({ id: lembrete.id })}
+                            className="text-amber-600 hover:text-amber-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => excluirLembreteMutation.mutate({ id: lembrete.id })}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLembretes(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Lembrete */}
+      <Dialog open={showAddLembrete} onOpenChange={setShowAddLembrete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Agendar Novo Lembrete</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Título *</Label>
+              <Input
+                value={novoLembrete.titulo}
+                onChange={(e) => setNovoLembrete({ ...novoLembrete, titulo: e.target.value })}
+                placeholder="Ex: Verificar andamento da manutenção"
+              />
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Textarea
+                value={novoLembrete.descricao}
+                onChange={(e) => setNovoLembrete({ ...novoLembrete, descricao: e.target.value })}
+                placeholder="Detalhes adicionais do lembrete..."
+                rows={2}
+              />
+            </div>
+            <div>
+              <Label>Data e Hora *</Label>
+              <Input
+                type="datetime-local"
+                value={novoLembrete.dataLembrete}
+                onChange={(e) => setNovoLembrete({ ...novoLembrete, dataLembrete: e.target.value })}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="lembrete-email"
+                  checked={novoLembrete.notificarEmail}
+                  onChange={(e) => setNovoLembrete({ ...novoLembrete, notificarEmail: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="lembrete-email" className="text-sm flex items-center gap-1">
+                  <Mail className="w-4 h-4" />
+                  Email
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="lembrete-push"
+                  checked={novoLembrete.notificarPush}
+                  onChange={(e) => setNovoLembrete({ ...novoLembrete, notificarPush: e.target.checked })}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="lembrete-push" className="text-sm flex items-center gap-1">
+                  <Bell className="w-4 h-4" />
+                  Push
+                </Label>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="lembrete-recorrente"
+                checked={novoLembrete.recorrente}
+                onChange={(e) => setNovoLembrete({ ...novoLembrete, recorrente: e.target.checked })}
+                className="rounded border-gray-300"
+              />
+              <Label htmlFor="lembrete-recorrente" className="text-sm">
+                Lembrete recorrente
+              </Label>
+            </div>
+            {novoLembrete.recorrente && (
+              <div>
+                <Label>Intervalo de Recorrência</Label>
+                <Select
+                  value={novoLembrete.intervaloRecorrencia}
+                  onValueChange={(value) => setNovoLembrete({ ...novoLembrete, intervaloRecorrencia: value as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o intervalo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="diario">Diário</SelectItem>
+                    <SelectItem value="semanal">Semanal</SelectItem>
+                    <SelectItem value="mensal">Mensal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddLembrete(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCriarLembrete}
+              disabled={criarLembreteMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              {criarLembreteMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Agendar Lembrete"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

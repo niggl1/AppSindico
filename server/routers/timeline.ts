@@ -15,6 +15,8 @@ import {
   timelineComentarios,
   timelineComentarioReacoes,
   timelineComentarioHistorico,
+  timelineComentarioTemplates,
+  timelineLembretes,
   users,
   membrosEquipe,
 } from "../../drizzle/schema";
@@ -1242,6 +1244,294 @@ export const timelineRouter = router({
         comentarios: comentariosComReacoes,
         total: comentariosComReacoes.length,
       };
+    }),
+
+  // ==================== TIMELINE - ESTATÍSTICAS ====================
+  
+  // Obter estatísticas da timeline
+  obterEstatisticas: protectedProcedure
+    .input(z.object({ timelineId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      // Total de comentários
+      const comentarios = await db.select()
+        .from(timelineComentarios)
+        .where(and(
+          eq(timelineComentarios.timelineId, input.timelineId),
+          eq(timelineComentarios.excluido, false)
+        ));
+
+      // Agrupar por autor
+      const participacaoPorMembro: Record<string, number> = {};
+      comentarios.forEach((c) => {
+        const autor = c.autorNome || 'Anônimo';
+        participacaoPorMembro[autor] = (participacaoPorMembro[autor] || 0) + 1;
+      });
+
+      // Calcular tempo médio entre comentários
+      let tempoMedioResposta = 0;
+      if (comentarios.length > 1) {
+        const tempos: number[] = [];
+        for (let i = 1; i < comentarios.length; i++) {
+          const diff = new Date(comentarios[i].createdAt).getTime() - new Date(comentarios[i-1].createdAt).getTime();
+          tempos.push(diff);
+        }
+        tempoMedioResposta = tempos.reduce((a, b) => a + b, 0) / tempos.length;
+      }
+
+      // Contar reações
+      const reacoes = await db.select()
+        .from(timelineComentarioReacoes)
+        .where(sql`comentarioId IN (SELECT id FROM timeline_comentarios WHERE timelineId = ${input.timelineId})`);
+
+      // Agrupar reações por tipo
+      const reacoesPorTipo: Record<string, number> = {};
+      reacoes.forEach((r) => {
+        reacoesPorTipo[r.tipo] = (reacoesPorTipo[r.tipo] || 0) + 1;
+      });
+
+      // Comentários por dia (últimos 7 dias)
+      const hoje = new Date();
+      const seteDiasAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const comentariosPorDia: Record<string, number> = {};
+      
+      for (let i = 0; i < 7; i++) {
+        const data = new Date(hoje.getTime() - i * 24 * 60 * 60 * 1000);
+        const dataStr = data.toISOString().split('T')[0];
+        comentariosPorDia[dataStr] = 0;
+      }
+      
+      comentarios.forEach((c) => {
+        const dataStr = new Date(c.createdAt).toISOString().split('T')[0];
+        if (comentariosPorDia[dataStr] !== undefined) {
+          comentariosPorDia[dataStr]++;
+        }
+      });
+
+      return {
+        totalComentarios: comentarios.length,
+        totalReacoes: reacoes.length,
+        participacaoPorMembro,
+        reacoesPorTipo,
+        tempoMedioResposta, // em milissegundos
+        comentariosPorDia,
+        ultimoComentario: comentarios[comentarios.length - 1]?.createdAt || null,
+      };
+    }),
+
+  // ==================== TIMELINE - TEMPLATES DE COMENTÁRIOS ====================
+  
+  // Listar templates de comentários
+  listarTemplates: protectedProcedure
+    .input(z.object({ condominioId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      return db.select()
+        .from(timelineComentarioTemplates)
+        .where(and(
+          or(
+            eq(timelineComentarioTemplates.condominioId, input.condominioId),
+            eq(timelineComentarioTemplates.publico, true)
+          ),
+          eq(timelineComentarioTemplates.ativo, true)
+        ))
+        .orderBy(desc(timelineComentarioTemplates.vezesUsado));
+    }),
+
+  // Criar template de comentário
+  criarTemplate: protectedProcedure
+    .input(z.object({
+      condominioId: z.number(),
+      titulo: z.string().min(2),
+      texto: z.string().min(5),
+      categoria: z.string().optional(),
+      icone: z.string().optional(),
+      cor: z.string().optional(),
+      publico: z.boolean().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const result = await db.insert(timelineComentarioTemplates).values({
+        ...input,
+        usuarioId: ctx.user?.id,
+      });
+
+      return { id: result[0].insertId };
+    }),
+
+  // Usar template (incrementar contador)
+  usarTemplate: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.update(timelineComentarioTemplates)
+        .set({
+          vezesUsado: sql`vezesUsado + 1`,
+          ultimoUso: new Date(),
+        })
+        .where(eq(timelineComentarioTemplates.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Editar template
+  editarTemplate: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      titulo: z.string().min(2).optional(),
+      texto: z.string().min(5).optional(),
+      categoria: z.string().optional(),
+      icone: z.string().optional(),
+      cor: z.string().optional(),
+      publico: z.boolean().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { id, ...data } = input;
+      await db.update(timelineComentarioTemplates)
+        .set(data)
+        .where(eq(timelineComentarioTemplates.id, id));
+
+      return { success: true };
+    }),
+
+  // Excluir template
+  excluirTemplate: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.update(timelineComentarioTemplates)
+        .set({ ativo: false })
+        .where(eq(timelineComentarioTemplates.id, input.id));
+
+      return { success: true };
+    }),
+
+  // ==================== TIMELINE - LEMBRETES ====================
+  
+  // Listar lembretes
+  listarLembretes: protectedProcedure
+    .input(z.object({
+      timelineId: z.number().optional(),
+      condominioId: z.number().optional(),
+      status: z.enum(["pendente", "enviado", "cancelado"]).optional(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      const conditions = [eq(timelineLembretes.usuarioId, ctx.user?.id || 0)];
+      
+      if (input.timelineId) {
+        conditions.push(eq(timelineLembretes.timelineId, input.timelineId));
+      }
+      if (input.condominioId) {
+        conditions.push(eq(timelineLembretes.condominioId, input.condominioId));
+      }
+      if (input.status) {
+        conditions.push(eq(timelineLembretes.status, input.status));
+      }
+
+      return db.select()
+        .from(timelineLembretes)
+        .where(and(...conditions))
+        .orderBy(timelineLembretes.dataLembrete);
+    }),
+
+  // Criar lembrete
+  criarLembrete: protectedProcedure
+    .input(z.object({
+      timelineId: z.number(),
+      condominioId: z.number().optional(),
+      titulo: z.string().min(2),
+      descricao: z.string().optional(),
+      dataLembrete: z.string(), // ISO date string
+      notificarEmail: z.boolean().optional(),
+      notificarPush: z.boolean().optional(),
+      antecedencia: z.number().optional(),
+      recorrente: z.boolean().optional(),
+      intervaloRecorrencia: z.enum(["diario", "semanal", "mensal"]).optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const result = await db.insert(timelineLembretes).values({
+        ...input,
+        dataLembrete: new Date(input.dataLembrete),
+        usuarioId: ctx.user?.id,
+      });
+
+      return { id: result[0].insertId };
+    }),
+
+  // Editar lembrete
+  editarLembrete: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      titulo: z.string().min(2).optional(),
+      descricao: z.string().optional(),
+      dataLembrete: z.string().optional(),
+      notificarEmail: z.boolean().optional(),
+      notificarPush: z.boolean().optional(),
+      antecedencia: z.number().optional(),
+      recorrente: z.boolean().optional(),
+      intervaloRecorrencia: z.enum(["diario", "semanal", "mensal"]).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { id, dataLembrete, ...data } = input;
+      const updateData: any = { ...data };
+      if (dataLembrete) {
+        updateData.dataLembrete = new Date(dataLembrete);
+      }
+
+      await db.update(timelineLembretes)
+        .set(updateData)
+        .where(eq(timelineLembretes.id, id));
+
+      return { success: true };
+    }),
+
+  // Cancelar lembrete
+  cancelarLembrete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.update(timelineLembretes)
+        .set({ status: "cancelado" })
+        .where(eq(timelineLembretes.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Excluir lembrete
+  excluirLembrete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.delete(timelineLembretes)
+        .where(eq(timelineLembretes.id, input.id));
+
+      return { success: true };
     }),
 
   // ==================== TIMELINE - CONFIGURAÇÕES DE NOTIFICAÇÕES ====================

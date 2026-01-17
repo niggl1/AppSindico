@@ -2291,3 +2291,58 @@ export const configuracoesNotificacoes = mysqlTable("configuracoes_notificacoes"
 
 export type ConfiguracaoNotificacao = typeof configuracoesNotificacoes.$inferSelect;
 export type InsertConfiguracaoNotificacao = typeof configuracoesNotificacoes.$inferInsert;
+
+
+// ==================== TEMPLATES DE COMENTÁRIOS ====================
+export const timelineComentarioTemplates = mysqlTable("timeline_comentario_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").references(() => condominios.id),
+  usuarioId: int("usuarioId").references(() => users.id),
+  // Dados do template
+  titulo: varchar("titulo", { length: 100 }).notNull(),
+  texto: text("texto").notNull(),
+  categoria: varchar("categoria", { length: 50 }),
+  icone: varchar("icone", { length: 50 }),
+  cor: varchar("cor", { length: 20 }),
+  // Configurações
+  publico: boolean("publico").default(false), // Se pode ser usado por todos
+  ativo: boolean("ativo").default(true),
+  ordem: int("ordem").default(0),
+  // Estatísticas de uso
+  vezesUsado: int("vezesUsado").default(0),
+  ultimoUso: timestamp("ultimoUso"),
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TimelineComentarioTemplate = typeof timelineComentarioTemplates.$inferSelect;
+export type InsertTimelineComentarioTemplate = typeof timelineComentarioTemplates.$inferInsert;
+
+// ==================== LEMBRETES DE TIMELINE ====================
+export const timelineLembretes = mysqlTable("timeline_lembretes", {
+  id: int("id").autoincrement().primaryKey(),
+  timelineId: int("timelineId").notNull(),
+  usuarioId: int("usuarioId").references(() => users.id),
+  condominioId: int("condominioId").references(() => condominios.id),
+  // Dados do lembrete
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  dataLembrete: timestamp("dataLembrete").notNull(),
+  // Configurações de notificação
+  notificarEmail: boolean("notificarEmail").default(true),
+  notificarPush: boolean("notificarPush").default(true),
+  antecedencia: int("antecedencia").default(0), // Minutos antes para notificar
+  // Status
+  status: mysqlEnum("status", ["pendente", "enviado", "cancelado"]).default("pendente"),
+  dataEnvio: timestamp("dataEnvio"),
+  // Recorrência
+  recorrente: boolean("recorrente").default(false),
+  intervaloRecorrencia: mysqlEnum("intervaloRecorrencia", ["diario", "semanal", "mensal"]),
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TimelineLembrete = typeof timelineLembretes.$inferSelect;
+export type InsertTimelineLembrete = typeof timelineLembretes.$inferInsert;

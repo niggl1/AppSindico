@@ -489,3 +489,10 @@
 - [x] Exportar timeline para PDF com todos os comentários
 - [x] Notificações push no navegador para novos comentários
 - [x] Busca global por texto nos comentários da timeline
+
+
+## Funcionalidades Avançadas Timeline Completa (17/01/2026)
+
+- [x] Estatísticas da timeline (dashboard com métricas)
+- [x] Templates de comentários (respostas pré-definidas)
+- [x] Agendamento de lembretes para follow-up
