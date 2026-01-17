@@ -432,3 +432,6 @@
 
 ## Correção Timeline (17/01/2026)
 - [x] Corrigir botão voltar na Timeline para ir para /dashboard ao invés de /modulo/manutencoes
+
+## Modificar Botão VISÃO GERAL (17/01/2026)
+- [x] Remover link, palavra "CRIAR" e ícone de + do botão "VISÃO GERAL / CRIAR"

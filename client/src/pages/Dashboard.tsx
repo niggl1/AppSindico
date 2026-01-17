@@ -143,11 +143,11 @@ import HistoricoAtividadesPage from "./HistoricoAtividades";
 const menuSections = [
   {
     id: "visao-geral",
-    label: "VISÃO GERAL / CRIAR",
+    label: "VISÃO GERAL",
     icon: LayoutDashboard,
     path: "overview",
     items: [],
-    isSpecial: true // Marcação especial para renderização diferenciada
+    isSpecial: false // Removido o botão especial de criar
   },
   {
     id: "meus-projetos",
