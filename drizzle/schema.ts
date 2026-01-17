@@ -2441,3 +2441,64 @@ export const revistaAssinantes = mysqlTable("revista_assinantes", {
 
 export type RevistaAssinante = typeof revistaAssinantes.$inferSelect;
 export type InsertRevistaAssinante = typeof revistaAssinantes.$inferInsert;
+
+
+// ==================== CONFIGURAÇÃO DE MODERAÇÃO DE COMENTÁRIOS ====================
+export const revistaConfigModeracaoComentarios = mysqlTable("revista_config_moderacao_comentarios", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").references(() => condominios.id).notNull().unique(),
+  // Configurações de moderação
+  modoAutomatico: boolean("modoAutomatico").default(false), // Se true, aprova todos automaticamente
+  notificarNovoComentario: boolean("notificarNovoComentario").default(true),
+  permitirComentariosAnonimos: boolean("permitirComentariosAnonimos").default(false),
+  // Filtros automáticos
+  filtrarPalavrasOfensivas: boolean("filtrarPalavrasOfensivas").default(true),
+  palavrasBloqueadas: text("palavrasBloqueadas"), // JSON array de palavras
+  // Limites
+  maxComentariosPorUsuario: int("maxComentariosPorUsuario").default(10),
+  maxCaracteres: int("maxCaracteres").default(1000),
+  // Metadados
+  atualizadoPor: int("atualizadoPor").references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RevistaConfigModeracao = typeof revistaConfigModeracaoComentarios.$inferSelect;
+export type InsertRevistaConfigModeracao = typeof revistaConfigModeracaoComentarios.$inferInsert;
+
+// ==================== TEMPLATES DE REVISTA ====================
+export const revistaTemplates = mysqlTable("revista_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  condominioId: int("condominioId").references(() => condominios.id), // null = template global
+  // Dados do template
+  nome: varchar("nome", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  tipo: mysqlEnum("tipo", ["mensal", "trimestral", "especial", "boas_vindas", "personalizado"]).default("personalizado"),
+  // Configurações do template
+  secoesIncluidas: json("secoesIncluidas").$type<string[]>(), // Array de IDs das seções
+  ordemSecoes: json("ordemSecoes").$type<string[]>(), // Ordem das seções
+  configCapa: json("configCapa").$type<{
+    titulo?: string;
+    subtitulo?: string;
+    corFundo?: string;
+    imagemCapaUrl?: string;
+  }>(),
+  configEstilo: json("configEstilo").$type<{
+    estiloPdf?: string;
+    corPrimaria?: string;
+    corSecundaria?: string;
+    fonte?: string;
+  }>(),
+  // Preview
+  previewImageUrl: varchar("previewImageUrl", { length: 500 }),
+  // Status
+  ativo: boolean("ativo").default(true),
+  padrao: boolean("padrao").default(false), // Template padrão do sistema
+  // Metadados
+  criadoPor: int("criadoPor").references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RevistaTemplate = typeof revistaTemplates.$inferSelect;
+export type InsertRevistaTemplate = typeof revistaTemplates.$inferInsert;

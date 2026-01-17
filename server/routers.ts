@@ -113,7 +113,9 @@ import {
   revistaVisualizacoes,
   revistaComentarios,
   revistaAgendamentos,
-  revistaAssinantes
+  revistaAssinantes,
+  revistaConfigModeracaoComentarios,
+  revistaTemplates
 } from "../drizzle/schema";
 import { tarefaFacilRouter } from "./routers/tarefaFacil";
 import { timelineRouter } from "./routers/timeline";
@@ -1391,6 +1393,281 @@ export const appRouter = router({
           notificados: assinantes.length,
           emailsEnviados: emailsParaEnviar.length,
         };
+      }),
+
+    // ==================== CONFIGURAÇÃO DE MODERAÇÃO ====================
+    obterConfigModeracao: protectedProcedure
+      .input(z.object({ condominioId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        const [config] = await db.select().from(revistaConfigModeracaoComentarios)
+          .where(eq(revistaConfigModeracaoComentarios.condominioId, input.condominioId));
+        return config || null;
+      }),
+
+    salvarConfigModeracao: protectedProcedure
+      .input(z.object({
+        condominioId: z.number(),
+        modoAutomatico: z.boolean().optional(),
+        notificarNovoComentario: z.boolean().optional(),
+        permitirComentariosAnonimos: z.boolean().optional(),
+        filtrarPalavrasOfensivas: z.boolean().optional(),
+        palavrasBloqueadas: z.string().optional(),
+        maxComentariosPorUsuario: z.number().optional(),
+        maxCaracteres: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const [existing] = await db.select().from(revistaConfigModeracaoComentarios)
+          .where(eq(revistaConfigModeracaoComentarios.condominioId, input.condominioId));
+        
+        if (existing) {
+          await db.update(revistaConfigModeracaoComentarios)
+            .set({ ...input, atualizadoPor: ctx.user?.id })
+            .where(eq(revistaConfigModeracaoComentarios.condominioId, input.condominioId));
+        } else {
+          await db.insert(revistaConfigModeracaoComentarios).values({
+            ...input,
+            atualizadoPor: ctx.user?.id,
+          });
+        }
+        return { success: true };
+      }),
+
+    // ==================== MODERAÇÃO DE COMENTÁRIOS ====================
+    listarComentariosPendentes: protectedProcedure
+      .input(z.object({ 
+        condominioId: z.number(),
+        status: z.enum(["pendente", "aprovado", "rejeitado"]).optional(),
+        secao: z.string().optional(),
+        pagina: z.number().optional(),
+        limite: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return { comentarios: [], total: 0 };
+        
+        const revistasDoCondominio = await db.select({ id: revistas.id })
+          .from(revistas)
+          .where(eq(revistas.condominioId, input.condominioId));
+        
+        if (revistasDoCondominio.length === 0) return { comentarios: [], total: 0 };
+        
+        const revistaIds = revistasDoCondominio.map(r => r.id);
+        const pagina = input.pagina || 1;
+        const limite = input.limite || 20;
+        const offset = (pagina - 1) * limite;
+        
+        let conditions = [inArray(revistaComentarios.revistaId, revistaIds)];
+        if (input.status) {
+          conditions.push(eq(revistaComentarios.status, input.status));
+        }
+        if (input.secao) {
+          conditions.push(eq(revistaComentarios.secaoId, input.secao));
+        }
+        
+        const comentarios = await db.select({
+          comentario: revistaComentarios,
+          usuario: users,
+          revista: revistas,
+        })
+          .from(revistaComentarios)
+          .leftJoin(users, eq(revistaComentarios.usuarioId, users.id))
+          .leftJoin(revistas, eq(revistaComentarios.revistaId, revistas.id))
+          .where(and(...conditions))
+          .orderBy(desc(revistaComentarios.createdAt))
+          .limit(limite)
+          .offset(offset);
+        
+        const [{ count }] = await db.select({ count: sql<number>`count(*)` })
+          .from(revistaComentarios)
+          .where(and(...conditions));
+        
+        return { comentarios, total: Number(count) };
+      }),
+
+    aprovarComentario: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.update(revistaComentarios)
+          .set({ status: "aprovado", moderadoPor: ctx.user?.id, dataModeracao: new Date() })
+          .where(eq(revistaComentarios.id, input.id));
+        return { success: true };
+      }),
+
+    rejeitarComentario: protectedProcedure
+      .input(z.object({ id: z.number(), motivo: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        await db.update(revistaComentarios)
+          .set({ status: "rejeitado", moderadoPor: ctx.user?.id, dataModeracao: new Date() })
+          .where(eq(revistaComentarios.id, input.id));
+        return { success: true };
+      }),
+
+    aprovarTodosPendentes: protectedProcedure
+      .input(z.object({ condominioId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const revistasDoCondominio = await db.select({ id: revistas.id })
+          .from(revistas)
+          .where(eq(revistas.condominioId, input.condominioId));
+        
+        if (revistasDoCondominio.length === 0) return { aprovados: 0 };
+        
+        const revistaIds = revistasDoCondominio.map(r => r.id);
+        
+        const result = await db.update(revistaComentarios)
+          .set({ status: "aprovado", moderadoPor: ctx.user?.id, dataModeracao: new Date() })
+          .where(and(
+            inArray(revistaComentarios.revistaId, revistaIds),
+            eq(revistaComentarios.status, "pendente")
+          ));
+        
+        return { aprovados: result[0].affectedRows || 0 };
+      }),
+
+    // ==================== TEMPLATES DE REVISTA ====================
+    listarTemplates: protectedProcedure
+      .input(z.object({ condominioId: z.number().optional() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        // Buscar templates globais (padrao=true) e do condomínio
+        const conditions = input.condominioId 
+          ? or(
+              eq(revistaTemplates.padrao, true),
+              eq(revistaTemplates.condominioId, input.condominioId)
+            )
+          : eq(revistaTemplates.padrao, true);
+        
+        return db.select().from(revistaTemplates)
+          .where(and(conditions, eq(revistaTemplates.ativo, true)))
+          .orderBy(desc(revistaTemplates.padrao), asc(revistaTemplates.nome));
+      }),
+
+    obterTemplate: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        const [template] = await db.select().from(revistaTemplates)
+          .where(eq(revistaTemplates.id, input.id));
+        return template || null;
+      }),
+
+    criarTemplate: protectedProcedure
+      .input(z.object({
+        condominioId: z.number().optional(),
+        nome: z.string().min(1),
+        descricao: z.string().optional(),
+        tipo: z.enum(["mensal", "trimestral", "especial", "boas_vindas", "personalizado"]).optional(),
+        secoesIncluidas: z.array(z.string()).optional(),
+        ordemSecoes: z.array(z.string()).optional(),
+        configCapa: z.object({
+          titulo: z.string().optional(),
+          subtitulo: z.string().optional(),
+          corFundo: z.string().optional(),
+          imagemCapaUrl: z.string().optional(),
+        }).optional(),
+        configEstilo: z.object({
+          estiloPdf: z.string().optional(),
+          corPrimaria: z.string().optional(),
+          corSecundaria: z.string().optional(),
+          fonte: z.string().optional(),
+        }).optional(),
+        previewImageUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const [result] = await db.insert(revistaTemplates).values({
+          ...input,
+          criadoPor: ctx.user?.id,
+        });
+        return { id: Number(result.insertId) };
+      }),
+
+    atualizarTemplate: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        nome: z.string().optional(),
+        descricao: z.string().optional(),
+        tipo: z.enum(["mensal", "trimestral", "especial", "boas_vindas", "personalizado"]).optional(),
+        secoesIncluidas: z.array(z.string()).optional(),
+        ordemSecoes: z.array(z.string()).optional(),
+        configCapa: z.object({
+          titulo: z.string().optional(),
+          subtitulo: z.string().optional(),
+          corFundo: z.string().optional(),
+          imagemCapaUrl: z.string().optional(),
+        }).optional(),
+        configEstilo: z.object({
+          estiloPdf: z.string().optional(),
+          corPrimaria: z.string().optional(),
+          corSecundaria: z.string().optional(),
+          fonte: z.string().optional(),
+        }).optional(),
+        previewImageUrl: z.string().optional(),
+        ativo: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const { id, ...data } = input;
+        await db.update(revistaTemplates).set(data).where(eq(revistaTemplates.id, id));
+        return { success: true };
+      }),
+
+    excluirTemplate: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        // Não permite excluir templates padrão
+        const [template] = await db.select().from(revistaTemplates)
+          .where(eq(revistaTemplates.id, input.id));
+        if (template?.padrao) throw new Error("Não é possível excluir templates padrão");
+        await db.delete(revistaTemplates).where(eq(revistaTemplates.id, input.id));
+        return { success: true };
+      }),
+
+    aplicarTemplate: protectedProcedure
+      .input(z.object({ templateId: z.number(), revistaId: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        const [template] = await db.select().from(revistaTemplates)
+          .where(eq(revistaTemplates.id, input.templateId));
+        if (!template) throw new Error("Template não encontrado");
+        
+        // Aplicar configurações do template na revista
+        const updateData: any = {};
+        if (template.configCapa) {
+          const capa = template.configCapa as any;
+          if (capa.titulo) updateData.titulo = capa.titulo;
+          if (capa.imagemCapaUrl) updateData.imagemCapaUrl = capa.imagemCapaUrl;
+        }
+        if (template.configEstilo) {
+          const estilo = template.configEstilo as any;
+          if (estilo.estiloPdf) updateData.estiloPdf = estilo.estiloPdf;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          await db.update(revistas).set(updateData).where(eq(revistas.id, input.revistaId));
+        }
+        
+        return { success: true, secoesIncluidas: template.secoesIncluidas, ordemSecoes: template.ordemSecoes };
       }),
   }),
 

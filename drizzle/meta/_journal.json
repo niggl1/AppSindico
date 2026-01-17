@@ -57,6 +57,13 @@
       "when": 1768657918382,
       "tag": "0007_even_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1768658787979,
+      "tag": "0008_lonely_lady_bullseye",
+      "breakpoints": true
     }
   ]
 }

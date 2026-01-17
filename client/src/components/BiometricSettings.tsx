@@ -24,7 +24,7 @@ import {
   CheckCircle,
   Key
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import {
   isBiometricSupported,
   isPlatformAuthenticatorAvailable,
@@ -37,11 +37,11 @@ import {
   setPIN,
   BiometricConfig,
 } from '@/lib/biometric';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/_core/hooks/useAuth';
 
 export function BiometricSettings() {
   const { user } = useAuth();
-  const { toast } = useToast();
+  // toast importado de sonner
   
   const [isSupported, setIsSupported] = useState(false);
   const [isPlatformAvailable, setIsPlatformAvailable] = useState(false);
@@ -107,25 +107,20 @@ export function BiometricSettings() {
       );
       
       if (result.success) {
-        toast({
-          title: 'Biometria registrada!',
+        toast.success('Biometria registrada!', {
           description: 'Seu dispositivo foi configurado para autenticação biométrica.',
         });
         setConfig(getBiometricConfig());
         setShowRegisterModal(false);
         setDeviceName('');
       } else {
-        toast({
-          title: 'Erro ao registrar',
+        toast.error('Erro ao registrar', {
           description: result.error,
-          variant: 'destructive',
         });
       }
     } catch (error) {
-      toast({
-        title: 'Erro',
+      toast.error('Erro', {
         description: 'Ocorreu um erro ao registrar a biometria.',
-        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -141,8 +136,7 @@ export function BiometricSettings() {
     setShowRemoveModal(false);
     setCredentialToRemove(null);
     
-    toast({
-      title: 'Dispositivo removido',
+    toast.success('Dispositivo removido', {
       description: 'O dispositivo foi removido da autenticação biométrica.',
     });
   };
@@ -152,8 +146,7 @@ export function BiometricSettings() {
     disableBiometric();
     setConfig(getBiometricConfig());
     
-    toast({
-      title: 'Biometria desabilitada',
+    toast.success('Biometria desabilitada', {
       description: 'A autenticação biométrica foi desabilitada.',
     });
   };
@@ -161,19 +154,15 @@ export function BiometricSettings() {
   // Configurar PIN
   const handleSetPIN = async () => {
     if (pin.length < 4) {
-      toast({
-        title: 'PIN muito curto',
+      toast.error('PIN muito curto', {
         description: 'O PIN deve ter pelo menos 4 dígitos.',
-        variant: 'destructive',
       });
       return;
     }
     
     if (pin !== confirmPin) {
-      toast({
-        title: 'PINs não conferem',
+      toast.error('PINs não conferem', {
         description: 'Os PINs digitados não são iguais.',
-        variant: 'destructive',
       });
       return;
     }
@@ -184,8 +173,7 @@ export function BiometricSettings() {
     setPinValue('');
     setConfirmPin('');
     
-    toast({
-      title: 'PIN configurado!',
+    toast.success('PIN configurado!', {
       description: 'Seu PIN foi configurado como alternativa à biometria.',
     });
   };

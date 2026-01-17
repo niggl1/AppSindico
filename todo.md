@@ -663,3 +663,41 @@
 - [x] Programar data/hora para publicação automática
 - [x] Status de rascunho vs publicado
 - [x] Histórico de publicações
+
+
+## Moderação de Comentários e Templates de Revista (17/01/2026)
+
+### Painel de Moderação de Comentários
+- [ ] Criar tabela de configurações de moderação
+- [ ] Página de moderação com lista de comentários pendentes
+- [ ] Configuração de modo automático (aprovar todos automaticamente)
+- [ ] Botão para excluir comentário
+- [ ] Botão para aprovar/rejeitar comentário
+- [ ] Filtros por status, seção e data
+
+### Templates de Revista
+- [ ] Criar tabela de templates de revista
+- [ ] Templates pré-definidos (Mensal, Trimestral, Especial, Boas-vindas)
+- [ ] Interface para selecionar template ao criar revista
+- [ ] Permitir criar templates personalizados
+- [ ] Preview do template antes de aplicar
+
+
+## Moderação e Templates da Revista (17/01/2026)
+
+### Painel de Moderação de Comentários
+- [x] Página de moderação de comentários da revista
+- [x] Configuração de modo automático de aprovação
+- [x] Botão para excluir comentários
+- [x] Filtros por status, data e seção
+- [x] Ações em lote (aprovar/rejeitar todos pendentes)
+- [x] Histórico de moderação
+
+### Templates de Revista
+- [x] Templates pré-definidos (mensal, trimestral, especial, boas-vindas)
+- [x] Criar templates personalizados
+- [x] Configurações de estilo (cores, fontes)
+- [x] Configurações de capa padrão
+- [x] Selecionar seções incluídas
+- [x] Preview de templates
+- [x] Usar template ao criar nova revista
