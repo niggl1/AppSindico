@@ -2160,3 +2160,49 @@ export const timelineCompartilhamentos = mysqlTable("timeline_compartilhamentos"
 
 export type TimelineCompartilhamento = typeof timelineCompartilhamentos.$inferSelect;
 export type InsertTimelineCompartilhamento = typeof timelineCompartilhamentos.$inferInsert;
+
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - COMENTÁRIOS ====================
+
+export const timelineComentarios = mysqlTable("timeline_comentarios", {
+  id: int("id").autoincrement().primaryKey(),
+  timelineId: int("timelineId").notNull(),
+  // Quem comentou (pode ser membro da equipe ou usuário do sistema)
+  membroEquipeId: int("membroEquipeId"),
+  usuarioId: int("usuarioId").references(() => users.id),
+  autorNome: varchar("autorNome", { length: 255 }).notNull(),
+  autorEmail: varchar("autorEmail", { length: 320 }),
+  autorAvatar: text("autorAvatar"),
+  // Conteúdo do comentário
+  texto: text("texto").notNull(),
+  // Imagens anexadas ao comentário
+  imagensUrls: json("imagensUrls").$type<string[]>(),
+  // Comentário pai (para respostas/threads)
+  comentarioPaiId: int("comentarioPaiId"),
+  // Status do comentário
+  editado: boolean("editado").default(false),
+  dataEdicao: timestamp("dataEdicao"),
+  excluido: boolean("excluido").default(false),
+  dataExclusao: timestamp("dataExclusao"),
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TimelineComentario = typeof timelineComentarios.$inferSelect;
+export type InsertTimelineComentario = typeof timelineComentarios.$inferInsert;
+
+// ==================== TIMELINE/LIVRO DE MANUTENÇÃO - REAÇÕES A COMENTÁRIOS ====================
+
+export const timelineComentarioReacoes = mysqlTable("timeline_comentario_reacoes", {
+  id: int("id").autoincrement().primaryKey(),
+  comentarioId: int("comentarioId").notNull(),
+  usuarioId: int("usuarioId").references(() => users.id),
+  membroEquipeId: int("membroEquipeId"),
+  autorNome: varchar("autorNome", { length: 255 }).notNull(),
+  tipo: mysqlEnum("tipo", ["like", "love", "check", "question", "alert"]).default("like"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineComentarioReacao = typeof timelineComentarioReacoes.$inferSelect;
+export type InsertTimelineComentarioReacao = typeof timelineComentarioReacoes.$inferInsert;

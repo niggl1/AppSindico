@@ -51,6 +51,7 @@ import TarefasFacilPage from "./pages/TarefasFacilPage";
 import { MembrosEquipePage } from "./pages/MembrosEquipePage";
 import { PortalManutencoes } from "./modules/operacional";
 import TimelinePage from "./pages/TimelinePage";
+import TimelineCompletaPage from "./pages/TimelineCompletaPage";
 import ConstrutorApp from "./pages/ConstrutorApp";
 import LivroManutencaoPage from "./pages/LivroManutencaoPage";
 import LivroManutencaoHistorico from "./pages/LivroManutencaoHistorico";
@@ -123,7 +124,8 @@ function Router() {
       <Route path="/dashboard/tarefas-facil" component={TarefasFacilPage} />
       <Route path="/dashboard/membros-equipe">{() => <MembrosEquipePage condominioId={1} />}</Route>
       <Route path="/modulo/manutencoes" component={PortalManutencoes} />
-      <Route path="/dashboard/timeline" component={TimelinePage} />
+      <Route path="/dashboard/timeline">{() => <TimelinePage condominioId={1} />}</Route>
+      <Route path="/dashboard/timeline-completa">{() => <TimelineCompletaPage condominioId={1} />}</Route>
       <Route path="/dashboard/livro-manutencao">{() => <LivroManutencaoPage condominioId={1} />}</Route>
       <Route path="/dashboard/livro-manutencao-historico">{() => <LivroManutencaoHistorico condominioId={1} />}</Route>
       <Route path="/dashboard/livro-manutencao-dashboard">{() => <LivroManutencaoDashboard condominioId={1} />}</Route>

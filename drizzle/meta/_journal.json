@@ -15,6 +15,13 @@
       "when": 1768605571655,
       "tag": "0001_medical_sleeper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1768650722127,
+      "tag": "0002_pretty_marten_broadcloak",
+      "breakpoints": true
     }
   ]
 }

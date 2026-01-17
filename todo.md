@@ -451,3 +451,19 @@
 ## Correção de Erros TypeScript (17/01/2026)
 - [x] Corrigir erro no TimelineVisualizarPage.tsx - Property 'timeline' does not exist
 - [x] Testar sistema em busca de mais erros
+
+
+## Timeline Completa com Comentários (17/01/2026)
+
+- [x] Criar tabela de comentários de timeline no banco de dados
+- [x] Criar tabela de reações de comentários
+- [x] Implementar procedures de comentários no router (listar, criar, editar, excluir)
+- [x] Implementar procedures de reações (adicionar, remover)
+- [x] Criar página TimelineCompletaPage com sistema de comentários
+- [x] Adicionar abas: Dados, Comentários, Histórico
+- [x] Sistema de comentários com avatar, nome, data/hora
+- [x] Reações nos comentários (like, love, check, question, alert)
+- [x] Botão "Salvar e Continuar Depois" funcional
+- [x] Botão "Compartilhar com Equipe" funcional
+- [x] Adicionar rota /dashboard/timeline-completa
+- [x] Adicionar item "Timeline Completa" no menu do Dashboard

@@ -12,7 +12,10 @@ import {
   timelineStatus,
   timelinePrioridades,
   timelineTitulos,
+  timelineComentarios,
+  timelineComentarioReacoes,
   users,
+  membrosEquipe,
 } from "../../drizzle/schema";
 import { nanoid } from "nanoid";
 import { sendEmail } from "../_core/email";
@@ -705,6 +708,217 @@ export const timelineRouter = router({
         enviados: all.filter((t: typeof all[0]) => t.estado === "enviado").length,
         registados: all.filter((t: typeof all[0]) => t.estado === "registado").length,
       };
+    }),
+
+  // ==================== TIMELINE - COMENTÁRIOS ====================
+  
+  // Listar comentários de uma timeline
+  listarComentarios: protectedProcedure
+    .input(z.object({ 
+      timelineId: z.number(),
+      limite: z.number().default(50),
+      offset: z.number().default(0),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { comentarios: [], total: 0 };
+
+      const comentarios = await db.select()
+        .from(timelineComentarios)
+        .where(and(
+          eq(timelineComentarios.timelineId, input.timelineId),
+          eq(timelineComentarios.excluido, false)
+        ))
+        .orderBy(desc(timelineComentarios.createdAt))
+        .limit(input.limite)
+        .offset(input.offset);
+
+      // Contar total
+      const [countResult] = await db.select({ count: sql<number>`COUNT(*)` })
+        .from(timelineComentarios)
+        .where(and(
+          eq(timelineComentarios.timelineId, input.timelineId),
+          eq(timelineComentarios.excluido, false)
+        ));
+
+      // Buscar reações para cada comentário
+      const comentariosComReacoes = await Promise.all(
+        comentarios.map(async (comentario) => {
+          const reacoes = await db.select()
+            .from(timelineComentarioReacoes)
+            .where(eq(timelineComentarioReacoes.comentarioId, comentario.id));
+          return { ...comentario, reacoes };
+        })
+      );
+
+      return { 
+        comentarios: comentariosComReacoes, 
+        total: countResult?.count || 0 
+      };
+    }),
+
+  // Criar comentário
+  criarComentario: protectedProcedure
+    .input(z.object({
+      timelineId: z.number(),
+      texto: z.string().min(1),
+      imagensUrls: z.array(z.string()).optional(),
+      comentarioPaiId: z.number().optional(),
+      membroEquipeId: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const result = await db.insert(timelineComentarios).values({
+        timelineId: input.timelineId,
+        texto: input.texto,
+        imagensUrls: input.imagensUrls || [],
+        comentarioPaiId: input.comentarioPaiId,
+        membroEquipeId: input.membroEquipeId,
+        usuarioId: ctx.user?.id,
+        autorNome: ctx.user?.name || "Usuário",
+        autorEmail: ctx.user?.email,
+        autorAvatar: ctx.user?.avatarUrl,
+      });
+
+      // Registrar evento
+      await db.insert(timelineEventos).values({
+        timelineId: input.timelineId,
+        tipo: "comentario",
+        descricao: `Comentário adicionado por ${ctx.user?.name || "Usuário"}`,
+        usuarioId: ctx.user?.id,
+        usuarioNome: ctx.user?.name || "Sistema",
+      });
+
+      return { id: result[0].insertId };
+    }),
+
+  // Editar comentário
+  editarComentario: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      texto: z.string().min(1),
+      imagensUrls: z.array(z.string()).optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verificar se o comentário pertence ao usuário
+      const [comentario] = await db.select()
+        .from(timelineComentarios)
+        .where(eq(timelineComentarios.id, input.id));
+
+      if (!comentario) throw new Error("Comentário não encontrado");
+      if (comentario.usuarioId !== ctx.user?.id) {
+        throw new Error("Você não pode editar este comentário");
+      }
+
+      await db.update(timelineComentarios)
+        .set({
+          texto: input.texto,
+          imagensUrls: input.imagensUrls,
+          editado: true,
+          dataEdicao: new Date(),
+        })
+        .where(eq(timelineComentarios.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Excluir comentário (soft delete)
+  excluirComentario: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verificar se o comentário pertence ao usuário ou se é admin
+      const [comentario] = await db.select()
+        .from(timelineComentarios)
+        .where(eq(timelineComentarios.id, input.id));
+
+      if (!comentario) throw new Error("Comentário não encontrado");
+      if (comentario.usuarioId !== ctx.user?.id && ctx.user?.role !== "admin" && ctx.user?.role !== "sindico") {
+        throw new Error("Você não pode excluir este comentário");
+      }
+
+      await db.update(timelineComentarios)
+        .set({
+          excluido: true,
+          dataExclusao: new Date(),
+        })
+        .where(eq(timelineComentarios.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Adicionar reação a comentário
+  adicionarReacao: protectedProcedure
+    .input(z.object({
+      comentarioId: z.number(),
+      tipo: z.enum(["like", "love", "check", "question", "alert"]),
+      membroEquipeId: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verificar se já existe reação do mesmo usuário
+      const [existente] = await db.select()
+        .from(timelineComentarioReacoes)
+        .where(and(
+          eq(timelineComentarioReacoes.comentarioId, input.comentarioId),
+          eq(timelineComentarioReacoes.usuarioId, ctx.user?.id || 0)
+        ));
+
+      if (existente) {
+        // Atualizar reação existente
+        await db.update(timelineComentarioReacoes)
+          .set({ tipo: input.tipo })
+          .where(eq(timelineComentarioReacoes.id, existente.id));
+        return { id: existente.id, updated: true };
+      }
+
+      const result = await db.insert(timelineComentarioReacoes).values({
+        comentarioId: input.comentarioId,
+        tipo: input.tipo,
+        membroEquipeId: input.membroEquipeId,
+        usuarioId: ctx.user?.id,
+        autorNome: ctx.user?.name || "Usuário",
+      });
+
+      return { id: result[0].insertId, updated: false };
+    }),
+
+  // Remover reação de comentário
+  removerReacao: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.delete(timelineComentarioReacoes)
+        .where(eq(timelineComentarioReacoes.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Listar membros da equipe para menção/compartilhamento
+  listarMembrosEquipe: protectedProcedure
+    .input(z.object({ condominioId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+
+      return db.select()
+        .from(membrosEquipe)
+        .where(and(
+          eq(membrosEquipe.condominioId, input.condominioId),
+          eq(membrosEquipe.ativo, true)
+        ))
+        .orderBy(membrosEquipe.nome);
     }),
 
   // ==================== TIMELINE - CONFIGURAÇÕES DE NOTIFICAÇÕES ====================

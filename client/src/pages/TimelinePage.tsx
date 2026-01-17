@@ -1,404 +1,1018 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Clock, 
-  Wrench, 
-  Eye, 
-  AlertTriangle, 
-  ClipboardCheck, 
-  FileText, 
-  Zap,
-  Calendar,
-  Filter,
-  Search,
-  ChevronDown,
-  ChevronUp,
-  ArrowLeft,
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import {
+  Plus,
+  Save,
+  Send,
+  Share2,
+  Upload,
+  X,
+  Clock,
+  MapPin,
   User,
-  MapPin
+  FileText,
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+  Image as ImageIcon,
+  Trash2,
 } from "lucide-react";
-import { useLocation } from "wouter";
-import { format, formatDistanceToNow, isToday, isYesterday, isThisWeek, isThisMonth } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
-interface TimelineEvent {
-  id: number;
-  tipo: "vistoria" | "manutencao" | "ocorrencia" | "checklist" | "ordem_servico" | "registro_rapido";
-  titulo: string;
-  descricao?: string | null;
-  status: string;
-  prioridade?: string | null;
-  responsavel?: string | null;
-  localizacao?: string | null;
-  dataEvento: Date;
-  dataCriacao: Date;
+
+interface TimelinePageProps {
+  condominioId: number;
 }
 
-const tipoConfig = {
-  vistoria: {
-    icone: Eye,
-    cor: "from-orange-500 to-orange-600",
-    bgCor: "bg-orange-500/20",
-    textCor: "text-orange-400",
-    borderCor: "border-orange-500/30",
-    label: "Vistoria"
-  },
-  manutencao: {
-    icone: Wrench,
-    cor: "from-green-500 to-green-600",
-    bgCor: "bg-green-500/20",
-    textCor: "text-green-400",
-    borderCor: "border-green-500/30",
-    label: "Manutenção"
-  },
-  ocorrencia: {
-    icone: AlertTriangle,
-    cor: "from-red-500 to-red-600",
-    bgCor: "bg-red-500/20",
-    textCor: "text-red-400",
-    borderCor: "border-red-500/30",
-    label: "Ocorrência"
-  },
-  checklist: {
-    icone: ClipboardCheck,
-    cor: "from-purple-500 to-purple-600",
-    bgCor: "bg-purple-500/20",
-    textCor: "text-purple-400",
-    borderCor: "border-purple-500/30",
-    label: "Checklist"
-  },
-  ordem_servico: {
-    icone: FileText,
-    cor: "from-blue-500 to-blue-600",
-    bgCor: "bg-blue-500/20",
-    textCor: "text-blue-400",
-    borderCor: "border-blue-500/30",
-    label: "Ordem de Serviço"
-  },
-  registro_rapido: {
-    icone: Zap,
-    cor: "from-amber-500 to-amber-600",
-    bgCor: "bg-amber-500/20",
-    textCor: "text-amber-400",
-    borderCor: "border-amber-500/30",
-    label: "Registro Rápido"
-  }
-};
+export default function TimelinePage({ condominioId }: TimelinePageProps) {
+  const { user } = useAuth();
+  const utils = trpc.useUtils();
 
-const statusConfig: Record<string, { cor: string; bgCor: string }> = {
-  pendente: { cor: "text-yellow-400", bgCor: "bg-yellow-500/20" },
-  em_andamento: { cor: "text-blue-400", bgCor: "bg-blue-500/20" },
-  concluido: { cor: "text-green-400", bgCor: "bg-green-500/20" },
-  cancelado: { cor: "text-gray-400", bgCor: "bg-gray-500/20" },
-  aberto: { cor: "text-yellow-400", bgCor: "bg-yellow-500/20" },
-  fechado: { cor: "text-green-400", bgCor: "bg-green-500/20" }
-};
+  // Estados do formulário
+  const [responsavelId, setResponsavelId] = useState<string>("");
+  const [localId, setLocalId] = useState<string>("");
+  const [statusId, setStatusId] = useState<string>("");
+  const [prioridadeId, setPrioridadeId] = useState<string>("");
+  const [tituloPredefId, setTituloPredefId] = useState<string>("");
+  const [titulo, setTitulo] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [imagens, setImagens] = useState<Array<{ url: string; legenda: string; file?: File }>>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
-export function TimelinePage() {
-  const [, setLocation] = useLocation();
-  const [filtroTipo, setFiltroTipo] = useState<string>("todos");
-  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
-  const [busca, setBusca] = useState("");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  // Estados dos modais de adicionar
+  const [showAddResponsavel, setShowAddResponsavel] = useState(false);
+  const [showAddLocal, setShowAddLocal] = useState(false);
+  const [showAddStatus, setShowAddStatus] = useState(false);
+  const [showAddPrioridade, setShowAddPrioridade] = useState(false);
+  const [showAddTitulo, setShowAddTitulo] = useState(false);
+  const [showCompartilhar, setShowCompartilhar] = useState(false);
 
-  // Buscar dados de todas as fontes
-  const { data: manutencoes } = trpc.manutencao.list.useQuery({ condominioId: 1 });
-  const { data: vistorias } = trpc.vistoria.list.useQuery({ condominioId: 1 });
-  const { data: ocorrencias } = trpc.ocorrencia.list.useQuery({ condominioId: 1 });
-  const { data: checklists } = trpc.checklist.list.useQuery({ condominioId: 1 });
-  const { data: tarefasFacilData } = trpc.tarefaFacil.listar.useQuery({ condominioId: 1 });
+  // Estados dos formulários de adicionar
+  const [novoResponsavel, setNovoResponsavel] = useState({ nome: "", cargo: "", email: "", telefone: "" });
+  const [novoLocal, setNovoLocal] = useState({ nome: "", descricao: "" });
+  const [novoStatus, setNovoStatus] = useState({ nome: "", cor: "#f97316", icone: "" });
+  const [novaPrioridade, setNovaPrioridade] = useState({ nome: "", cor: "#f97316", nivel: 1 });
+  const [novoTitulo, setNovoTitulo] = useState({ titulo: "", descricaoPadrao: "" });
 
-  // Combinar todos os eventos numa timeline unificada
-  const eventos: TimelineEvent[] = [
-    ...(manutencoes?.map((m: any) => ({
-      id: m.id,
-      tipo: "manutencao" as const,
-      titulo: m.titulo,
-      descricao: m.descricao,
-      status: m.status,
-      prioridade: m.prioridade,
-      responsavel: m.responsavel,
-      localizacao: m.localizacao,
-      dataEvento: new Date(m.dataManutencao || m.createdAt),
-      dataCriacao: new Date(m.createdAt)
-    })) || []),
-    ...(vistorias?.map((v: any) => ({
-      id: v.id + 10000,
-      tipo: "vistoria" as const,
-      titulo: v.titulo,
-      descricao: v.descricao,
-      status: v.status,
-      prioridade: v.prioridade,
-      responsavel: v.responsavel,
-      localizacao: v.localizacao,
-      dataEvento: new Date(v.dataVistoria || v.createdAt),
-      dataCriacao: new Date(v.createdAt)
-    })) || []),
-    ...(ocorrencias?.map((o: any) => ({
-      id: o.id + 20000,
-      tipo: "ocorrencia" as const,
-      titulo: o.titulo,
-      descricao: o.descricao,
-      status: o.status,
-      prioridade: o.prioridade,
-      responsavel: o.responsavel,
-      localizacao: o.localizacao,
-      dataEvento: new Date(o.dataOcorrencia || o.createdAt),
-      dataCriacao: new Date(o.createdAt)
-    })) || []),
-    ...(checklists?.map((c: any) => ({
-      id: c.id + 30000,
-      tipo: "checklist" as const,
-      titulo: c.titulo,
-      descricao: c.descricao,
-      status: c.status,
-      prioridade: null,
-      responsavel: c.responsavel,
-      localizacao: null,
-      dataEvento: new Date(c.dataChecklist || c.createdAt),
-      dataCriacao: new Date(c.createdAt)
-    })) || []),
-    ...(tarefasFacilData?.tarefas?.map((t: any) => ({
-      id: t.id + 40000,
-      tipo: "registro_rapido" as const,
-      titulo: t.titulo,
-      descricao: t.descricao,
-      status: t.status,
-      prioridade: t.prioridade,
-      responsavel: t.responsavel,
-      localizacao: t.localizacao,
-      dataEvento: new Date(t.createdAt),
-      dataCriacao: new Date(t.createdAt)
-    })) || [])
-  ];
+  // Timeline criada para compartilhar
+  const [timelineCriada, setTimelineCriada] = useState<{ id: number; protocolo: string; tokenPublico: string } | null>(null);
 
-  // Ordenar por data (mais recente primeiro)
-  const eventosOrdenados = eventos.sort((a, b) => 
-    b.dataEvento.getTime() - a.dataEvento.getTime()
-  );
+  // Queries para listas
+  const { data: responsaveis = [] } = trpc.timeline.listarResponsaveis.useQuery({ condominioId });
+  const { data: locais = [] } = trpc.timeline.listarLocais.useQuery({ condominioId });
+  const { data: statusList = [] } = trpc.timeline.listarStatus.useQuery({ condominioId });
+  const { data: prioridades = [] } = trpc.timeline.listarPrioridades.useQuery({ condominioId });
+  const { data: titulos = [] } = trpc.timeline.listarTitulos.useQuery({ condominioId });
+  const { data: membrosEquipe = [] } = trpc.membroEquipe.list.useQuery({ condominioId });
 
-  // Aplicar filtros
-  const eventosFiltrados = eventosOrdenados.filter(evento => {
-    if (filtroTipo !== "todos" && evento.tipo !== filtroTipo) return false;
-    if (filtroStatus !== "todos" && evento.status !== filtroStatus) return false;
-    if (busca && !evento.titulo.toLowerCase().includes(busca.toLowerCase())) return false;
-    return true;
+  // Mutations para criar configurações
+  const criarResponsavelMutation = trpc.timeline.criarResponsavel.useMutation({
+    onSuccess: () => {
+      utils.timeline.listarResponsaveis.invalidate();
+      setShowAddResponsavel(false);
+      setNovoResponsavel({ nome: "", cargo: "", email: "", telefone: "" });
+      toast.success("Responsável adicionado com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
   });
 
-  // Agrupar por período
-  const grupos: { [key: string]: TimelineEvent[] } = {};
-  eventosFiltrados.forEach(evento => {
-    let grupo: string;
-    if (isToday(evento.dataEvento)) {
-      grupo = "Hoje";
-    } else if (isYesterday(evento.dataEvento)) {
-      grupo = "Ontem";
-    } else if (isThisWeek(evento.dataEvento)) {
-      grupo = "Esta Semana";
-    } else if (isThisMonth(evento.dataEvento)) {
-      grupo = "Este Mês";
-    } else {
-      grupo = format(evento.dataEvento, "MMMM yyyy", { locale: ptBR });
+  const criarLocalMutation = trpc.timeline.criarLocal.useMutation({
+    onSuccess: () => {
+      utils.timeline.listarLocais.invalidate();
+      setShowAddLocal(false);
+      setNovoLocal({ nome: "", descricao: "" });
+      toast.success("Local adicionado com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const criarStatusMutation = trpc.timeline.criarStatus.useMutation({
+    onSuccess: () => {
+      utils.timeline.listarStatus.invalidate();
+      setShowAddStatus(false);
+      setNovoStatus({ nome: "", cor: "#f97316", icone: "" });
+      toast.success("Status adicionado com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const criarPrioridadeMutation = trpc.timeline.criarPrioridade.useMutation({
+    onSuccess: () => {
+      utils.timeline.listarPrioridades.invalidate();
+      setShowAddPrioridade(false);
+      setNovaPrioridade({ nome: "", cor: "#f97316", nivel: 1 });
+      toast.success("Prioridade adicionada com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const criarTituloMutation = trpc.timeline.criarTitulo.useMutation({
+    onSuccess: () => {
+      utils.timeline.listarTitulos.invalidate();
+      setShowAddTitulo(false);
+      setNovoTitulo({ titulo: "", descricaoPadrao: "" });
+      toast.success("Título adicionado com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  // Mutation para criar timeline
+  const criarTimelineMutation = trpc.timeline.criar.useMutation({
+    onSuccess: (data) => {
+      setTimelineCriada(data);
+      toast.success(`Timeline criada! Protocolo: ${data.protocolo}`);
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  // Mutation para compartilhar
+  const compartilharMutation = trpc.timeline.compartilhar.useMutation({
+    onSuccess: () => {
+      toast.success("Timeline compartilhada com sucesso!");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  // Atualizar título quando selecionar título predefinido
+  useEffect(() => {
+    if (tituloPredefId) {
+      const tituloSelecionado = titulos.find(t => t.id === Number(tituloPredefId));
+      if (tituloSelecionado) {
+        setTitulo(tituloSelecionado.titulo);
+        if (tituloSelecionado.descricaoPadrao) {
+          setDescricao(tituloSelecionado.descricaoPadrao);
+        }
+      }
     }
-    
-    if (!grupos[grupo]) grupos[grupo] = [];
-    grupos[grupo].push(evento);
-  });
+  }, [tituloPredefId, titulos]);
+
+  // Upload de imagens
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const newImages: Array<{ url: string; legenda: string }> = [];
+      
+      for (const file of Array.from(files)) {
+        // Verificar se é imagem
+        if (!file.type.startsWith("image/")) {
+          toast.error(`${file.name} não é uma imagem válida`);
+          continue;
+        }
+
+        // Verificar tamanho (máx 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(`Arquivo ${file.name} excede o limite de 10MB`);
+          continue;
+        }
+
+        // Comprimir se necessário
+        let fileToUpload: Blob = file;
+        if (file.size > 2 * 1024 * 1024) {
+          fileToUpload = await compressImage(file);
+        }
+
+        // Converter para base64
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(fileToUpload);
+        });
+        
+        newImages.push({ url: base64, legenda: "" });
+      }
+
+      setImagens([...imagens, ...newImages]);
+      toast.success(`${newImages.length} imagem(ns) carregada(s)`);
+    } catch (error) {
+      toast.error("Erro ao carregar imagens");
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Comprimir imagem
+  const compressImage = async (file: File): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      
+      img.onload = () => {
+        const maxSize = 1920;
+        let { width, height } = img;
+        
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = (height / width) * maxSize;
+            width = maxSize;
+          } else {
+            width = (width / height) * maxSize;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              resolve(file);
+            }
+          },
+          "image/jpeg",
+          0.8
+        );
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Remover imagem
+  const handleRemoveImage = (index: number) => {
+    setImagens(imagens.filter((_, i) => i !== index));
+  };
+
+  // Salvar rascunho
+  const handleSalvarRascunho = async () => {
+    if (!responsavelId || !titulo.trim()) {
+      toast.error("Responsável e Título são obrigatórios");
+      return;
+    }
+
+    criarTimelineMutation.mutate({
+      condominioId,
+      responsavelId: Number(responsavelId),
+      titulo: titulo.trim(),
+      localId: localId ? Number(localId) : undefined,
+      statusId: statusId ? Number(statusId) : undefined,
+      prioridadeId: prioridadeId ? Number(prioridadeId) : undefined,
+      descricao: descricao.trim() || undefined,
+      estado: "rascunho",
+      imagens: imagens.map(img => ({ url: img.url, legenda: img.legenda })),
+    });
+  };
+
+  // Enviar timeline
+  const handleEnviar = async () => {
+    if (!responsavelId || !titulo.trim()) {
+      toast.error("Responsável e Título são obrigatórios");
+      return;
+    }
+
+    criarTimelineMutation.mutate({
+      condominioId,
+      responsavelId: Number(responsavelId),
+      titulo: titulo.trim(),
+      localId: localId ? Number(localId) : undefined,
+      statusId: statusId ? Number(statusId) : undefined,
+      prioridadeId: prioridadeId ? Number(prioridadeId) : undefined,
+      descricao: descricao.trim() || undefined,
+      estado: "enviado",
+      imagens: imagens.map(img => ({ url: img.url, legenda: img.legenda })),
+    });
+  };
+
+  // Compartilhar com equipe
+  const handleCompartilhar = () => {
+    if (!timelineCriada) {
+      // Primeiro criar a timeline
+      handleEnviar();
+    }
+    setShowCompartilhar(true);
+  };
+
+  // Enviar compartilhamento
+  const handleEnviarCompartilhamento = async (membro: any, canal: "email" | "whatsapp" | "ambos") => {
+    if (!timelineCriada) return;
+
+    if (canal === "whatsapp" || canal === "ambos") {
+      const linkVisualizacao = `${window.location.origin}/timeline/${timelineCriada.tokenPublico}`;
+      const mensagem = encodeURIComponent(
+        `*Timeline Compartilhada*\n\n` +
+        `Protocolo: ${timelineCriada.protocolo}\n` +
+        `Título: ${titulo}\n\n` +
+        `Visualize em: ${linkVisualizacao}`
+      );
+      const telefone = membro.telefone?.replace(/\D/g, "") || "";
+      window.open(`https://wa.me/${telefone}?text=${mensagem}`, "_blank");
+    }
+
+    if (canal === "email" || canal === "ambos") {
+      compartilharMutation.mutate({
+        timelineId: timelineCriada.id,
+        membroEquipeId: membro.id,
+        membroNome: membro.nome,
+        membroEmail: membro.email,
+        membroTelefone: membro.telefone,
+        canalEnvio: canal,
+      });
+    }
+  };
+
+  // Limpar formulário
+  const handleLimpar = () => {
+    setResponsavelId("");
+    setLocalId("");
+    setStatusId("");
+    setPrioridadeId("");
+    setTituloPredefId("");
+    setTitulo("");
+    setDescricao("");
+    setImagens([]);
+    setTimelineCriada(null);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-500 text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="text-white hover:bg-white/20"
-                onClick={() => setLocation("/dashboard")}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                  <Clock className="h-7 w-7" />
-                  Timeline de Atividades
-                </h1>
-                <p className="text-indigo-100 text-sm">
-                  Visualização cronológica de todas as operações
-                </p>
-              </div>
-            </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-0 px-3 py-1">
-              {eventosFiltrados.length} eventos
-            </Badge>
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Nova Timeline</h1>
+          <p className="text-gray-500 mt-1">Registre atividades e eventos de manutenção</p>
         </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="container mx-auto px-4 py-4">
-        <Card className="bg-white/5 backdrop-blur border-white/10">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
-                <Input
-                  placeholder="Buscar por título..."
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
-              </div>
-              <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-                <SelectTrigger className="w-full md:w-48 bg-white/10 border-white/20 text-white">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os Tipos</SelectItem>
-                  <SelectItem value="vistoria">Vistorias</SelectItem>
-                  <SelectItem value="manutencao">Manutenções</SelectItem>
-                  <SelectItem value="ocorrencia">Ocorrências</SelectItem>
-                  <SelectItem value="checklist">Checklists</SelectItem>
-                  <SelectItem value="registro_rapido">Registro Rápido</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-                <SelectTrigger className="w-full md:w-48 bg-white/10 border-white/20 text-white">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os Status</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                  <SelectItem value="concluido">Concluído</SelectItem>
-                  <SelectItem value="cancelado">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Timeline */}
-      <div className="container mx-auto px-4 pb-8">
-        {Object.entries(grupos).length === 0 ? (
-          <Card className="bg-white/5 backdrop-blur border-white/10">
-            <CardContent className="p-12 text-center">
-              <Clock className="h-16 w-16 text-white/30 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">Nenhum evento encontrado</h3>
-              <p className="text-white/60">
-                Não há eventos que correspondam aos filtros selecionados.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          Object.entries(grupos).map(([grupo, eventosGrupo]) => (
-            <div key={grupo} className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Calendar className="h-5 w-5 text-indigo-400" />
-                <h2 className="text-lg font-semibold text-white">{grupo}</h2>
-                <Badge variant="secondary" className="bg-white/10 text-white/70 border-0">
-                  {eventosGrupo.length}
-                </Badge>
-              </div>
-              
-              <div className="relative pl-8 border-l-2 border-white/20 space-y-4">
-                {eventosGrupo.map((evento) => {
-                  const config = tipoConfig[evento.tipo];
-                  const Icon = config.icone;
-                  const statusStyle = statusConfig[evento.status] || statusConfig.pendente;
-                  const isExpanded = expandedId === evento.id;
-
-                  return (
-                    <div key={evento.id} className="relative">
-                      {/* Marcador na linha */}
-                      <div className={`absolute -left-[25px] w-4 h-4 rounded-full bg-gradient-to-br ${config.cor}`} />
-                      
-                      <Card 
-                        className={`bg-white/5 backdrop-blur border-white/10 hover:bg-white/10 transition-all cursor-pointer ${config.borderCor}`}
-                        onClick={() => setExpandedId(isExpanded ? null : evento.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-4">
-                            <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${config.cor} flex items-center justify-center flex-shrink-0`}>
-                              <Icon className="h-5 w-5 text-white" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <Badge className={`${config.bgCor} ${config.textCor} border-0`}>
-                                    {config.label}
-                                  </Badge>
-                                  <Badge className={`${statusStyle.bgCor} ${statusStyle.cor} border-0`}>
-                                    {evento.status.replace("_", " ")}
-                                  </Badge>
-                                  {evento.prioridade && (
-                                    <Badge variant="outline" className="border-white/20 text-white/70">
-                                      {evento.prioridade}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 text-white/50 text-sm">
-                                  <span>{format(evento.dataEvento, "HH:mm", { locale: ptBR })}</span>
-                                  {isExpanded ? (
-                                    <ChevronUp className="h-4 w-4" />
-                                  ) : (
-                                    <ChevronDown className="h-4 w-4" />
-                                  )}
-                                </div>
-                              </div>
-                              <h3 className="font-semibold text-white mt-2">{evento.titulo}</h3>
-                              <p className="text-sm text-white/50 mt-1">
-                                {formatDistanceToNow(evento.dataEvento, { addSuffix: true, locale: ptBR })}
-                              </p>
-                              
-                              {isExpanded && (
-                                <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
-                                  {evento.descricao && (
-                                    <p className="text-white/70">{evento.descricao}</p>
-                                  )}
-                                  <div className="flex flex-wrap gap-4 text-sm">
-                                    {evento.responsavel && (
-                                      <div className="flex items-center gap-2 text-white/60">
-                                        <User className="h-4 w-4" />
-                                        <span>{evento.responsavel}</span>
-                                      </div>
-                                    )}
-                                    {evento.localizacao && (
-                                      <div className="flex items-center gap-2 text-white/60">
-                                        <MapPin className="h-4 w-4" />
-                                        <span>{evento.localizacao}</span>
-                                      </div>
-                                    )}
-                                    <div className="flex items-center gap-2 text-white/60">
-                                      <Calendar className="h-4 w-4" />
-                                      <span>{format(evento.dataCriacao, "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))
+        {timelineCriada && (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
+            <CheckCircle className="w-4 h-4 mr-1" />
+            Protocolo: {timelineCriada.protocolo}
+          </Badge>
         )}
       </div>
+
+      {/* Formulário */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-lg">
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Dados da Timeline
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6">
+          {/* Responsável (obrigatório) */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <User className="w-4 h-4 text-orange-500" />
+              Responsável <span className="text-red-500">*</span>
+            </Label>
+            <div className="flex gap-2">
+              <Select value={responsavelId} onValueChange={setResponsavelId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione o responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  {responsaveis.map((r) => (
+                    <SelectItem key={r.id} value={String(r.id)}>
+                      {r.nome} {r.cargo && `(${r.cargo})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setShowAddResponsavel(true)}
+                className="border-orange-200 text-orange-600"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Local/Item */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-orange-500" />
+              Local/Item
+            </Label>
+            <div className="flex gap-2">
+              <Select value={localId} onValueChange={setLocalId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione o local" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locais.map((l) => (
+                    <SelectItem key={l.id} value={String(l.id)}>
+                      {l.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setShowAddLocal(true)}
+                className="border-orange-200 text-orange-600"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-orange-500" />
+              Status
+            </Label>
+            <div className="flex gap-2">
+              <Select value={statusId} onValueChange={setStatusId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusList.map((s) => (
+                    <SelectItem key={s.id} value={String(s.id)}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: s.cor || "#f97316" }}
+                        />
+                        {s.nome}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setShowAddStatus(true)}
+                className="border-orange-200 text-orange-600"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Prioridade */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-orange-500" />
+              Prioridade
+            </Label>
+            <div className="flex gap-2">
+              <Select value={prioridadeId} onValueChange={setPrioridadeId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione a prioridade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {prioridades.map((p) => (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: p.cor || "#f97316" }}
+                        />
+                        {p.nome}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setShowAddPrioridade(true)}
+                className="border-orange-200 text-orange-600"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Título (obrigatório) */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-orange-500" />
+              Título <span className="text-red-500">*</span>
+            </Label>
+            <div className="flex gap-2">
+              <Select value={tituloPredefId} onValueChange={setTituloPredefId}>
+                <SelectTrigger className="w-1/3">
+                  <SelectValue placeholder="Título predefinido" />
+                </SelectTrigger>
+                <SelectContent>
+                  {titulos.map((t) => (
+                    <SelectItem key={t.id} value={String(t.id)}>
+                      {t.titulo}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                placeholder="Digite o título"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setShowAddTitulo(true)}
+                className="border-orange-200 text-orange-600"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Imagens */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-orange-500" />
+              Imagens
+            </Label>
+            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                className="hidden"
+                id="image-upload"
+                disabled={uploadingImages}
+              />
+              <label
+                htmlFor="image-upload"
+                className="flex flex-col items-center justify-center cursor-pointer py-4"
+              >
+                {uploadingImages ? (
+                  <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-500">
+                      Clique para adicionar imagens
+                    </span>
+                    <span className="text-xs text-gray-400 mt-1">
+                      Máximo 100MB por arquivo
+                    </span>
+                  </>
+                )}
+              </label>
+              
+              {imagens.length > 0 && (
+                <div className="grid grid-cols-4 gap-3 mt-4">
+                  {imagens.map((img, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={img.url}
+                        alt={`Imagem ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Descrição */}
+          <div className="space-y-2">
+            <Label>Descrição</Label>
+            <Textarea
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              placeholder="Descreva os detalhes da atividade..."
+              rows={4}
+            />
+          </div>
+
+          {/* Informações automáticas */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <p className="text-sm text-gray-500 mb-2">Informações registadas automaticamente:</p>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className="text-gray-400">Data:</span>
+                <span className="ml-2 font-medium">{new Date().toLocaleDateString("pt-BR")}</span>
+              </div>
+              <div>
+                <span className="text-gray-400">Hora:</span>
+                <span className="ml-2 font-medium">{new Date().toLocaleTimeString("pt-BR")}</span>
+              </div>
+              <div>
+                <span className="text-gray-400">Criado por:</span>
+                <span className="ml-2 font-medium">{user?.name || "Sistema"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Botões de ação */}
+          <div className="flex flex-wrap gap-3 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={handleSalvarRascunho}
+              disabled={criarTimelineMutation.isPending}
+              className="flex-1 min-w-[150px]"
+            >
+              {criarTimelineMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              Salvar e Continuar Depois
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={handleCompartilhar}
+              disabled={criarTimelineMutation.isPending}
+              className="flex-1 min-w-[150px] border-blue-200 text-blue-600"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Compartilhar com Equipe
+            </Button>
+            
+            <Button
+              onClick={handleEnviar}
+              disabled={criarTimelineMutation.isPending}
+              className="flex-1 min-w-[150px] bg-gradient-to-r from-orange-500 to-orange-600 text-white"
+            >
+              {criarTimelineMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4 mr-2" />
+              )}
+              Enviar
+            </Button>
+          </div>
+
+          {/* Link da Timeline criada */}
+          {timelineCriada && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+              <h4 className="font-medium text-green-800 mb-2">Timeline Criada com Sucesso!</h4>
+              <p className="text-sm text-green-600 mb-3">
+                Protocolo: <strong>{timelineCriada.protocolo}</strong>
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`/timeline/${timelineCriada.tokenPublico}`, "_blank")}
+                  className="border-green-300 text-green-700"
+                >
+                  Visualizar Timeline
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLimpar}
+                  className="border-gray-300"
+                >
+                  Nova Timeline
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Modal Adicionar Responsável */}
+      <Dialog open={showAddResponsavel} onOpenChange={setShowAddResponsavel}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Responsável</DialogTitle>
+            <DialogDescription>
+              Cadastre um novo responsável para as timelines
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Nome *</Label>
+              <Input
+                value={novoResponsavel.nome}
+                onChange={(e) => setNovoResponsavel({ ...novoResponsavel, nome: e.target.value })}
+                placeholder="Nome completo"
+              />
+            </div>
+            <div>
+              <Label>Cargo</Label>
+              <Input
+                value={novoResponsavel.cargo}
+                onChange={(e) => setNovoResponsavel({ ...novoResponsavel, cargo: e.target.value })}
+                placeholder="Ex: Zelador, Síndico"
+              />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={novoResponsavel.email}
+                onChange={(e) => setNovoResponsavel({ ...novoResponsavel, email: e.target.value })}
+                placeholder="email@exemplo.com"
+              />
+            </div>
+            <div>
+              <Label>Telefone</Label>
+              <Input
+                value={novoResponsavel.telefone}
+                onChange={(e) => setNovoResponsavel({ ...novoResponsavel, telefone: e.target.value })}
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddResponsavel(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => criarResponsavelMutation.mutate({ condominioId, ...novoResponsavel })}
+              disabled={!novoResponsavel.nome || criarResponsavelMutation.isPending}
+              className="bg-orange-500"
+            >
+              {criarResponsavelMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Adicionar"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Local */}
+      <Dialog open={showAddLocal} onOpenChange={setShowAddLocal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Local/Item</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Nome *</Label>
+              <Input
+                value={novoLocal.nome}
+                onChange={(e) => setNovoLocal({ ...novoLocal, nome: e.target.value })}
+                placeholder="Ex: Hall de Entrada, Piscina"
+              />
+            </div>
+            <div>
+              <Label>Descrição</Label>
+              <Textarea
+                value={novoLocal.descricao}
+                onChange={(e) => setNovoLocal({ ...novoLocal, descricao: e.target.value })}
+                placeholder="Descrição do local"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddLocal(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => criarLocalMutation.mutate({ condominioId, ...novoLocal })}
+              disabled={!novoLocal.nome || criarLocalMutation.isPending}
+              className="bg-orange-500"
+            >
+              {criarLocalMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Status */}
+      <Dialog open={showAddStatus} onOpenChange={setShowAddStatus}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Status</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Nome *</Label>
+              <Input
+                value={novoStatus.nome}
+                onChange={(e) => setNovoStatus({ ...novoStatus, nome: e.target.value })}
+                placeholder="Ex: Em Andamento, Concluído"
+              />
+            </div>
+            <div>
+              <Label>Cor</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={novoStatus.cor}
+                  onChange={(e) => setNovoStatus({ ...novoStatus, cor: e.target.value })}
+                  className="w-16 h-10 p-1"
+                />
+                <Input
+                  value={novoStatus.cor}
+                  onChange={(e) => setNovoStatus({ ...novoStatus, cor: e.target.value })}
+                  placeholder="#f97316"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddStatus(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => criarStatusMutation.mutate({ condominioId, ...novoStatus })}
+              disabled={!novoStatus.nome || criarStatusMutation.isPending}
+              className="bg-orange-500"
+            >
+              {criarStatusMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Prioridade */}
+      <Dialog open={showAddPrioridade} onOpenChange={setShowAddPrioridade}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Prioridade</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Nome *</Label>
+              <Input
+                value={novaPrioridade.nome}
+                onChange={(e) => setNovaPrioridade({ ...novaPrioridade, nome: e.target.value })}
+                placeholder="Ex: Urgente, Normal, Baixa"
+              />
+            </div>
+            <div>
+              <Label>Cor</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={novaPrioridade.cor}
+                  onChange={(e) => setNovaPrioridade({ ...novaPrioridade, cor: e.target.value })}
+                  className="w-16 h-10 p-1"
+                />
+                <Input
+                  value={novaPrioridade.cor}
+                  onChange={(e) => setNovaPrioridade({ ...novaPrioridade, cor: e.target.value })}
+                  placeholder="#f97316"
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Nível (1 = mais urgente)</Label>
+              <Input
+                type="number"
+                min={1}
+                value={novaPrioridade.nivel}
+                onChange={(e) => setNovaPrioridade({ ...novaPrioridade, nivel: Number(e.target.value) })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddPrioridade(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => criarPrioridadeMutation.mutate({ condominioId, ...novaPrioridade })}
+              disabled={!novaPrioridade.nome || criarPrioridadeMutation.isPending}
+              className="bg-orange-500"
+            >
+              {criarPrioridadeMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Título */}
+      <Dialog open={showAddTitulo} onOpenChange={setShowAddTitulo}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Título Predefinido</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Título *</Label>
+              <Input
+                value={novoTitulo.titulo}
+                onChange={(e) => setNovoTitulo({ ...novoTitulo, titulo: e.target.value })}
+                placeholder="Ex: Manutenção Preventiva, Limpeza"
+              />
+            </div>
+            <div>
+              <Label>Descrição Padrão</Label>
+              <Textarea
+                value={novoTitulo.descricaoPadrao}
+                onChange={(e) => setNovoTitulo({ ...novoTitulo, descricaoPadrao: e.target.value })}
+                placeholder="Descrição que será preenchida automaticamente"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddTitulo(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => criarTituloMutation.mutate({ condominioId, ...novoTitulo })}
+              disabled={!novoTitulo.titulo || criarTituloMutation.isPending}
+              className="bg-orange-500"
+            >
+              {criarTituloMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Adicionar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Compartilhar com Equipe */}
+      <Dialog open={showCompartilhar} onOpenChange={setShowCompartilhar}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Compartilhar com Equipe</DialogTitle>
+            <DialogDescription>
+              Selecione os membros da equipe para compartilhar esta timeline
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+            {membrosEquipe.filter((m: any) => m.email || m.telefone).map((membro: any) => (
+              <div
+                key={membro.id}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p className="font-medium">{membro.nome}</p>
+                  <p className="text-sm text-gray-500">
+                    {membro.email && <span>{membro.email}</span>}
+                    {membro.email && membro.telefone && <span> • </span>}
+                    {membro.telefone && <span>{membro.telefone}</span>}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {membro.telefone && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEnviarCompartilhamento(membro, "whatsapp")}
+                      className="border-green-200 text-green-600"
+                    >
+                      WhatsApp
+                    </Button>
+                  )}
+                  {membro.email && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEnviarCompartilhamento(membro, "email")}
+                      className="border-blue-200 text-blue-600"
+                    >
+                      Email
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            {membrosEquipe.filter((m: any) => m.email || m.telefone).length === 0 && (
+              <p className="text-center text-gray-500 py-4">
+                Nenhum membro da equipe com email ou telefone cadastrado
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCompartilhar(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-export default TimelinePage;
