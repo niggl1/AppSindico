@@ -438,3 +438,8 @@
 
 ## Remover Reservas do Menu (17/01/2026)
 - [x] Remover item "Reservas" do menu lateral (não tem funcionalidade)
+
+## Simplificar Menu VISÃO GERAL (17/01/2026)
+- [x] Remover ícone de + do menu
+- [x] Remover botão "MEUS PROJETOS" do menu
+- [x] Remover opção "+ Novo Projeto" que aparece ao clicar em VISÃO GERAL
