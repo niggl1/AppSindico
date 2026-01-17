@@ -166,7 +166,6 @@ const menuSections = [
     iconName: "Calendar",
     items: [
       { icon: Calendar, iconName: "Calendar", label: "Eventos", path: "/dashboard/eventos", funcaoId: "eventos" },
-      { icon: CalendarClock, iconName: "CalendarClock", label: "Agenda de Vencimentos", path: "/dashboard/agenda-vencimentos", funcaoId: "agenda-vencimentos" },
       { icon: CalendarCheck, iconName: "CalendarCheck", label: "Reservas", path: "/dashboard/reservas", funcaoId: "reservas" },
     ]
   },
@@ -176,7 +175,6 @@ const menuSections = [
     icon: Wrench,
     iconName: "Wrench",
     items: [
-      { icon: Sparkles, iconName: "Sparkles", label: "⚡ Registro Rápido", path: "/dashboard/tarefas-facil", funcaoId: "tarefas-facil" },
       { icon: ClipboardCheck, iconName: "ClipboardCheck", label: "Vistorias", path: "/dashboard/vistorias", funcaoId: "vistorias" },
       { icon: Wrench, iconName: "Wrench", label: "Manutenções", path: "/dashboard/manutencoes", funcaoId: "manutencoes" },
       { icon: AlertTriangle, iconName: "AlertTriangle", label: "Ocorrências", path: "/dashboard/ocorrencias", funcaoId: "ocorrencias" },

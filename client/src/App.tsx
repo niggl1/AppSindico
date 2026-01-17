@@ -15,7 +15,6 @@ import TransitionEffects from "./pages/TransitionEffects";
 import Notificacoes from "./pages/Notificacoes";
 import Votar from "./pages/Votar";
 import { ItemCompartilhadoPage } from "./pages/ItemCompartilhadoPage";
-import AgendaVencimentos from "./pages/AgendaVencimentos";
 import Contrato from "./pages/Contrato";
 import CadastroMorador from "./pages/CadastroMorador";
 import AssembleiaPublica from "./pages/AssembleiaPublica";
@@ -111,7 +110,6 @@ function Router() {
       <Route path="/perfil" component={Perfil} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/dashboard/notificacoes" component={Notificacoes} />
-      <Route path="/dashboard/vencimentos" component={AgendaVencimentos} />
       <Route path="/dashboard/notificar-morador" component={NotificarMoradorPage} />
       <Route path="/dashboard/historico-infracoes" component={HistoricoInfracoesPage} />
       <Route path="/admin/funcoes" component={AdminFuncoes} />
