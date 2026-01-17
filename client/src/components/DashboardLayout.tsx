@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { OfflineIndicator, OfflineBanner } from "@/components/OfflineIndicator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -795,8 +796,10 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
+            <OfflineIndicator />
           </div>
         )}
+        <OfflineBanner />
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>

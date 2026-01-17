@@ -503,3 +503,15 @@
 - [x] Relatório de atividades mensal automático
 - [x] Integração com Google Calendar para lembretes
 - [x] Suporte a upload de vídeos curtos nos comentários
+
+
+## Modo Offline - Parte Operacional (17/01/2026)
+
+- [x] Service Worker para cache de recursos e páginas
+- [x] IndexedDB para armazenamento local de dados
+- [x] Hooks e contexto de sincronização offline
+- [x] Suporte offline para Timelines
+- [x] Suporte offline para Ordens de Serviço
+- [x] Suporte offline para Manutenções
+- [x] Indicador de status de conexão na interface
+- [x] Sincronização automática quando conexão retornar
