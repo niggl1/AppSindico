@@ -1,6 +1,6 @@
 /**
  * Sistema de Efeitos de Transição de Página
- * Permite ao síndico escolher diferentes animações para virar páginas da revista
+ * Permite ao gestor escolher diferentes animações para virar páginas da revista
  */
 
 import { Variants } from "framer-motion";

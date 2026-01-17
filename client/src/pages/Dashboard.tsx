@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { TarefasSimplesModal } from "@/components/TarefasSimplesModal";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -106,6 +107,9 @@ import ImageGallery, { ImageThumbnails } from "@/components/ImageGallery";
 import { LocationMiniMap } from "@/components/LocationMiniMap";
 import VistoriasPage from "./VistoriasPage";
 import ManutencoesPage from "./ManutencoesPage";
+import TimelinePage from "./TimelinePage";
+import TimelineHistoricoPage from "./TimelineHistoricoPage";
+import TimelineDashboardPage from "./TimelineDashboardPage";
 import OcorrenciasPage from "./OcorrenciasPage";
 import ChecklistsPage from "./ChecklistsPage";
 import { PainelControloPage } from "./PainelControloPage";
@@ -117,13 +121,24 @@ import AssembleiaOnlineCard from "@/components/AssembleiaOnlineCard";
 import NotificacoesPage from "./NotificacoesPage";
 import NotificarMoradorPage from "./NotificarMoradorPage";
 import RelatoriosPage from "./RelatoriosPage";
+import HistoricoAcessosPage from "./HistoricoAcessosPage";
+import HistoricoInfracoesPage from "./HistoricoInfracoesPage";
+import CompartilhamentosPage from "./CompartilhamentosPage";
+import HistoricoTarefasSimples from "./HistoricoTarefasSimples";
 import NotificationAlert from "@/components/NotificationAlert";
 import FuncoesRapidas from "@/components/FuncoesRapidas";
 import FuncoesRapidasGrid from "@/components/FuncoesRapidasGrid";
 import QuickFunctionsEditor, { getSelectedQuickFunctions, allQuickFunctions, CORES_FUNCOES_RAPIDAS } from "@/components/QuickFunctionsEditor";
-import AssistenteCriacao from "@/components/AssistenteCriacao";
+// AssistenteCriacao removido - sistema focado em manutenção
+import OrdensServico from "./OrdensServico";
+import AgendaVencimentos from "./AgendaVencimentos";
+import OrdemServicoDetalhe from "./OrdemServicoDetalhe";
+import OrdensServicoConfig from "./OrdensServicoConfig";
+import AdminUsuarios from "./AdminUsuarios";
+import AdminLogs from "./AdminLogs";
+import HistoricoAtividadesPage from "./HistoricoAtividades";
 
-// Estrutura do menu com 11 seções
+// Estrutura do menu otimizada para gestão de manutenção
 // Cada item tem um funcaoId que mapeia para as funções do admin
 const menuSections = [
   {
@@ -135,7 +150,7 @@ const menuSections = [
     isSpecial: true // Marcação especial para renderização diferenciada
   },
   {
-    id: "revista",
+    id: "meus-projetos",
     label: "MEUS PROJETOS",
     icon: FolderOpen,
     path: "revistas",
@@ -143,36 +158,13 @@ const menuSections = [
     isSpecial: true // Marcação especial para renderização diferenciada
   },
   {
-    id: "gestao-condominio",
-    label: "Gestão do Condomínio",
+    id: "gestao-organizacao",
+    label: "Gestão da Organização",
     icon: Building2,
     items: [
-      { id: "condominio", label: "Cadastro do Condomínio", icon: Building2 },
-      { id: "moradores", label: "Moradores", icon: Users, funcaoId: "moradores" },
-      { id: "funcionarios", label: "Funcionários", icon: UserCog, funcaoId: "funcionarios" },
-      { id: "vagas", label: "Vagas de Estacionamento", icon: Car, funcaoId: "vagas" },
+      { id: "condominio", label: "Cadastro da Organização", icon: Building2 },
       { id: "equipe", label: "Equipe de Gestão", icon: UsersRound, funcaoId: "equipe" },
-    ]
-  },
-  {
-    id: "comunicacao",
-    label: "Comunicação",
-    icon: Megaphone,
-    items: [
-      { id: "avisos", label: "Avisos", icon: Bell, funcaoId: "avisos" },
-      { id: "comunicados", label: "Comunicados", icon: FileText, funcaoId: "comunicados" },
-      { id: "gestao-notificacoes", label: "Notificações", icon: BellRing, funcaoId: "notificacoes" },
-      { id: "notificar-morador", label: "Notificar Morador", icon: Send, funcaoId: "notificar-morador" },
-    ]
-  },
-  {
-    id: "eventos-agenda",
-    label: "Eventos e Agenda",
-    icon: Calendar,
-    items: [
-      { id: "eventos", label: "Eventos", icon: Calendar, funcaoId: "eventos" },
-      { id: "vencimentos", label: "Agenda de Vencimentos", icon: CalendarClock, funcaoId: "agenda-vencimentos" },
-      // { id: "assembleia", label: "Assembleia Online", icon: Video }, // OCULTO TEMPORARIAMENTE - Descomentar quando ativar
+      { id: "compartilhamentos", label: "Compartilhamentos", icon: Share2 },
     ]
   },
   {
@@ -180,11 +172,21 @@ const menuSections = [
     label: "Operacional / Manutenção",
     icon: Wrench,
     items: [
-      { id: "vistorias", label: "Vistorias", icon: ClipboardCheck, funcaoId: "vistorias" },
-      { id: "manutencoes", label: "Manutenções", icon: Wrench, funcaoId: "manutencoes" },
-      { id: "ocorrencias", label: "Ocorrências", icon: AlertTriangle, funcaoId: "ocorrencias" },
-      { id: "checklists", label: "Checklists", icon: ListChecks, funcaoId: "checklists" },
-      { id: "antes-depois", label: "Antes e Depois", icon: ArrowLeftRight, funcaoId: "antes-depois" },
+      { id: "historico", label: "⭐ Histórico Geral", icon: History, funcaoId: "historico", highlight: true },
+      { id: "vistorias", label: "Vistoria Completa", icon: ClipboardCheck, funcaoId: "vistorias" },
+      { id: "funcoes-simples", label: "Vistoria Rápida", icon: Zap, funcaoId: "vistoria-rapida", path: "/dashboard/funcoes-simples?tipo=vistoria" },
+      { id: "manutencoes", label: "Manutenção Completa", icon: Wrench, funcaoId: "manutencoes" },
+      { id: "funcoes-simples-manutencao", label: "Manutenção Rápida", icon: Zap, funcaoId: "manutencao-rapida", path: "/dashboard/funcoes-simples?tipo=manutencao" },
+      { id: "ocorrencias", label: "Ocorrência Completa", icon: AlertTriangle, funcaoId: "ocorrencias" },
+      { id: "funcoes-simples-ocorrencia", label: "Ocorrência Rápida", icon: Zap, funcaoId: "ocorrencia-rapida", path: "/dashboard/funcoes-simples?tipo=ocorrencia" },
+      { id: "checklists", label: "Checklist Completo", icon: ListChecks, funcaoId: "checklists" },
+      { id: "funcoes-simples-checklist", label: "Checklist Rápido", icon: Zap, funcaoId: "checklist-rapido", path: "/dashboard/funcoes-simples?tipo=checklist" },
+      { id: "antes-depois", label: "Antes e Depois Completo", icon: ArrowLeftRight, funcaoId: "antes-depois" },
+      { id: "funcoes-simples-antes-depois", label: "Antes/Depois Rápido", icon: Zap, funcaoId: "antes-depois-rapido", path: "/dashboard/funcoes-simples?tipo=antes_depois" },
+      { id: "vencimentos", label: "Agenda de Vencimentos", icon: CalendarClock, funcaoId: "agenda-vencimentos" },
+      { id: "timeline", label: "Timeline", icon: Clock, funcaoId: "timeline" },
+      { id: "timeline-historico", label: "Histórico Timeline", icon: History, funcaoId: "timeline" },
+      { id: "timeline-dashboard", label: "Dashboard Timeline", icon: BarChart3, funcaoId: "timeline" },
     ]
   },
   {
@@ -193,28 +195,7 @@ const menuSections = [
     icon: ClipboardList,
     items: [
       { id: "ordens-servico", label: "Todas as OS", icon: ClipboardList, funcaoId: "ordens-servico" },
-      { id: "ordens-servico/nova", label: "Nova OS", icon: Plus, funcaoId: "ordens-servico" },
       { id: "ordens-servico/configuracoes", label: "Configurações", icon: Settings, funcaoId: "ordens-servico" },
-    ]
-  },
-  {
-    id: "comunidade",
-    label: "Interativo / Comunidade",
-    icon: Users,
-    items: [
-      { id: "votacoes", label: "Votações e Enquetes", icon: Vote, funcaoId: "votacoes" },
-      { id: "classificados", label: "Classificados", icon: ShoppingBag, funcaoId: "classificados" },
-      { id: "achados", label: "Achados e Perdidos", icon: Search, funcaoId: "achados-perdidos" },
-      { id: "caronas", label: "Caronas", icon: CarFront, funcaoId: "caronas" },
-    ]
-  },
-  {
-    id: "documentacao",
-    label: "Documentação e Regras",
-    icon: BookOpen,
-    items: [
-      { id: "regras", label: "Regras e Normas", icon: BookOpen, funcaoId: "regras" },
-      { id: "seguranca", label: "Dicas de Segurança", icon: Shield, funcaoId: "dicas-seguranca" },
     ]
   },
   {
@@ -228,32 +209,7 @@ const menuSections = [
       { id: "aquisicoes", label: "Aquisições", icon: Package, funcaoId: "aquisicoes" },
     ]
   },
-  {
-    id: "publicidade",
-    label: "Publicidade",
-    icon: Newspaper,
-    items: [
-      { id: "publicidade", label: "Anunciantes", icon: Building2, funcaoId: "publicidade" },
-    ]
-  },
-  {
-    id: "relatorios",
-    label: "Relatórios e Painel",
-    icon: BarChart3,
-    items: [
-      { id: "painel-controlo", label: "Painel de Controlo", icon: BarChart3, funcaoId: "painel-controlo" },
-      { id: "relatorios", label: "Relatórios", icon: PieChart, funcaoId: "relatorios" },
-    ]
-  },
-  {
-    id: "configuracoes",
-    label: "Configurações",
-    icon: Settings,
-    items: [
-      { id: "configuracoes", label: "Preferências", icon: Sliders },
-      { id: "moderacao", label: "Moderação", icon: Shield },
-    ]
-  },
+
 ];
 
 // Item de admin para gestão de funções (só aparece para admin)
@@ -273,23 +229,45 @@ export default function Dashboard() {
   const currentSection = params.section || "overview";
   const { data: condominios } = trpc.condominio.list.useQuery();
   
-  // Buscar funções habilitadas para o condomínio do usuário
+  // Verificar se é membro da equipe logado
+  const { data: membroLogado } = trpc.membroEquipe.me.useQuery();
+  
+  // Buscar funções habilitadas para a organização do usuário
   const condominioId = condominios?.[0]?.id;
   const { data: funcoesHabilitadas } = trpc.funcoesCondominio.listarHabilitadas.useQuery(
     { condominioId: condominioId! },
     { enabled: !!condominioId }
   );
   
-  // Filtrar menu baseado nas funções habilitadas
+  // Filtrar menu baseado nas funções habilitadas e permissões do membro
   const menuSectionsFiltrado = useMemo(() => {
     // Se não há condomínio ou funções carregadas, mostrar tudo
     if (!condominioId || !funcoesHabilitadas) return menuSections;
+    
+    // Se é membro da equipe com permissões limitadas, filtrar por permissões
+    const permissoesMembro = membroLogado?.permissoes || [];
+    const temAcessoTotal = membroLogado?.acessoTotal || false;
+    const isMembro = !!membroLogado;
     
     return menuSections.map(section => ({
       ...section,
       items: section.items.filter(item => {
         // Se o item não tem funcaoId, sempre mostrar
         if (!item.funcaoId) return true;
+        // Funções rápidas sempre visíveis
+        if (item.funcaoId.includes('-rapida') || item.funcaoId.includes('-rapido')) return true;
+        // Histórico sempre visível
+        if (item.funcaoId === 'historico') return true;
+        
+        // Se é membro da equipe
+        if (isMembro) {
+          // Se tem acesso total, mostrar tudo
+          if (temAcessoTotal) return funcoesHabilitadas.includes(item.funcaoId);
+          // Senão, verificar permissões específicas
+          const moduloPermissao = item.funcaoId.replace('-completa', '').replace('-completo', '');
+          return permissoesMembro.includes(moduloPermissao) && funcoesHabilitadas.includes(item.funcaoId);
+        }
+        
         // Verificar se a função está habilitada
         return funcoesHabilitadas.includes(item.funcaoId);
       })
@@ -297,7 +275,7 @@ export default function Dashboard() {
       // Manter seções que têm path (como Visão Geral) ou que ainda têm itens
       return section.path || section.items.length > 0;
     });
-  }, [condominioId, funcoesHabilitadas]);
+  }, [condominioId, funcoesHabilitadas, membroLogado]);
   
   // Estado para controlar seções expandidas
   const [expandedSections, setExpandedSections] = useState<string[]>(() => {
@@ -307,6 +285,12 @@ export default function Dashboard() {
 
   // Estado do drawer mobile
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Estados para modais de Registro Rápido
+  const [showVistoriaRapida, setShowVistoriaRapida] = useState(false);
+  const [showManutencaoRapida, setShowManutencaoRapida] = useState(false);
+  const [showOcorrenciaRapida, setShowOcorrenciaRapida] = useState(false);
+  const [showAntesDepoisRapido, setShowAntesDepoisRapido] = useState(false);
 
   // Estado das funções rápidas personalizáveis (agora usa dados da base de dados)
   const refreshQuickFunctions = () => {
@@ -374,7 +358,7 @@ export default function Dashboard() {
     e.preventDefault();
     e.stopPropagation();
     if (!condominioId) {
-      toast.error("Selecione um condomínio primeiro");
+      toast.error("Selecione uma organização primeiro");
       return;
     }
     const isRapida = isFuncaoRapida(item.funcaoId || item.id);
@@ -450,7 +434,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      window.location.href = '/login';
+     window.location.href = getLoginUrl();
     }
   }, [loading, isAuthenticated]);
 
@@ -478,7 +462,7 @@ export default function Dashboard() {
     <>
       {/* Diálogo de confirmação para funções rápidas */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[92vw] max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-amber-500" />
@@ -510,17 +494,16 @@ export default function Dashboard() {
         {/* Logo */}
         <div className="p-6 border-b border-sidebar-border">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-appsindico.png" alt="App Síndico" className="w-10 h-10 object-contain" />
-            <img src="/logo-appsindico-texto.png" alt="App Síndico" className="h-8 object-contain" />
+            <img src="/logo-manutencao.png" alt="App Manutenção" className="h-10 object-contain" />
           </Link>
         </div>
 
         {/* Navigation com Seções Colapsáveis */}
         <ScrollArea className="flex-1 py-4">
-          {/* Funções Rápidas - Agora usa dados da base de dados */}
+          {/* Funções Rápidas - Atalhos personalizados */}
           <div className="px-3 mb-4">
             <div className="flex items-center justify-between mb-2 px-3">
-              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">Funções Rápidas</p>
+              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">Atalhos</p>
               <QuickFunctionsEditor onSave={refreshQuickFunctions} condominioId={condominioId} />
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -532,11 +515,11 @@ export default function Dashboard() {
                   return (
                     <Link key={funcao.id} href={funcao.path}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
-                        style={{ borderColor: cor }}
+                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                        style={{ backgroundColor: cor }}
                       >
-                        <Icon className="w-4 h-4" style={{ color: cor }} />
-                        <span className="text-[10px] font-semibold" style={{ color: cor }}>{funcao.nome}</span>
+                        <Icon className="w-4 h-4 text-white" />
+                        <span className="text-[10px] font-semibold text-white">{funcao.nome}</span>
                       </button>
                     </Link>
                   );
@@ -549,13 +532,13 @@ export default function Dashboard() {
                   const Icon = func.icon;
                   const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
                   return (
-                    <Link key={func.id} href={func.path}>
+                    <Link key={func.id} href={`/dashboard/${func.id}`}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
-                        style={{ borderColor: cor }}
+                        className="w-full flex flex-col items-center gap-1.5 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                        style={{ backgroundColor: cor }}
                       >
-                        <Icon className="w-4 h-4" style={{ color: cor }} />
-                        <span className="text-[10px] font-semibold" style={{ color: cor }}>{func.label}</span>
+                        <Icon className="w-4 h-4 text-white" />
+                        <span className="text-[10px] font-semibold text-white">{func.label}</span>
                       </button>
                     </Link>
                   );
@@ -564,23 +547,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* SECÇÃO PORTAL DE MANUTENÇÕES */}
-          <div className="px-3 mb-4">
-            <div className="flex items-center justify-between mb-2 px-3">
-              <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider">🔧 MANUTENÇÕES</p>
-            </div>
-            <Link href="/modulo/manutencoes">
-              <button 
-                className="w-full flex items-center gap-2 p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-gradient-to-r from-green-600 to-emerald-500 mb-3"
-              >
-                <Wrench className="w-5 h-5 text-white" />
-                <span className="text-sm font-semibold text-white">Portal de Manutenções</span>
-                <ChevronRight className="w-4 h-4 text-white ml-auto" />
-              </button>
-            </Link>
+          {/* Separador */}
+          <div className="px-6 mb-3">
+            <Separator className="bg-sidebar-border/50" />
           </div>
-
-
 
           {/* Seções do Menu */}
           <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2 px-6">Menu</p>
@@ -605,7 +575,7 @@ export default function Dashboard() {
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="w-56">
-                        <DropdownMenuItem onClick={() => setLocation("/dashboard/criar-projeto")} className="cursor-pointer font-medium">
+                        <DropdownMenuItem onClick={() => setLocation("/dashboard/revistas")} className="cursor-pointer font-medium">
                           <Plus className="h-4 w-4 mr-2" />
                           + Novo Projeto
                         </DropdownMenuItem>
@@ -614,19 +584,7 @@ export default function Dashboard() {
                           <LayoutDashboard className="h-4 w-4 mr-2" />
                           Visão Geral
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setLocation("/dashboard/apps/novo")} className="cursor-pointer">
-                          <Smartphone className="h-4 w-4 mr-2" />
-                          Criar App
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setLocation("/dashboard/revistas")} className="cursor-pointer">
-                          <BookOpen className="h-4 w-4 mr-2" />
-                          Criar Revista
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setLocation("/dashboard/relatorios/novo")} className="cursor-pointer">
-                          <FileBarChart className="h-4 w-4 mr-2" />
-                          Criar Relatório
-                        </DropdownMenuItem>
+
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
@@ -692,20 +650,23 @@ export default function Dashboard() {
                       {section.items.map((item) => {
                         const isItemActive = currentSection === item.id;
                         const isRapida = isFuncaoRapida(item.funcaoId || item.id);
+                        const isHighlight = (item as any).highlight === true;
                         return (
-                          <div key={item.id} className="flex items-center group/item">
-                            <Link href={`/dashboard/${item.id}`} className="flex-1">
+                          <div key={item.id} className={cn("flex items-center group/item", isHighlight && "mb-2")}>
+                            <Link href={(item as any).path || `/dashboard/${item.id}`} className="flex-1">
                               <button
                                 className={cn(
                                   "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-200",
+                                  isHighlight && !isItemActive && "bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 text-orange-600 font-medium hover:from-orange-500/20 hover:to-amber-500/20",
                                   isItemActive
                                     ? "bg-primary/10 text-primary font-medium"
-                                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                                    : !isHighlight && "text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                                 )}
                               >
                                 <item.icon className={cn(
                                   "w-4 h-4",
-                                  isItemActive ? "text-primary" : "text-sidebar-foreground/50"
+                                  isHighlight && !isItemActive && "text-orange-500",
+                                  isItemActive ? "text-primary" : !isHighlight && "text-sidebar-foreground/50"
                                 )} />
                                 <span className="flex-1 text-left">{item.label}</span>
                               </button>
@@ -735,11 +696,23 @@ export default function Dashboard() {
             {/* Link de Admin - só para admins */}
             {user?.role === 'admin' && (
               <div className="mt-4 pt-4 border-t border-sidebar-border">
-                <p className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2 px-3">Administração</p>
+                <p className="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-2 px-3">Administração</p>
+                <Link href="/admin/usuarios">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+                    <Users className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-medium">Admin Usuários</span>
+                  </button>
+                </Link>
                 <Link href="/admin/funcoes">
                   <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
-                    <Shield className="w-5 h-5" />
-                    <span className="text-sm font-medium">Gestão de Funções</span>
+                    <Sliders className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-medium">Admin Funções</span>
+                  </button>
+                </Link>
+                <Link href="/admin/logs">
+                  <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+                    <History className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-medium">Logs de Auditoria</span>
                   </button>
                 </Link>
               </div>
@@ -783,8 +756,7 @@ export default function Dashboard() {
         <header className="lg:hidden sticky top-0 z-40 bg-card border-b border-border">
           <div className="flex items-center justify-between p-4">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/logo-appsindico.png" alt="App Síndico" className="w-8 h-8 object-contain" />
-              <img src="/logo-appsindico-texto.png" alt="App Síndico" className="h-5 object-contain" />
+              <img src="/logo-manutencao.png" alt="App Manutenção" className="h-8 object-contain" />
             </Link>
             <div className="flex items-center gap-2">
               <NotificationAlert condominioId={condominios?.[0]?.id || null} />
@@ -809,11 +781,11 @@ export default function Dashboard() {
                   return (
                     <Link key={funcao.id} href={funcao.path}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
-                        style={{ borderColor: cor }}
+                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                        style={{ backgroundColor: cor }}
                       >
-                        <Icon className="w-4 h-4" style={{ color: cor }} />
-                        <span className="text-[9px] font-semibold" style={{ color: cor }}>{funcao.nome}</span>
+                        <Icon className="w-4 h-4 text-white" />
+                        <span className="text-[9px] font-semibold text-white">{funcao.nome}</span>
                       </button>
                     </Link>
                   );
@@ -825,13 +797,13 @@ export default function Dashboard() {
                   const Icon = func.icon;
                   const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
                   return (
-                    <Link key={func.id} href={func.path}>
+                    <Link key={func.id} href={`/dashboard/${func.id}`}>
                       <button 
-                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white border-2"
-                        style={{ borderColor: cor }}
+                        className="w-full flex flex-col items-center gap-1 p-2 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                        style={{ backgroundColor: cor }}
                       >
-                        <Icon className="w-4 h-4" style={{ color: cor }} />
-                        <span className="text-[9px] font-semibold" style={{ color: cor }}>{func.label}</span>
+                        <Icon className="w-4 h-4 text-white" />
+                        <span className="text-[9px] font-semibold text-white">{func.label}</span>
                       </button>
                     </Link>
                   );
@@ -868,17 +840,32 @@ export default function Dashboard() {
           {currentSection === "publicidade" && <PublicidadeSection />}
           {currentSection === "seguranca" && <SegurancaSection />}
           {currentSection === "regras" && <RegrasSection />}
-          {currentSection === "vistorias" && condominios?.[0] && <VistoriasPage condominioId={condominios[0].id} />}
-          {currentSection === "manutencoes" && condominios?.[0] && <ManutencoesPage condominioId={condominios[0].id} />}
-          {currentSection === "ocorrencias" && condominios?.[0] && <OcorrenciasPage condominioId={condominios[0].id} />}
+          {currentSection === "vistorias" && (condominios?.[0] ? <VistoriasPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
+          {currentSection === "manutencoes" && (condominios?.[0] ? <ManutencoesPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
+          {currentSection === "ocorrencias" && (condominios?.[0] ? <OcorrenciasPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
           {currentSection === "notificar-morador" && <NotificarMoradorPage />}
-          {currentSection === "checklists" && condominios?.[0] && <ChecklistsPage condominioId={condominios[0].id} />}
+          {currentSection === "checklists" && (condominios?.[0] ? <ChecklistsPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
           {currentSection === "vencimentos" && condominios?.[0] && <VencimentosSection condominioId={condominios[0].id} />}
           {currentSection === "assembleia" && <AssembleiaOnlineSection />}
           {currentSection === "gestao-notificacoes" && condominios?.[0] && <NotificacoesPage condominioId={condominios[0].id} />}
           {currentSection === "relatorios" && condominios?.[0] && <RelatoriosPage condominioId={condominios[0].id} />}
           {currentSection === "equipe" && condominios?.[0] && <MembrosEquipePage condominioId={condominios[0].id} />}
+          {currentSection === "compartilhamentos" && <CompartilhamentosPage />}
           {currentSection === "configuracoes" && <ConfiguracoesSection />}
+          {currentSection === "ordens-servico" && <OrdensServico />}
+          {currentSection === "agenda-vencimentos" && <AgendaVencimentos />}
+          {currentSection === "historico-acessos" && <HistoricoAcessosPage />}
+          {currentSection === "historico-infracoes" && <HistoricoInfracoesPage />}
+          {currentSection === "funcoes-simples" && <HistoricoTarefasSimples />}
+          {currentSection === "notificar-morador" && <NotificarMoradorPage />}
+          {currentSection === "ordens-servico-config" && <OrdensServicoConfig />}
+          {currentSection?.startsWith("ordem-servico/") && <OrdemServicoDetalhe />}
+          {currentSection === "admin-usuarios" && <AdminUsuarios />}
+          {currentSection === "admin-logs" && <AdminLogs />}
+          {currentSection === "historico" && (condominios?.[0] ? <HistoricoAtividadesPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
+          {currentSection === "timeline" && (condominios?.[0] ? <TimelinePage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
+          {currentSection === "timeline-historico" && (condominios?.[0] ? <TimelineHistoricoPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
+          {currentSection === "timeline-dashboard" && (condominios?.[0] ? <TimelineDashboardPage condominioId={condominios[0].id} /> : <SemOrganizacaoMessage />)}
         </div>
       </main>
 
@@ -938,7 +925,7 @@ export default function Dashboard() {
             {/* Header */}
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img src="/logo-appsindico.png" alt="App Síndico" className="w-8 h-8 object-contain" />
+                <img src="/logo-manutencao.png" alt="App Manutenção" className="w-8 h-8 object-contain" />
                 <span className="font-bold text-lg">Menu</span>
               </div>
               <button
@@ -964,11 +951,11 @@ export default function Dashboard() {
                     return (
                       <Link key={funcao.id} href={funcao.path} onClick={() => setMobileMenuOpen(false)}>
                         <div 
-                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all bg-white border-2"
-                          style={{ borderColor: cor }}
+                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+                          style={{ backgroundColor: cor }}
                         >
-                          <Icon className="w-4 h-4" style={{ color: cor }} />
-                          <span className="text-xs font-semibold" style={{ color: cor }}>{funcao.nome}</span>
+                          <Icon className="w-4 h-4 text-white" />
+                          <span className="text-xs font-semibold text-white">{funcao.nome}</span>
                         </div>
                       </Link>
                     );
@@ -980,13 +967,13 @@ export default function Dashboard() {
                     const Icon = func.icon;
                     const cor = CORES_FUNCOES_RAPIDAS[index % CORES_FUNCOES_RAPIDAS.length];
                     return (
-                      <Link key={func.id} href={func.path} onClick={() => setMobileMenuOpen(false)}>
+                      <Link key={func.id} href={`/dashboard/${func.id}`} onClick={() => setMobileMenuOpen(false)}>
                         <div 
-                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all bg-white border-2"
-                          style={{ borderColor: cor }}
+                          className="flex items-center gap-2 p-2.5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+                          style={{ backgroundColor: cor }}
                         >
-                          <Icon className="w-4 h-4" style={{ color: cor }} />
-                          <span className="text-xs font-semibold" style={{ color: cor }}>{func.label}</span>
+                          <Icon className="w-4 h-4 text-white" />
+                          <span className="text-xs font-semibold text-white">{func.label}</span>
                         </div>
                       </Link>
                     );
@@ -1039,7 +1026,7 @@ export default function Dashboard() {
                             {section.items.map((item) => (
                               <Link
                                 key={item.id}
-                                href={`/dashboard/${item.id}`}
+                                href={(item as any).path || `/dashboard/${item.id}`}
                                 onClick={() => setMobileMenuOpen(false)}
                               >
                                 <div className={cn(
@@ -1090,6 +1077,44 @@ export default function Dashboard() {
         </div>
       )}
     </div>
+
+      {/* Modais de Registro Rápido */}
+      <TarefasSimplesModal
+        open={showVistoriaRapida}
+        onOpenChange={setShowVistoriaRapida}
+        condominioId={condominios?.[0]?.id || 0}
+        tipoInicial="vistoria"
+        onSuccess={() => {
+          toast.success("Vistoria registrada com sucesso!");
+        }}
+      />
+      <TarefasSimplesModal
+        open={showManutencaoRapida}
+        onOpenChange={setShowManutencaoRapida}
+        condominioId={condominios?.[0]?.id || 0}
+        tipoInicial="manutencao"
+        onSuccess={() => {
+          toast.success("Manutenção registrada com sucesso!");
+        }}
+      />
+      <TarefasSimplesModal
+        open={showOcorrenciaRapida}
+        onOpenChange={setShowOcorrenciaRapida}
+        condominioId={condominios?.[0]?.id || 0}
+        tipoInicial="ocorrencia"
+        onSuccess={() => {
+          toast.success("Ocorrência registrada com sucesso!");
+        }}
+      />
+      <TarefasSimplesModal
+        open={showAntesDepoisRapido}
+        onOpenChange={setShowAntesDepoisRapido}
+        condominioId={condominios?.[0]?.id || 0}
+        tipoInicial="antes_depois"
+        onSuccess={() => {
+          toast.success("Antes/Depois registrado com sucesso!");
+        }}
+      />
     </>
   );
 }
@@ -1114,7 +1139,7 @@ function OverviewSection({ user }: { user: any }) {
   const { data: condominios } = trpc.condominio.list.useQuery();
   const condominioId = condominios?.[0]?.id || 0;
   
-  // Query para apps do condomínio
+  // Query para apps da organização
   const { data: appsData } = trpc.apps.list.useQuery(
     { condominioId },
     { enabled: !!condominioId }
@@ -1175,13 +1200,10 @@ function OverviewSection({ user }: { user: any }) {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-serif font-bold text-foreground">
-          Bem-vindo, {user?.name?.split(" ")[0] || (user?.tipoConta === "administradora" ? "Administrador" : "Síndico")}!
+          Bem-vindo, {user?.name?.split(" ")[0] || "Gestor"}!
         </h1>
         <p className="text-muted-foreground">
-          {user?.tipoConta === "administradora" 
-            ? "Gerencie apps, projetos digitais e relatórios para seus condomínios."
-            : "Crie apps, projetos digitais e relatórios para seu condomínio."
-          }
+          Sistema de Gestão de Manutenções Universal - Gerencie vistorias, manutenções e ocorrências.
         </p>
       </div>
 
@@ -1271,8 +1293,7 @@ function OverviewSection({ user }: { user: any }) {
         </Card>
       )}
 
-
-      {/* Quick stats - Cards com botões de ação */}
+      {/* Quick stats - Cards de Criação */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card Apps */}
         <Card className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-white to-blue-50/50 dark:from-gray-900 dark:to-blue-950/30">
@@ -1281,17 +1302,16 @@ function OverviewSection({ user }: { user: any }) {
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25">
                 <Smartphone className="w-6 h-6 text-white" />
               </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">{appsData?.length || 0}</span>
+              <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">0</span>
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">Apps Criados</h3>
-            <p className="text-sm text-muted-foreground mb-4">Crie apps personalizados para seu condomínio</p>
-            <button
-              onClick={() => window.location.href = '/dashboard/apps/novo'}
-              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Criar App
-            </button>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Menus Apps</h3>
+            <p className="text-sm text-muted-foreground mb-4">Apps criados para sua organização</p>
+            <Link href="/dashboard/apps/novo">
+              <button className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 flex items-center justify-center gap-2">
+                <Plus className="w-4 h-4" />
+                Novo App
+              </button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -1300,23 +1320,22 @@ function OverviewSection({ user }: { user: any }) {
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/25">
-                <FileText className="w-6 h-6 text-white" />
+                <FileBarChart className="w-6 h-6 text-white" />
               </div>
               <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">0</span>
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">Relatórios Criados</h3>
-            <p className="text-sm text-muted-foreground mb-4">Gere relatórios detalhados com sua marca</p>
-            <button
-              onClick={() => window.location.href = '/dashboard/relatorios/novo'}
-              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Criar Relatório
-            </button>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Relatórios</h3>
+            <p className="text-sm text-muted-foreground mb-4">Relatórios criados com sua marca</p>
+            <Link href="/dashboard/relatorios/novo">
+              <button className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 flex items-center justify-center gap-2">
+                <Plus className="w-4 h-4" />
+                Novo Relatório
+              </button>
+            </Link>
           </CardContent>
         </Card>
 
-        {/* Card Revistas */}
+        {/* Card Livro de Manutenção */}
         <Card className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-white to-purple-50/50 dark:from-gray-900 dark:to-purple-950/30">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
@@ -1325,15 +1344,14 @@ function OverviewSection({ user }: { user: any }) {
               </div>
               <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">0</span>
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">Revistas Criadas</h3>
-            <p className="text-sm text-muted-foreground mb-4">Crie revistas digitais interativas</p>
-            <button
-              onClick={() => window.location.href = '/dashboard/revistas'}
-              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md shadow-purple-500/25 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Criar Revista
-            </button>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Livro de Manutenção</h3>
+            <p className="text-sm text-muted-foreground mb-4">Livros interativos com funcionalidades</p>
+            <Link href="/dashboard/revistas">
+              <button className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-md shadow-purple-500/25 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300 flex items-center justify-center gap-2">
+                <Plus className="w-4 h-4" />
+                Novo Livro
+              </button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -1348,7 +1366,7 @@ function OverviewSection({ user }: { user: any }) {
                   <Smartphone className="w-5 h-5 text-blue-500" />
                   Meus Apps
                 </CardTitle>
-                <CardDescription>Apps criados para seu condomínio</CardDescription>
+                <CardDescription>Apps criados para sua organização</CardDescription>
               </div>
               <Link href="/dashboard/apps/novo">
                 <Button variant="outline" size="sm" className="gap-2">
@@ -1464,15 +1482,15 @@ function OverviewSection({ user }: { user: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="font-serif">Primeiros Passos</CardTitle>
-          <CardDescription>Configure seu condomínio para começar</CardDescription>
+          <CardDescription>Configure sua organização para começar</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {[
-              { step: 1, title: "Cadastre seu Condomínio", description: "Adicione nome, endereço e logo", done: false, path: "/dashboard/condominio" },
-              { step: 2, title: "Adicione Funcionários", description: "Cadastre a equipe do condomínio", done: false, path: "/dashboard/funcionarios" },
-              { step: 3, title: "Crie seu Primeiro Projeto", description: "App, revista ou relatório", done: false, path: "/dashboard/criar-projeto" },
-              { step: 4, title: "Compartilhe com Moradores", description: "Gere o link e divulgue", done: false, path: "/dashboard/moradores" },
+              { step: 1, title: "Cadastre sua Organização", description: "Adicione nome, endereço e logo", done: false, path: "/dashboard/condominio" },
+              { step: 2, title: "Adicione sua Equipe", description: "Cadastre os membros da equipe de gestão", done: false, path: "/dashboard/equipe" },
+              { step: 3, title: "Crie sua Primeira Vistoria", description: "Registre uma vistoria técnica", done: false, path: "/dashboard/vistorias" },
+              { step: 4, title: "Registre Manutenções", description: "Adicione manutenções preventivas ou corretivas", done: false, path: "/dashboard/manutencoes" },
             ].map((item) => (
               <Link key={item.step} href={item.path}>
                 <div className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group">
@@ -1516,7 +1534,7 @@ function getCurrentEdition(): string {
 // Revistas Section
 function RevistasSection() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [mostrarAssistente, setMostrarAssistente] = useState(false);
+  // mostrarAssistente removido
   const [formData, setFormData] = useState({
     titulo: "",
     subtitulo: "Informativo Mensal",
@@ -1634,7 +1652,7 @@ function RevistasSection() {
       return;
     }
     if (!condominioId) {
-      toast.error("Cadastre um condomínio primeiro");
+      toast.error("Cadastre uma organização primeiro");
       return;
     }
     createRevistaMutation.mutate({ condominioId, ...formData });
@@ -1660,15 +1678,9 @@ function RevistasSection() {
               <span className="text-purple-200 text-sm font-medium uppercase tracking-wider">Central de Projetos</span>
             </div>
             <h1 className="text-3xl font-bold mb-2">Meus Projetos</h1>
-            <p className="text-purple-200 max-w-md">Crie e gerencie apps, revistas digitais e relatórios personalizados para seu condomínio</p>
+            <p className="text-purple-200 max-w-md">Crie e gerencie apps, revistas digitais e relatórios personalizados para sua organização</p>
           </div>
-          <Button 
-            className="bg-white text-purple-700 hover:bg-purple-50 shadow-lg shadow-purple-900/30 font-semibold px-6 py-3 h-auto"
-            onClick={() => setMostrarAssistente(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Novo Projeto
-          </Button>
+
         </div>
         {/* Stats */}
         <div className="relative z-10 grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/20">
@@ -1933,8 +1945,8 @@ function RevistasSection() {
                   <p className="text-xs text-blue-400 font-medium">apps</p>
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Apps Personalizados</h3>
-              <p className="text-sm text-slate-500 mb-6 leading-relaxed">Crie aplicativos exclusivos com a identidade do seu condomínio</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">App de Manutenção</h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">Crie seu app de manutenção personalizado</p>
               <Link href="/dashboard/apps/novo">
                 <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/25 font-semibold py-3 h-auto">
                   <Plus className="h-5 w-5 mr-2" />
@@ -1989,14 +2001,14 @@ function RevistasSection() {
                   <p className="text-xs text-purple-400 font-medium">revistas</p>
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Revistas Digitais</h3>
-              <p className="text-sm text-slate-500 mb-6 leading-relaxed">Crie revistas interativas e modernas para comunicar com os moradores</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Livro de Manutenções</h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">Registre todas as manutenções para apresentar aos seus clientes e gestores</p>
               <Button 
                 className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-fuchsia-500 hover:from-purple-600 hover:via-pink-600 hover:to-fuchsia-600 text-white shadow-lg shadow-purple-500/25 font-semibold py-3 h-auto"
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Plus className="h-5 w-5 mr-2" />
-                Criar Revista
+                Criar Livro de Manutenções
               </Button>
             </div>
           </div>
@@ -2005,23 +2017,23 @@ function RevistasSection() {
 
       {/* Dialog de criação de revista */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
+        <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                   <BookOpen className="w-5 h-5 text-white" />
                 </div>
-                Criar Nova Revista
+                Criar Livro de Manutenções
               </DialogTitle>
               <DialogDescription className="text-purple-100">
-                Preencha os dados para criar sua revista digital
+                Preencha os dados para criar seu livro de manutenções
               </DialogDescription>
             </DialogHeader>
           </div>
           <form onSubmit={handleCreateRevista} className="p-6 overflow-y-auto max-h-[70vh] space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="titulo">Título da Revista *</Label>
+              <Label htmlFor="titulo">Título do Livro *</Label>
               <Input
                 id="titulo"
                 placeholder="Ex: Informativo Mensal"
@@ -2083,7 +2095,7 @@ function RevistasSection() {
                 ) : (
                   <Plus className="w-4 h-4 mr-2" />
                 )}
-                Criar Revista
+                Criar Livro de Manutenções
               </Button>
             </div>
           </form>
@@ -2092,8 +2104,8 @@ function RevistasSection() {
 
       {/* Dialog de confirmação de exclusão */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <DialogContent className="sm:max-w-[400px] max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-red-500 to-rose-500 px-6 py-4">
+        <DialogContent className="w-[92vw] max-w-xs max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-red-500 to-rose-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -2131,19 +2143,7 @@ function RevistasSection() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal do Assistente de Criação */}
-      <Dialog open={mostrarAssistente} onOpenChange={setMostrarAssistente}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Assistente de Criação</DialogTitle>
-            <DialogDescription>Crie seu projeto passo a passo</DialogDescription>
-          </DialogHeader>
-          <AssistenteCriacao 
-            onClose={() => setMostrarAssistente(false)}
-            onComplete={() => setMostrarAssistente(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Assistente de Criação removido - sistema focado em manutenção */}
     </div>
   );
 }
@@ -2166,7 +2166,7 @@ function CondominioSection() {
 
   const createMutation = trpc.condominio.create.useMutation({
     onSuccess: () => {
-      toast.success("Condomínio cadastrado com sucesso!");
+      toast.success("Organização cadastrada com sucesso!");
       utils.condominio.list.invalidate();
       setIsDialogOpen(false);
       setFormData({ nome: "", endereco: "", cidade: "", estado: "", logoUrl: "", bannerUrl: "", capaUrl: "" });
@@ -2179,7 +2179,7 @@ function CondominioSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nome.trim()) {
-      toast.error("O nome do condomínio é obrigatório");
+      toast.error("O nome da organização é obrigatório");
       return;
     }
     createMutation.mutate(formData);
@@ -2191,18 +2191,18 @@ function CondominioSection() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-foreground">Meu Condomínio</h1>
-          <p className="text-muted-foreground">Configure as informações do seu condomínio</p>
+          <h1 className="text-2xl font-serif font-bold text-foreground">Cadastro de Locais e Itens</h1>
+          <p className="text-muted-foreground">Gerencie locais e itens para manutenção</p>
         </div>
         {hasCondominios && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="btn-magazine">
                 <Plus className="w-4 h-4 mr-2" />
-                Novo Condomínio
+                Novo Local
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+            <DialogContent className="w-[92vw] max-w-lg max-h-[85vh] overflow-y-auto p-0">
               {/* Header Premium */}
               <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
@@ -2211,9 +2211,9 @@ function CondominioSection() {
                     <Building2 className="w-6 h-6" />
                   </div>
                   <div>
-                    <DialogTitle className="text-xl font-bold text-white">Cadastrar Condomínio</DialogTitle>
+                    <DialogTitle className="text-xl font-bold text-white">Cadastrar Organização</DialogTitle>
                     <DialogDescription className="text-blue-100 mt-1">
-                      Adicione as informações do seu condomínio
+                      Adicione as informações da sua organização
                     </DialogDescription>
                   </div>
                 </div>
@@ -2226,10 +2226,10 @@ function CondominioSection() {
                     <div className="p-1.5 bg-blue-100 rounded-lg">
                       <Building2 className="w-4 h-4 text-blue-600" />
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados do Condomínio</h3>
+                    <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados da Organização</h3>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="nome" className="text-sm font-medium text-slate-700">Nome do Condomínio <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="nome" className="text-sm font-medium text-slate-700">Nome da Organização <span className="text-red-500">*</span></Label>
                     <Input
                       id="nome"
                       placeholder="Ex: Residencial Jardins"
@@ -2345,7 +2345,7 @@ function CondominioSection() {
                     {createMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <><Building2 className="w-4 h-4 mr-2" />Cadastrar Condomínio</>
+                      <><Building2 className="w-4 h-4 mr-2" />Cadastrar Organização</>
                     )}
                   </Button>
                 </div>
@@ -2387,19 +2387,19 @@ function CondominioSection() {
           <CardContent className="p-12 text-center">
             <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-serif text-lg font-semibold text-foreground mb-2">
-              Cadastre seu Condomínio
+              Cadastre sua Organização
             </h3>
             <p className="text-muted-foreground mb-4">
-              Adicione as informações do seu condomínio para começar
+              Adicione as informações da sua organização para começar
             </p>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="btn-magazine">
                   <Plus className="w-4 h-4 mr-2" />
-                  Cadastrar Condomínio
+                  Cadastrar Organização
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+              <DialogContent className="w-[92vw] max-w-lg max-h-[85vh] overflow-y-auto p-0">
                 {/* Header Premium */}
                 <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white">
                   <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
@@ -2408,9 +2408,9 @@ function CondominioSection() {
                       <Building2 className="w-6 h-6" />
                     </div>
                     <div>
-                      <DialogTitle className="text-xl font-bold text-white">Cadastrar Condomínio</DialogTitle>
+                      <DialogTitle className="text-xl font-bold text-white">Cadastrar Organização</DialogTitle>
                       <DialogDescription className="text-blue-100 mt-1">
-                        Adicione as informações do seu condomínio
+                        Adicione as informações da sua organização
                       </DialogDescription>
                     </div>
                   </div>
@@ -2423,10 +2423,10 @@ function CondominioSection() {
                       <div className="p-1.5 bg-blue-100 rounded-lg">
                         <Building2 className="w-4 h-4 text-blue-600" />
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados do Condomínio</h3>
+                      <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Dados da Organização</h3>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="nome2" className="text-sm font-medium text-slate-700">Nome do Condomínio <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="nome2" className="text-sm font-medium text-slate-700">Nome da Organização <span className="text-red-500">*</span></Label>
                       <Input
                         id="nome2"
                         placeholder="Ex: Residencial Jardins"
@@ -2542,7 +2542,7 @@ function CondominioSection() {
                       {createMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <><Building2 className="w-4 h-4 mr-2" />Cadastrar Condomínio</>
+                        <><Building2 className="w-4 h-4 mr-2" />Cadastrar Organização</>
                       )}
                     </Button>
                   </div>
@@ -2773,7 +2773,7 @@ function MoradoresSection() {
 
   const handleBatchSubmit = () => {
     if (!condominioId) {
-      toast.error("Você precisa cadastrar um condomínio primeiro");
+      toast.error("Você precisa cadastrar uma organização primeiro");
       return;
     }
     if (excelData.length === 0) {
@@ -2788,7 +2788,7 @@ function MoradoresSection() {
 
   const handleGenerateQRCode = async () => {
     if (!condominioId) {
-      toast.error("Você precisa cadastrar um condomínio primeiro");
+      toast.error("Você precisa cadastrar uma organização primeiro");
       return;
     }
     await generateToken.mutateAsync({ id: condominioId });
@@ -2825,7 +2825,7 @@ function MoradoresSection() {
       return;
     }
     if (!condominioId) {
-      toast.error("Você precisa cadastrar um condomínio primeiro");
+      toast.error("Você precisa cadastrar uma organização primeiro");
       return;
     }
 
@@ -2923,7 +2923,7 @@ function MoradoresSection() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Moradores</h1>
-          <p className="text-muted-foreground">Gerencie os moradores do condomínio</p>
+          <p className="text-muted-foreground">Gerencie a equipa da organização</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {/* Botão QR Code em destaque */}
@@ -2963,8 +2963,8 @@ function MoradoresSection() {
                 Adicionar Morador
               </Button>
             </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -2973,7 +2973,7 @@ function MoradoresSection() {
                   {editingMorador ? "Editar Morador" : "Novo Morador"}
                 </DialogTitle>
                 <DialogDescription className="text-indigo-100">
-                  {editingMorador ? "Atualize as informações do morador" : "Cadastre um novo morador do condomínio"}
+                  {editingMorador ? "Atualize as informações do morador" : "Cadastre um novo morador da organização"}
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -3083,7 +3083,7 @@ function MoradoresSection() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t">
+            <div className="flex justify-end gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t">
               <Button variant="outline" onClick={() => {
                 setShowMoradorDialog(false);
                 setEditingMorador(null);
@@ -3110,8 +3110,8 @@ function MoradoresSection() {
 
       {/* Modal de Importação Excel */}
       <Dialog open={showExcelDialog} onOpenChange={setShowExcelDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+        <DialogContent className="w-[92vw] max-w-lg max-h-[85vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -3120,7 +3120,7 @@ function MoradoresSection() {
                 Importar Moradores via Excel
               </DialogTitle>
               <DialogDescription className="text-emerald-100">
-                Faça upload de um arquivo CSV ou Excel com os dados dos moradores
+                Faça upload de um arquivo CSV ou Excel com os dados da equipa
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -3231,8 +3231,8 @@ function MoradoresSection() {
 
       {/* Modal QR Code */}
       <Dialog open={showQRCodeDialog} onOpenChange={setShowQRCodeDialog}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-purple-500 to-violet-500 px-6 py-4">
+        <DialogContent className="w-[92vw] max-w-sm max-h-[85vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-purple-500 to-violet-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -3241,7 +3241,7 @@ function MoradoresSection() {
                 QR Code para Cadastro
               </DialogTitle>
               <DialogDescription className="text-purple-100">
-                Imprima este folder e distribua para os moradores se cadastrarem
+                Imprima este folder e distribua para a equipa se cadastrarem
               </DialogDescription>
             </DialogHeader>
           </div>
@@ -3394,7 +3394,7 @@ function MoradoresSection() {
                             <div class="url">${cadastroUrl}</div>
                             
                             <div class="footer">
-                              Powered by App Síndico
+                              Powered by App Manutenção
                             </div>
                           </div>
                         </body>
@@ -3493,15 +3493,15 @@ function MoradoresSection() {
           <CardContent className="p-12 text-center">
             <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-serif text-lg font-semibold text-foreground mb-2">
-              Cadastre um condomínio primeiro
+              Cadastre uma organização primeiro
             </h3>
             <p className="text-muted-foreground mb-4">
-              Você precisa cadastrar um condomínio antes de adicionar moradores
+              Você precisa cadastrar uma organização antes de adicionar moradores
             </p>
             <Link href="/dashboard/condominio">
               <Button className="btn-magazine">
                 <Building2 className="w-4 h-4 mr-2" />
-                Ir para Condomínio
+                Ir para Organização
               </Button>
             </Link>
           </CardContent>
@@ -3647,7 +3647,7 @@ function MoradoresSection() {
               {searchQuery ? "Nenhum morador encontrado" : "Nenhum morador cadastrado"}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery ? "Tente uma busca diferente" : "Adicione os moradores do seu condomínio"}
+              {searchQuery ? "Tente uma busca diferente" : "Adicione a equipa da sua organização"}
             </p>
             {!searchQuery && (
               <Button className="btn-magazine" onClick={() => setShowMoradorDialog(true)}>
@@ -3851,21 +3851,21 @@ function FuncionariosSection() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Funcionários</h1>
-          <p className="text-muted-foreground">Gerencie a equipe do condomínio</p>
+          <p className="text-muted-foreground">Gerencie a equipe da organização</p>
         </div>
         <Card>
           <CardContent className="p-12 text-center">
             <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-serif text-lg font-semibold text-foreground mb-2">
-              Cadastre um condomínio primeiro
+              Cadastre uma organização primeiro
             </h3>
             <p className="text-muted-foreground mb-4">
-              Você precisa cadastrar um condomínio antes de adicionar funcionários
+              Você precisa cadastrar uma organização antes de adicionar funcionários
             </p>
             <Link href="/dashboard/condominio">
               <Button className="btn-magazine">
                 <Building2 className="w-4 h-4 mr-2" />
-                Ir para Condomínio
+                Ir para Organização
               </Button>
             </Link>
           </CardContent>
@@ -3879,7 +3879,7 @@ function FuncionariosSection() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Funcionários</h1>
-          <p className="text-muted-foreground">Gerencie a equipe do condomínio</p>
+          <p className="text-muted-foreground">Gerencie a equipe da organização</p>
         </div>
         <Dialog open={showDialog} onOpenChange={(open) => {
           setShowDialog(open);
@@ -3894,8 +3894,8 @@ function FuncionariosSection() {
               Adicionar Funcionário
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-sm max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -3979,20 +3979,20 @@ function FuncionariosSection() {
                   <option value="porteiro">Porteiro</option>
                   <option value="zelador">Zelador</option>
                   <option value="supervisor">Supervisor de Rota</option>
-                  <option value="gerente">Gerente de Condomínio</option>
+                  <option value="gerente">Gerente de Organização</option>
                   <option value="sindico_externo">Síndico Externo</option>
                 </select>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {formData.tipoFuncionario === "supervisor" && "Supervisor pode acessar múltiplos condomínios"}
+                  {formData.tipoFuncionario === "supervisor" && "Supervisor pode acessar múltiplas organizações"}
                   {formData.tipoFuncionario === "gerente" && "Gerente tem acesso parcial definido pelo síndico"}
-                  {formData.tipoFuncionario === "sindico_externo" && "Síndico externo com acesso total ao condomínio"}
+                  {formData.tipoFuncionario === "sindico_externo" && "Síndico externo com acesso total aa organização"}
                 </p>
               </div>
               
               {/* Seleção de Condomínios (para supervisores) */}
               {formData.tipoFuncionario === "supervisor" && condominios && condominios.length > 1 && (
                 <div>
-                  <Label>Condomínios que pode acessar</Label>
+                  <Label>Organizações que pode acessar</Label>
                   <div className="mt-2 space-y-2 max-h-32 overflow-y-auto border rounded-md p-2">
                     {condominios.map((cond) => (
                       <label key={cond.id} className="flex items-center gap-2 cursor-pointer">
@@ -4075,8 +4075,8 @@ function FuncionariosSection() {
             setAccessFormData({ loginEmail: "", senha: "", loginAtivo: true });
           }
         }}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -4324,7 +4324,7 @@ function FuncionariosSection() {
               Nenhum funcionário cadastrado
             </h3>
             <p className="text-muted-foreground mb-4">
-              Adicione os funcionários do seu condomínio
+              Adicione os funcionários da sua organização
             </p>
             <Button className="btn-magazine" onClick={() => setShowDialog(true)}>
               <Plus className="w-4 h-4 mr-2" />
@@ -4349,7 +4349,7 @@ function AvisosSection() {
   const { data: condominios } = trpc.condominio.list.useQuery();
   const condominioId = condominios?.[0]?.id;
   
-  // Buscar revistas do condomínio para associar avisos
+  // Buscar revistas da organização para associar avisos
   const { data: revistas } = trpc.revista.list.useQuery(
     { condominioId: condominioId || 0 },
     { enabled: !!condominioId }
@@ -4370,7 +4370,7 @@ function AvisosSection() {
       resetForm();
       refetch();
       
-      // Enviar notificação para todos os moradores
+      // Enviar notificação para todos a equipa
       if (condominioId) {
         notifyAll.mutate({
           condominioId,
@@ -4477,7 +4477,7 @@ function AvisosSection() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Avisos</h1>
-          <p className="text-muted-foreground">Gerencie os avisos do condomínio</p>
+          <p className="text-muted-foreground">Gerencie os avisos da organização</p>
         </div>
         <Dialog open={showAvisoDialog} onOpenChange={(open) => {
           setShowAvisoDialog(open);
@@ -4492,8 +4492,8 @@ function AvisosSection() {
               Criar Aviso
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-sm max-h-[90vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -4502,7 +4502,7 @@ function AvisosSection() {
                   {editingAviso ? "Editar Aviso" : "Novo Aviso"}
                 </DialogTitle>
                 <DialogDescription className="text-blue-100">
-                  {editingAviso ? "Atualize as informações do aviso" : "Crie um novo aviso para os moradores"}
+                  {editingAviso ? "Atualize as informações do aviso" : "Crie um novo aviso para a equipa"}
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -4574,15 +4574,15 @@ function AvisosSection() {
           <CardContent className="p-12 text-center">
             <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-serif text-lg font-semibold text-foreground mb-2">
-              Cadastre um condomínio primeiro
+              Cadastre uma organização primeiro
             </h3>
             <p className="text-muted-foreground mb-4">
-              Você precisa cadastrar um condomínio antes de criar avisos
+              Você precisa cadastrar uma organização antes de criar avisos
             </p>
             <Link href="/dashboard/condominio">
               <Button className="btn-magazine">
                 <Building2 className="w-4 h-4 mr-2" />
-                Ir para Condomínio
+                Ir para Organização
               </Button>
             </Link>
           </CardContent>
@@ -4670,7 +4670,7 @@ function AvisosSection() {
               Nenhum aviso criado
             </h3>
             <p className="text-muted-foreground mb-4">
-              Crie avisos para informar os moradores
+              Crie avisos para informar a equipa
             </p>
             <Button className="btn-magazine" onClick={() => setShowAvisoDialog(true)}>
               <Plus className="w-4 h-4 mr-2" />
@@ -4722,7 +4722,7 @@ function EventosSection() {
       resetForm();
       refetch();
       
-      // Enviar notificação para todos os moradores
+      // Enviar notificação para todos a equipa
       if (condominioId) {
         notifyAll.mutate({
           condominioId,
@@ -4873,8 +4873,8 @@ function EventosSection() {
             <Bell className="w-4 h-4 mr-2" />
             {sendAllReminders.isPending ? "Enviando..." : "Enviar Lembretes"}
           </Button>
-          <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-sm max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -5126,7 +5126,7 @@ function EventosSection() {
               Nenhum evento agendado
             </h3>
             <p className="text-muted-foreground mb-4">
-              Adicione eventos à agenda do condomínio
+              Adicione eventos à agenda da organização
             </p>
             <Button className="btn-magazine" onClick={() => setShowEventoDialog(true)}>
               <Plus className="w-4 h-4 mr-2" />
@@ -5262,7 +5262,7 @@ function VotacoesSection() {
         <Card>
           <CardContent className="pt-6 text-center">
             <Vote className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -5274,7 +5274,7 @@ function VotacoesSection() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Votações</h1>
-          <p className="text-muted-foreground">Crie enquetes e votações para os moradores</p>
+          <p className="text-muted-foreground">Crie enquetes e votações para a equipa</p>
         </div>
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
@@ -5283,10 +5283,10 @@ function VotacoesSection() {
               Nova Votação
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="w-[92vw] max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Nova Votação</DialogTitle>
-              <DialogDescription>Crie uma votação ou enquete para os moradores</DialogDescription>
+              <DialogDescription>Crie uma votação ou enquete para a equipa</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -5443,7 +5443,7 @@ function VotacoesSection() {
                         onClick={() => {
                           const url = `${window.location.origin}/votar/${votacao.id}`;
                           navigator.clipboard.writeText(url);
-                          toast.success("Link copiado! Partilhe com os moradores.");
+                          toast.success("Link copiado! Partilhe com a equipa.");
                         }}
                       >
                         <Share2 className="w-4 h-4 mr-1" />
@@ -5557,12 +5557,12 @@ function ClassificadosSection() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Classificados</h1>
-          <p className="text-muted-foreground">Classificados dos moradores</p>
+          <p className="text-muted-foreground">Classificados da equipa</p>
         </div>
         <Card>
           <CardContent className="pt-6 text-center">
             <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -5574,7 +5574,7 @@ function ClassificadosSection() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Classificados</h1>
-          <p className="text-muted-foreground">Produtos e serviços oferecidos pelos moradores</p>
+          <p className="text-muted-foreground">Produtos e serviços oferecidos pela equipa</p>
         </div>
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
@@ -5583,7 +5583,7 @@ function ClassificadosSection() {
               Novo Classificado
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="w-[92vw] max-w-sm">
             <DialogHeader>
               <DialogTitle>Novo Classificado</DialogTitle>
               <DialogDescription>Publique um produto ou serviço</DialogDescription>
@@ -5758,7 +5758,7 @@ function CaronasSection() {
         <Card>
           <CardContent className="pt-6 text-center">
             <Car className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -5779,8 +5779,8 @@ function CaronasSection() {
               Nova Carona
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -5809,7 +5809,7 @@ function CaronasSection() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Origem *</Label>
-                  <Input value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="Ex: Condomínio" />
+                  <Input value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="Ex: Organização" />
                 </div>
                 <div>
                   <Label>Destino *</Label>
@@ -5976,7 +5976,7 @@ function AchadosSection() {
         <Card>
           <CardContent className="pt-6 text-center">
             <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -5997,8 +5997,8 @@ function AchadosSection() {
               Novo Item
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -6078,8 +6078,8 @@ function AchadosSection() {
       )}
 
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -6366,7 +6366,7 @@ function PublicidadeSection() {
         <Card>
           <CardContent className="pt-6 text-center">
             <Image className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -6388,8 +6388,8 @@ function PublicidadeSection() {
                 Novo Anúncio
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-              <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-4">
+            <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+              <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-3">
                 <DialogHeader className="space-y-1">
                   <DialogTitle className="flex items-center gap-2 text-white text-lg">
                     <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -6478,8 +6478,8 @@ function PublicidadeSection() {
                 Novo Anunciante
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
-              <div className="bg-gradient-to-r from-indigo-500 to-blue-500 px-6 py-4">
+            <DialogContent className="w-[92vw] max-w-lg max-h-[85vh] overflow-hidden p-0">
+              <div className="bg-gradient-to-r from-indigo-500 to-blue-500 px-4 py-3">
                 <DialogHeader className="space-y-1">
                   <DialogTitle className="flex items-center gap-2 text-white text-lg">
                     <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -6677,7 +6677,7 @@ function RelatoriosSection() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Relatórios de Moradores</h1>
-          <p className="text-gray-500">Gere relatórios detalhados dos moradores do condomínio</p>
+          <p className="text-gray-500">Gere relatórios detalhados da equipa da organização</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -6686,7 +6686,7 @@ function RelatoriosSection() {
             onValueChange={(value) => setSelectedCondominio(Number(value))}
           >
             <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Selecione um condomínio" />
+              <SelectValue placeholder="Selecione uma organização" />
             </SelectTrigger>
             <SelectContent>
               {condominios?.map((cond) => (
@@ -6711,7 +6711,7 @@ function RelatoriosSection() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Building2 className="w-12 h-12 text-gray-300 mb-4" />
             <p className="text-gray-500 text-center">
-              Selecione um condomínio para visualizar os relatórios
+              Selecione uma organização para visualizar os relatórios
             </p>
           </CardContent>
         </Card>
@@ -6777,7 +6777,7 @@ function RelatoriosSection() {
                           <p className="text-3xl font-bold text-red-600">{relatorioBloqueados.totalBloqueados}</p>
                         </div>
                         <div className="bg-white rounded-lg p-4 border">
-                          <p className="text-sm text-gray-500">Condomínio</p>
+                          <p className="text-sm text-gray-500">Organização</p>
                           <p className="text-lg font-semibold">{relatorioBloqueados.condominio?.nome}</p>
                         </div>
                         <div className="bg-white rounded-lg p-4 border">
@@ -6794,7 +6794,7 @@ function RelatoriosSection() {
                       <CardContent className="py-12 text-center">
                         <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
                         <p className="text-gray-600 font-medium">Nenhum morador bloqueado</p>
-                        <p className="text-gray-400 text-sm">Todos os moradores estão liberados para votação</p>
+                        <p className="text-gray-400 text-sm">Todos a equipa estão liberados para votação</p>
                       </CardContent>
                     </Card>
                   ) : (
@@ -7321,12 +7321,12 @@ function RealizacoesSection() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Realizações</h1>
-          <p className="text-muted-foreground">Registre as conquistas do condomínio</p>
+          <p className="text-muted-foreground">Registre as conquistas da organização</p>
         </div>
         <Card>
           <CardContent className="pt-6 text-center">
             <Sparkles className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -7338,7 +7338,7 @@ function RealizacoesSection() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Realizações</h1>
-          <p className="text-muted-foreground">Registre as conquistas e feitos do condomínio</p>
+          <p className="text-muted-foreground">Registre as conquistas e feitos da organização</p>
         </div>
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
@@ -7347,8 +7347,8 @@ function RealizacoesSection() {
               Nova Realização
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-yellow-500 to-amber-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-yellow-500 to-amber-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -7357,7 +7357,7 @@ function RealizacoesSection() {
                   Nova Realização
                 </DialogTitle>
                 <DialogDescription className="text-yellow-100">
-                  Adicione uma conquista ou feito do condomínio
+                  Adicione uma conquista ou feito da organização
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -7410,8 +7410,8 @@ function RealizacoesSection() {
 
       {/* Diálogo de Galeria */}
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -7623,13 +7623,13 @@ function AntesDepoisSection() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-foreground">Antes e Depois</h1>
+          <h1 className="text-2xl font-serif font-bold text-foreground">Antes e Depois Completa</h1>
           <p className="text-muted-foreground">Mostre a transformação de melhorias realizadas</p>
         </div>
         <Card>
           <CardContent className="pt-6 text-center">
             <Image className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -7640,18 +7640,10 @@ function AntesDepoisSection() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-foreground">Antes e Depois</h1>
+          <h1 className="text-2xl font-serif font-bold text-foreground">Antes e Depois Completa</h1>
           <p className="text-muted-foreground">Mostre a transformação de melhorias realizadas</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard/tarefas-facil?tipo=antes_depois">
-            <Button 
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 font-semibold gap-2"
-            >
-              <Zap className="h-4 w-4" />
-              Registro Rápido
-            </Button>
-          </Link>
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
               <Button className="gap-2">
@@ -7659,8 +7651,8 @@ function AntesDepoisSection() {
                 Novo Registro
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-teal-500 to-cyan-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-lg max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-teal-500 to-cyan-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -7748,7 +7740,7 @@ function AntesDepoisSection() {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
         </div>
       </div>
 
@@ -7915,12 +7907,12 @@ function MelhoriasSection() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Melhorias</h1>
-          <p className="text-muted-foreground">Gerencie as melhorias do condomínio</p>
+          <p className="text-muted-foreground">Gerencie as melhorias da organização</p>
         </div>
         <Card>
           <CardContent className="pt-6 text-center">
             <Settings className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -7941,8 +7933,8 @@ function MelhoriasSection() {
               Nova Melhoria
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -7951,7 +7943,7 @@ function MelhoriasSection() {
                   Nova Melhoria
                 </DialogTitle>
                 <DialogDescription className="text-blue-100">
-                  Adicione uma melhoria ao condomínio
+                  Adicione uma melhoria aa organização
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -8020,8 +8012,8 @@ function MelhoriasSection() {
       )}
 
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -8176,12 +8168,12 @@ function AquisicoesSection() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Aquisições</h1>
-          <p className="text-muted-foreground">Registre as aquisições do condomínio</p>
+          <p className="text-muted-foreground">Registre as aquisições da organização</p>
         </div>
         <Card>
           <CardContent className="pt-6 text-center">
             <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -8202,8 +8194,8 @@ function AquisicoesSection() {
               Nova Aquisição
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -8212,7 +8204,7 @@ function AquisicoesSection() {
                   Nova Aquisição
                 </DialogTitle>
                 <DialogDescription className="text-emerald-100">
-                  Adicione um item adquirido pelo condomínio
+                  Adicione um item adquirido pela organização
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -8270,8 +8262,8 @@ function AquisicoesSection() {
       )}
 
       <Dialog open={showGalleryDialog} onOpenChange={setShowGalleryDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
-          <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-4">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <div className="bg-gradient-to-r from-emerald-500 to-green-500 px-4 py-3">
             <DialogHeader className="space-y-1">
               <DialogTitle className="flex items-center gap-2 text-white text-lg">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -8421,7 +8413,7 @@ function VagasEstacionamentoSection() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-serif font-bold">Vagas de Estacionamento</h2>
-          <p className="text-muted-foreground">Gerencie as vagas de estacionamento do condomínio</p>
+          <p className="text-muted-foreground">Gerencie as vagas de estacionamento da organização</p>
         </div>
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
@@ -8430,8 +8422,8 @@ function VagasEstacionamentoSection() {
               Nova Vaga
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-slate-600 to-gray-700 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-slate-600 to-gray-700 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -8613,7 +8605,7 @@ function ModeracaoSection() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-serif font-bold">Moderação de Classificados</h2>
-        <p className="text-muted-foreground">Aprove ou rejeite os classificados enviados pelos moradores</p>
+        <p className="text-muted-foreground">Aprove ou rejeite os classificados enviados pela equipa</p>
       </div>
 
       {/* Estatísticas */}
@@ -8866,7 +8858,7 @@ function ComunicadosSection() {
         <Card>
           <CardContent className="pt-6 text-center">
             <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Cadastre um condomínio primeiro</p>
+            <p className="text-muted-foreground">Cadastre uma organização primeiro</p>
           </CardContent>
         </Card>
       </div>
@@ -8887,8 +8879,8 @@ function ComunicadosSection() {
               Novo Comunicado
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -8897,7 +8889,7 @@ function ComunicadosSection() {
                   Novo Comunicado
                 </DialogTitle>
                 <DialogDescription className="text-violet-100">
-                  Crie um comunicado oficial para os moradores
+                  Crie um comunicado oficial para a equipa
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -9265,9 +9257,9 @@ function GaleriaSection() {
     return (
       <div className="text-center py-12">
         <Image className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">Nenhum condomínio cadastrado</h3>
+        <h3 className="text-lg font-medium mb-2">Nenhuma organização cadastrado</h3>
         <p className="text-muted-foreground mb-4">
-          Cadastre um condomínio primeiro para criar álbuns de fotos.
+          Cadastre uma organização primeiro para criar álbuns de fotos.
         </p>
       </div>
     );
@@ -9387,7 +9379,7 @@ function GaleriaSection() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Galeria de Fotos</h2>
-          <p className="text-muted-foreground">Gerencie os álbuns de fotos do condomínio</p>
+          <p className="text-muted-foreground">Gerencie os álbuns de fotos da organização</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
@@ -9399,8 +9391,8 @@ function GaleriaSection() {
               Novo Álbum
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-fuchsia-500 to-pink-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -9740,7 +9732,7 @@ function SegurancaSection() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Dicas de Segurança</h1>
-          <p className="text-muted-foreground">Compartilhe dicas de segurança com os moradores</p>
+          <p className="text-muted-foreground">Compartilhe dicas de segurança com a equipa</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
@@ -9749,8 +9741,8 @@ function SegurancaSection() {
               Nova Dica
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-red-500 to-orange-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -10022,7 +10014,7 @@ function RegrasSection() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Regras e Normas</h1>
-          <p className="text-muted-foreground">Gerencie as regras do condomínio</p>
+          <p className="text-muted-foreground">Gerencie as regras da organização</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
@@ -10031,8 +10023,8 @@ function RegrasSection() {
               Nova Regra
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
-            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 px-6 py-4">
+          <DialogContent className="w-[92vw] max-w-md max-h-[85vh] overflow-hidden p-0">
+            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 px-4 py-3">
               <DialogHeader className="space-y-1">
                 <DialogTitle className="flex items-center gap-2 text-white text-lg">
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -10041,7 +10033,7 @@ function RegrasSection() {
                   {editingItem ? "Editar Regra" : "Nova Regra"}
                 </DialogTitle>
                 <DialogDescription className="text-indigo-100">
-                  Adicione ou edite regras do condomínio
+                  Adicione ou edite regras da organização
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -10227,7 +10219,7 @@ function DestaquesPreviewSection() {
             <Star className="w-5 h-5 text-primary" />
             Destaques
           </CardTitle>
-          <CardDescription>Conteúdo em destaque para os moradores</CardDescription>
+          <CardDescription>Conteúdo em destaque para a equipa</CardDescription>
         </div>
         <Link href="/dashboard/destaques">
           <Button variant="outline" size="sm">
@@ -10832,7 +10824,7 @@ function CabecalhoRodapeConfig() {
 
   const handleSave = () => {
     if (!condominio) {
-      toast.error("Nenhum condomínio encontrado");
+      toast.error("Nenhuma organização encontrado");
       return;
     }
     
@@ -10857,7 +10849,7 @@ function CabecalhoRodapeConfig() {
   if (!condominio) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>Crie um condomínio primeiro para configurar o cabeçalho e rodapé.</p>
+        <p>Crie uma organização primeiro para configurar o cabeçalho e rodapé.</p>
       </div>
     );
   }
@@ -10888,7 +10880,7 @@ function CabecalhoRodapeConfig() {
       {/* Campos do Cabeçalho */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Logo do Condomínio</Label>
+          <Label>Logo da Organização</Label>
           <div className="flex gap-2">
             <Input
               value={cabecalhoLogoUrl}
@@ -10914,23 +10906,23 @@ function CabecalhoRodapeConfig() {
         </div>
 
         <div className="space-y-2">
-          <Label>Nome do Condomínio</Label>
+          <Label>Nome da Organização</Label>
           <Input
             value={cabecalhoNomeCondominio}
             onChange={(e) => setCabecalhoNomeCondominio(e.target.value)}
-            placeholder="Ex: Condomínio Residencial Jardins"
+            placeholder="Ex: Organização Residencial Jardins"
           />
           <p className="text-xs text-muted-foreground">Aparece no cabeçalho dos relatórios</p>
         </div>
 
         <div className="space-y-2">
-          <Label>Nome do Síndico</Label>
+          <Label>Nome do Gestor</Label>
           <Input
             value={cabecalhoNomeSindico}
             onChange={(e) => setCabecalhoNomeSindico(e.target.value)}
             placeholder="Ex: João da Silva"
           />
-          <p className="text-xs text-muted-foreground">Aparece abaixo do nome do condomínio</p>
+          <p className="text-xs text-muted-foreground">Aparece abaixo do nome da organização</p>
         </div>
       </div>
 
@@ -10983,6 +10975,35 @@ function CabecalhoRodapeConfig() {
         <Button variant="outline" onClick={handleClear}>
           <X className="w-4 h-4 mr-2" />
           Limpar Campos
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
+// Componente para exibir quando não há organização cadastrada
+function SemOrganizacaoMessage() {
+  const [, navigate] = useLocation();
+  
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+      <div className="text-center max-w-md">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
+          <Building2 className="w-8 h-8 text-orange-500" />
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          Nenhuma organização cadastrada
+        </h2>
+        <p className="text-gray-500 mb-6">
+          Para utilizar esta funcionalidade, você precisa primeiro cadastrar uma organização ou local de manutenção.
+        </p>
+        <Button 
+          onClick={() => navigate("/dashboard/condominio")}
+          className="bg-orange-500 hover:bg-orange-600"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Cadastrar Organização
         </Button>
       </div>
     </div>

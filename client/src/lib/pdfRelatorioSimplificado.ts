@@ -116,7 +116,7 @@ export async function gerarRelatorioSimplificado(
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     doc.text(
-      config.rodapeTexto || "App Síndico - Sistema de Gestão de Condomínios",
+      config.rodapeTexto || "App Manutenção - Sistema Universal de Manutenção",
       margin,
       pageHeight - 10
     );
@@ -141,7 +141,7 @@ export async function gerarRelatorioSimplificado(
   };
 
   // ========== CAPA ==========
-  // Nome do condomínio
+  // Nome da organização
   doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(corPrimaria[0], corPrimaria[1], corPrimaria[2]);

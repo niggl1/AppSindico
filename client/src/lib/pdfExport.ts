@@ -57,7 +57,7 @@ export async function exportToPDF(options: PDFExportOptions): Promise<void> {
   const corPrimaria = [37, 99, 235]; // Azul
   const corSecundaria = [100, 116, 139]; // Cinza
 
-  // Cabeçalho com logo do condomínio
+  // Cabeçalho com logo da organização
   if (condominio?.logoUrl) {
     try {
       const logoBase64 = await imageUrlToBase64(condominio.logoUrl);
@@ -70,7 +70,7 @@ export async function exportToPDF(options: PDFExportOptions): Promise<void> {
     }
   }
 
-  // Nome do condomínio
+  // Nome da organização
   if (condominio?.nome) {
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -171,7 +171,7 @@ export async function exportToPDF(options: PDFExportOptions): Promise<void> {
       
       // Nome do sistema
       doc.text(
-        "App Síndico - Sistema de Gestão de Condomínios",
+        "App Manutenção - Sistema Universal de Manutenção",
         margin,
         pageHeight - 10
       );
@@ -231,7 +231,7 @@ export async function exportRelatorioComEstatisticas(
   const corPrimaria = [37, 99, 235];
   const corSecundaria = [100, 116, 139];
 
-  // Cabeçalho com logo do condomínio
+  // Cabeçalho com logo da organização
   if (condominio?.logoUrl) {
     try {
       const logoBase64 = await imageUrlToBase64(condominio.logoUrl);
@@ -244,7 +244,7 @@ export async function exportRelatorioComEstatisticas(
     }
   }
 
-  // Nome do condomínio
+  // Nome da organização
   if (condominio?.nome) {
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -358,7 +358,7 @@ export async function exportRelatorioComEstatisticas(
       );
       
       doc.text(
-        "App Síndico - Sistema de Gestão de Condomínios",
+        "App Manutenção - Sistema Universal de Manutenção",
         margin,
         pageHeight - 10
       );
@@ -432,7 +432,7 @@ export async function exportRelatorioConsolidadoComGraficos(
     doc.setFont("helvetica", "normal");
     doc.setTextColor(corSecundaria[0], corSecundaria[1], corSecundaria[2]);
     doc.text(`Página ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: "center" });
-    doc.text("App Síndico - Sistema de Gestão de Condomínios", margin, pageHeight - 10);
+    doc.text("App Manutenção - Sistema Universal de Manutenção", margin, pageHeight - 10);
   };
 
   // Função para verificar e adicionar nova página se necessário
@@ -448,7 +448,7 @@ export async function exportRelatorioConsolidadoComGraficos(
 
   // ===== PÁGINA 1: CABEÇALHO E ESTATÍSTICAS =====
   
-  // Cabeçalho com logo do condomínio
+  // Cabeçalho com logo da organização
   if (condominio?.logoUrl) {
     try {
       const logoBase64 = await imageUrlToBase64(condominio.logoUrl);
@@ -461,7 +461,7 @@ export async function exportRelatorioConsolidadoComGraficos(
     }
   }
 
-  // Nome do condomínio
+  // Nome da organização
   if (condominio?.nome) {
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");

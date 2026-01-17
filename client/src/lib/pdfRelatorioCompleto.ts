@@ -123,7 +123,7 @@ export async function gerarRelatorioProfissional(
     doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
     
     // Texto do rodapé
-    const rodapeTexto = config.rodapeTexto || "App Síndico - Sistema de Gestão de Condomínios";
+    const rodapeTexto = config.rodapeTexto || "App Manutenção - Sistema Universal de Manutenção";
     doc.text(rodapeTexto, margin, pageHeight - 12);
     
     if (config.rodapeContato) {
@@ -339,7 +339,7 @@ export async function gerarRelatorioProfissional(
 
   // ==================== CAPA DO RELATÓRIO ====================
   
-  // Logo do condomínio
+  // Logo da organização
   if (config.cabecalhoLogoUrl) {
     try {
       const logoBase64 = await imageUrlToBase64(config.cabecalhoLogoUrl);
@@ -354,7 +354,7 @@ export async function gerarRelatorioProfissional(
     yPosition += 20;
   }
 
-  // Nome do condomínio
+  // Nome da organização
   doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(corPrimaria[0], corPrimaria[1], corPrimaria[2]);
@@ -392,7 +392,7 @@ export async function gerarRelatorioProfissional(
   doc.text(periodoTexto, pageWidth / 2, yPosition, { align: "center" });
   yPosition += 20;
 
-  // Nome do síndico
+  // Nome do gestor
   if (config.cabecalhoNomeSindico) {
     doc.setFontSize(10);
     doc.text(`Síndico: ${config.cabecalhoNomeSindico}`, pageWidth / 2, yPosition, { align: "center" });
