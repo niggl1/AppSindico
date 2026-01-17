@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useCondominioAtivo } from "@/hooks/useCondominioAtivo";
-import DashboardLayout from "@/components/DashboardLayout";
+// DashboardLayout removido - usando layout do Dashboard principal
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -268,16 +268,14 @@ export default function OrdensServicoConfig() {
 
   if (!condominioAtivo) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-full">
-          <p className="text-gray-500">Selecione um condomínio para continuar</p>
-        </div>
-      </DashboardLayout>
+      <div className="flex items-center justify-center h-full min-h-screen">
+        <p className="text-gray-500">Selecione um condomínio para continuar</p>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
+    <>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-yellow-50">
         {/* Header */}
         <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300 p-6 rounded-b-3xl shadow-lg">
@@ -1208,6 +1206,6 @@ export default function OrdensServicoConfig() {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

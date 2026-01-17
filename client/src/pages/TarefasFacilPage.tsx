@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+// DashboardLayout removido - usando layout do Dashboard principal
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -165,17 +165,15 @@ export default function TarefasFacilPage() {
 
   if (!condominioId) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Selecione um condomínio para continuar</p>
-        </div>
-      </DashboardLayout>
+      <div className="flex items-center justify-center h-64 min-h-screen">
+        <p className="text-muted-foreground">Selecione um condomínio para continuar</p>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <div className="space-y-6 min-h-screen">
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -536,6 +534,6 @@ export default function TarefasFacilPage() {
           )}
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </>
   );
 }

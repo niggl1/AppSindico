@@ -421,3 +421,4 @@
 ## Menu - Notificar o Morador (17/01/2026)
 
 - [ ] Adicionar "Notificar o Morador" no menu lateral do Dashboard
+- [x] Remover menu lateral interno (DashboardLayout) das páginas internas - usar apenas conteúdo principal

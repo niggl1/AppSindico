@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import DashboardLayout from "@/components/DashboardLayout";
+// DashboardLayout removido - usando layout do Dashboard principal
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -224,8 +224,8 @@ export default function HistoricoAcessosPage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <div className="space-y-6 min-h-screen">
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -613,6 +613,6 @@ export default function HistoricoAcessosPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

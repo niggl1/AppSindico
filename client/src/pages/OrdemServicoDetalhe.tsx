@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useCondominioAtivo } from "@/hooks/useCondominioAtivo";
-import DashboardLayout from "@/components/DashboardLayout";
+// DashboardLayout removido - usando layout do Dashboard principal
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -576,49 +576,42 @@ export default function OrdemServicoDetalhe() {
 
   if (isLoadingOrdem) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-full">
-          <p className="text-gray-500">Carregando...</p>
-        </div>
-      </DashboardLayout>
+      <div className="flex items-center justify-center h-full min-h-screen">
+        <p className="text-gray-500">Carregando...</p>
+      </div>
     );
   }
 
   if (errorOrdem) {
     return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center h-full gap-4">
-          <p className="text-red-500">Erro ao carregar ordem de serviço</p>
+      <div className="flex flex-col items-center justify-center h-full min-h-screen gap-4">
+        <p className="text-red-500">Erro ao carregar ordem de serviço</p>
           <p className="text-gray-400 text-sm">{errorOrdem.message}</p>
           <Button onClick={() => navigate("/dashboard/ordens-servico")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-        </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   if (!ordem) {
     return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center h-full gap-4">
-          <p className="text-gray-500">Ordem de serviço não encontrada</p>
+      <div className="flex flex-col items-center justify-center h-full min-h-screen gap-4">
+        <p className="text-gray-500">Ordem de serviço não encontrada</p>
           <Button onClick={() => navigate("/dashboard/ordens-servico")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
-        </div>
-      </DashboardLayout>
+            Volta        </Button>
+      </div>
     );
   }
 
-  const StatusIcon = ordem.status?.icone ? getIconComponent(ordem.status.icone) : Circle;
+  // Formatar dataIcon = ordem.status?.icone ? getIconComponent(ordem.status.icone) : Circle;
   const CategoriaIcon = ordem.categoria?.icone ? getIconComponent(ordem.categoria.icone) : Tag;
   const PrioridadeIcon = ordem.prioridade?.icone ? getIconComponent(ordem.prioridade.icone) : Flag;
 
   return (
-    <DashboardLayout>
+    <>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-yellow-50">
         {/* Header */}
         <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300 p-6 rounded-b-3xl shadow-lg">
@@ -2202,6 +2195,6 @@ export default function OrdemServicoDetalhe() {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
