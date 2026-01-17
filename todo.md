@@ -428,3 +428,4 @@
 
 ## Trocar Logo (17/01/2026)
 - [x] Trocar logo do App Manutenção pela logo do App Síndico no menu lateral
+- [x] Usar a logo enviada pelo usuário (LogoAppSindico.png) no menu lateral
