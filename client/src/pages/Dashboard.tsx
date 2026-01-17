@@ -579,7 +579,7 @@ export default function Dashboard() {
         {/* Logo */}
         <div className="p-6 border-b border-sidebar-border">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/logo-manutencao.png" alt="App Manutenção" className="h-10 object-contain" />
+            <img src="/logo-appsindico-horizontal.png" alt="App Síndico" className="h-10 object-contain" />
           </Link>
         </div>
 
@@ -788,7 +788,7 @@ export default function Dashboard() {
         <header className="lg:hidden sticky top-0 z-40 bg-card border-b border-border">
           <div className="flex items-center justify-between p-4">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/logo-manutencao.png" alt="App Manutenção" className="h-8 object-contain" />
+              <img src="/logo-appsindico-horizontal.png" alt="App Síndico" className="h-8 object-contain" />
             </Link>
             <div className="flex items-center gap-2">
               <NotificationAlert condominioId={condominios?.[0]?.id || null} />
@@ -913,7 +913,7 @@ export default function Dashboard() {
             {/* Header */}
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img src="/logo-manutencao.png" alt="App Manutenção" className="w-8 h-8 object-contain" />
+                <img src="/logo-appsindico-horizontal.png" alt="App Síndico" className="h-8 object-contain" />
                 <span className="font-bold text-lg">Menu</span>
               </div>
               <button

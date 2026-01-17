@@ -425,3 +425,6 @@
 
 ## Correção de Erro (17/01/2026)
 - [x] Corrigir erro: No procedure found on path "membroEquipe.me"
+
+## Trocar Logo (17/01/2026)
+- [x] Trocar logo do App Manutenção pela logo do App Síndico no menu lateral
