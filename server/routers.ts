@@ -121,7 +121,6 @@ export const appRouter = router({
   system: systemRouter,
   tarefaFacil: tarefaFacilRouter,
   timelineLivro: timelineRouter,
-  timeline: timelineRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
